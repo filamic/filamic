@@ -72,6 +72,11 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "analyse": [
+            "@php artisan ide-helper:models -RW --no-interaction --silent",
+            "@php pint",
+            "@php phpstan analyse"
         ]
     },
     "extra": {
