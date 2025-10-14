@@ -1,7 +1,7 @@
 ### 
 - ✅ Laravel
-- Filament
-- Laravel Boost
-- Pest 
-- Laravel Pint
-- Larastan
+- ✅ Filament
+- ✅ Pest 
+- ✅ Laravel Pint
+- ✅ Laravel Boost
+- ✅ Larastan
