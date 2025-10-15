@@ -5,25 +5,25 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Filament\Actions\ViewAction;
-use Filament\Schemas\Components\Tabs;
 use Filament\Forms\Components\Textarea;
-use Illuminate\Support\ServiceProvider;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void {}
 
-    public function boot(): void {
-        
+    public function boot(): void
+    {
 
         Section::configureUsing(fn (Section $section) => $section
             ->columnSpanFull()
             ->columns(2)
         );
-        
+
         Tabs::configureUsing(fn (Tabs $tabs) => $tabs
             ->columnSpanFull()
             ->columns(2)
@@ -45,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
         }, isImportant: true);
 
         Entry::configureUsing(fn (Entry $field) => $field
-            
+
             ->placeholder('None')
         );
     }

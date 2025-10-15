@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Schools\Schemas;
 
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use Filament\Schemas\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 class SchoolForm
 {
@@ -45,8 +47,7 @@ class SchoolForm
                                 TextInput::make('telp')->tel(),
                                 TextInput::make('email')->label('Email address')->email(),
                             ]),
-                    ])
-                    ,
+                    ]),
                 // Section::make('School Information')
                 //     ->schema([
                 //         TextInput::make('name')

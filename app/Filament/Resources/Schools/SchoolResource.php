@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Schools;
 
 use App\Filament\Resources\Schools\Pages\CreateSchool;
@@ -20,13 +22,13 @@ class SchoolResource extends Resource
 {
     protected static ?string $model = School::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function table(Table $table): Table
     {
         return SchoolsTable::configure($table);
     }
-    
+
     public static function form(Schema $schema): Schema
     {
         return SchoolForm::configure($schema);
@@ -40,7 +42,7 @@ class SchoolResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+
         ];
     }
 

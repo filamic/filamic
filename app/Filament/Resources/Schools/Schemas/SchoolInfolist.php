@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Schools\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
@@ -26,7 +28,7 @@ class SchoolInfolist
                         TextEntry::make('province'),
                         TextEntry::make('website'),
                         TextEntry::make('email'),
-                    ])
+                    ]),
             ]);
     }
 }
