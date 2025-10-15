@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\Schools\Schemas;
+namespace App\Filament\Admin\Resources\Schools\Schemas;
 
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;

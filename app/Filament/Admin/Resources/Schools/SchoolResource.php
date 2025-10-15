@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\Schools;
+namespace App\Filament\Admin\Resources\Schools;
 
-use App\Filament\Resources\Schools\Pages\CreateSchool;
-use App\Filament\Resources\Schools\Pages\EditSchool;
-use App\Filament\Resources\Schools\Pages\ListSchools;
-use App\Filament\Resources\Schools\Pages\ViewSchool;
-use App\Filament\Resources\Schools\Schemas\SchoolForm;
-use App\Filament\Resources\Schools\Schemas\SchoolInfolist;
-use App\Filament\Resources\Schools\Tables\SchoolsTable;
+use App\Filament\Admin\Resources\Schools\Pages\CreateSchool;
+use App\Filament\Admin\Resources\Schools\Pages\EditSchool;
+use App\Filament\Admin\Resources\Schools\Pages\ListSchools;
+use App\Filament\Admin\Resources\Schools\Pages\ViewSchool;
+use App\Filament\Admin\Resources\Schools\Schemas\SchoolForm;
+use App\Filament\Admin\Resources\Schools\Schemas\SchoolInfolist;
+use App\Filament\Admin\Resources\Schools\Tables\SchoolsTable;
 use App\Models\School;
 use BackedEnum;
 use Filament\Resources\Resource;

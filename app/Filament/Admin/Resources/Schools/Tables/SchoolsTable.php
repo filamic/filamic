@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\Schools\Tables;
+namespace App\Filament\Admin\Resources\Schools\Tables;
 
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;

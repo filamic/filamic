@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\Schools\Pages;
+namespace App\Filament\Admin\Resources\Schools\Pages;
 
-use App\Filament\Resources\Schools\SchoolResource;
+use App\Filament\Admin\Resources\Schools\SchoolResource;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
