@@ -12,4 +12,15 @@ abstract class TestCase extends BaseTestCase {
     {
         $this->actingAs($user ?? User::factory()->create());
     }
+
+    public function loginAdmin(?User $user = null): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Super Admin',
+            'email' => 'super@admin.com',
+            'password' => bcrypt('mantapjiwa00'),
+        ]);
+
+        $this->login($user);
+    }
 }
