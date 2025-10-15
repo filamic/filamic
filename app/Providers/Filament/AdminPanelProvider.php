@@ -58,6 +58,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->topbar(false)
-            ->sidebarWidth('18rem');
+            ->sidebarWidth('18rem')
+            ->brandLogo(asset('logo_filamic.svg'));
     }
 }
