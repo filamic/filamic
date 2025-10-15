@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Filament\Admin\Resources\Schools\Pages\ListSchools;
 use App\Filament\Admin\Resources\Schools\SchoolResource;
 use App\Models\School;
-use App\Filament\Admin\Resources\Schools\Pages\ListSchools;
 
 beforeEach(fn () => $this->loginAdmin());
 
