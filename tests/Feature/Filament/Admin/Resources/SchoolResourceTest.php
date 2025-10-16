@@ -2,235 +2,192 @@
 
 declare(strict_types=1);
 
-use App\Filament\Admin\Resources\Schools\Pages\ListSchools;
-use App\Filament\Admin\Resources\Schools\SchoolResource;
 use App\Models\School;
+use Livewire\Livewire;
+use Filament\Actions\Testing\TestAction;
+use App\Filament\Admin\Resources\Schools\SchoolResource;
+use App\Filament\Admin\Resources\Schools\Pages\EditSchool;
+use App\Filament\Admin\Resources\Schools\Pages\ViewSchool;
+use App\Filament\Admin\Resources\Schools\Pages\ListSchools;
+use App\Filament\Admin\Resources\Schools\Pages\CreateSchool;
 
 beforeEach(fn () => $this->loginAdmin());
 
-// test('list page is accessible', function () {
-//     $this->get(SchoolResource::getUrl())->assertOk();
-// });
+test('list page is accessible', function () {
+    $this->get(SchoolResource::getUrl())->assertOk();
+});
 
-// test('list page renders columns', function (string $column) {
-//     $record = School::factory()->create();
+test('list page renders columns', function (string $column) {
+    School::factory()->create();
 
-//     Livewire::test(ListSchools::class)
-//         ->assertCanSeeTableColumns([$column]);
-// })->with([
-//     'name',
-// ]);
+    Livewire::test(ListSchools::class)
+        ->assertCanRenderTableColumn($column);
+})->with([
+    'name',
+]);
 
-// test('list page shows rows', function () {
-//     $records = School::factory(3)->create();
+test('list page shows rows', function () {
+    $records = School::factory(3)->create();
 
-//     Livewire::test(ListSchools::class)
-//         ->assertCanSeeTableRecords($records);
-// });
+    Livewire::test(ListSchools::class)
+        ->assertCanSeeTableRecords($records);
+});
 
-// test('list page rows have view action', function () {
-//     $record = School::factory()->create();
+test('list page rows have view action', function () {
+    $record = School::factory()->create();
 
-//     Livewire::test(ListSchools::class)
-//         ->assertTableActionVisible(ViewAction::class, $record);
-// });
+    Livewire::test(ListSchools::class)
+        ->assertActionVisible(TestAction::make('view')->table($record));
+});
 
-// test('can search for records on list page', function (string $attribute) {
-//     $record = School::factory()->create();
+test('can search for records on list page', function (string $attribute) {
+    $record = School::factory()->create();
 
-//     Livewire::test(ListSchools::class)
-//         ->searchTable(data_get($record, $attribute))
-//         ->assertCanSeeTableRecords([$record]);
-// })->with([
-//     'name',
-//     'services.name',
-//     // 'workspaceUser.user.email',
-// ]);
+    Livewire::test(ListSchools::class)
+        ->searchTable(data_get($record, $attribute))
+        ->assertCanSeeTableRecords([$record]);
+})->with([
+    'name',
+]);
 
-// test('can filter records on list page', function () {
-//     $records = School::factory(3)->create();
+test('create page is accessible', function () {
+    $this->get(SchoolResource::getUrl('create'))->assertOk();
+});
 
-//     Livewire::test(ListSchools::class)
-//         ->assertCanSeeTableRecords($records)
-//         ->filterTable('name', $records->first()->name)
-//         ->assertCanSeeTableRecords($records->where('name', $records->first()->name));
-// });
+test('cannot create a record without required fields', function () {
+    Livewire::test(CreateSchool::class)
+        ->call('create')
+        ->assertHasFormErrors([
+            'name' => 'required',
+        ]);
+});
 
-// test('create page is accessible', function () {
-//     $this->get(SchoolResource::getUrl('create'))->assertOk();
-// });
+test('cannot create a record with invalid fields', function () {
+    School::factory()->create([
+        'name' => 'School ABC',
+    ]);
+    
+    Livewire::test(CreateSchool::class)
+        ->fillForm([
+            'name' => 'School ABC',
+        ])
+        ->call('create')
+        ->assertHasFormErrors([
+            'name' => 'unique',
+        ]);
+});
 
-// test('cannot create a record without required fields', function () {
-//     Livewire::test(CreateSchool::class)
-//         ->call('create')
-//         ->assertHasFormErrors(Arr::dot([
-//             'name' => 'required',
-//             'address' => [
-//                 'street_line_1' => 'required',
-//                 'suburb' => 'required',
-//                 'state' => 'required',
-//                 'postcode' => 'required',
-//             ],
-//         ]));
-// });
+test('can create a record', function () {
+    $record = School::factory()->make();
 
-// test('cannot create a record with invalid fields', function () {
-//     Livewire::test(CreateSchool::class)
-//         ->fillForm([
-//             'name' => null,
-//             'address' => [
-//                 'state' => 'not a state',
-//                 'postcode' => 'not a postcode',
-//             ],
-//             'can_be_team_lead' => 'not a boolean',
-//         ])
-//         ->call('create')
-//         ->assertHasFormErrors(Arr::dot([
-//             'name' => 'required',
-//             'address' => [
-//                 'state' => 'in',
-//                 'postcode' => 'digits',
-//             ],
-//             'can_be_team_lead' => 'boolean',
-//         ]));
-// });
+    Livewire::test(CreateSchool::class)
+        ->fillForm($record->toArray())
+        ->call('create')
+        ->assertHasNoFormErrors();
 
-// test('can create a record', function () {
-//     $service = Service::factory()
-//         ->forResource(Worker::class)
-//         ->create();
+    expect(School::first())->toMatchArray($record->toArray());
+});
 
-//     $record = Worker::factory()->make();
+test('view page is accessible', function () {
+    $record = School::factory()->create();
 
-//     Livewire::test(CreateWorker::class)
-//         ->fillForm([
-//             ...$record->toArray(),
-//             'services' => [$service->getKey()],
-//         ])
-//         ->call('create')
-//         ->assertHasNoFormErrors();
-// });
+    $this->get(SchoolResource::getUrl('view', ['record' => $record]))->assertOk();
+});
 
-// test('view page is accessible', function () {
-//     $record = Worker::factory()->create();
+test('view page shows all information', function () {
+    $record = School::factory()
+        ->create();
 
-//     $this->get(WorkerResource::getUrl('view', ['record' => $record]))->assertOk();
-// });
+    Livewire::test(ViewSchool::class, ['record' => $record->getRouteKey()])
+        ->assertSchemaStateSet([
+            'name' => $record->name,
+            'address' => $record->address,
+            'npsn' => $record->npsn,
+            'nis_nss_nds' => $record->nis_nss_nds,
+            'telp' => $record->telp,
+            'postal_code' => $record->postal_code,
+            'village' => $record->village,
+            'subdistrict' => $record->subdistrict,
+            'city' => $record->city,
+            'province' => $record->province,
+            'website' => $record->website,
+            'email' => $record->email,
+        ]);
+});
 
-// test('view page shows all information', function () {
-//     $record = Worker::factory()
-//         ->canBeTeamLead()
-//         ->create();
+test('view page has edit action', function () {
+    $record = School::factory()->create();
 
-//     Livewire::test(ViewWorker::class, ['record' => $record->getRouteKey()])
-//         ->assertSee([
-//             $record->name,
-//             $record->phone,
-//             ...$record->services->map->name->all(),
-//             $record->address->formatted(),
-//             'Yes',
-//         ]);
-// });
+    Livewire::test(ViewSchool::class, ['record' => $record->getRouteKey()])
+        ->assertActionVisible(TestAction::make('edit')->table($record));
+});
 
-// test('view page has edit action', function () {
-//     $record = Worker::factory()->create();
+test('edit page is accessible', function () {
+    $record = School::factory()->create();
 
-//     Livewire::test(ViewWorker::class, ['record' => $record->getRouteKey()])
-//         ->assertActionVisible(EditAction::class);
-// });
+    $this->get(SchoolResource::getUrl('edit', ['record' => $record]))->assertOk();
+});
 
-// test('edit page is accessible', function () {
-//     $record = Worker::factory()->create();
+test('cannot save a record without required fields', function () {
+    $record = School::factory()->create();
 
-//     $this->get(WorkerResource::getUrl('edit', ['record' => $record]))->assertOk();
-// });
+    Livewire::test(EditSchool::class, ['record' => $record->getRouteKey()])
+        ->fillForm([
+            'name' => null,
+        ])
+        ->call('save')
+        ->assertHasFormErrors([
+            'name' => 'required',
+        ]);
+});
 
-// test('cannot save a record without required fields', function () {
-//     $record = Worker::factory()->create();
+test('cannot save a record with invalid fields', function () {
+    [$schoolA, $schoolB] = School::factory(2)
+        ->forEachSequence(
+            ['name' => 'School A'],
+            ['name' => 'School B'],
+        )
+        ->create();
 
-//     Livewire::test(EditWorker::class, ['record' => $record->getRouteKey()])
-//         ->fillForm([
-//             'name' => null,
-//             'phone' => null,
-//             'address' => [
-//                 'street_line_1' => null,
-//                 'suburb' => null,
-//                 'state' => null,
-//                 'postcode' => null,
-//             ],
-//         ])
-//         ->call('save')
-//         ->assertHasFormErrors(Arr::dot([
-//             'name' => 'required',
-//             'phone' => 'required',
-//             'address' => [
-//                 'street_line_1' => 'required',
-//                 'suburb' => 'required',
-//                 'state' => 'required',
-//                 'postcode' => 'required',
-//             ],
-//         ]));
-// });
+    Livewire::test(EditSchool::class, ['record' => $schoolA->getRouteKey()])
+        ->fillForm([
+            'name' => 'School B',
+        ])
+        ->call('save')
+        ->assertHasFormErrors(['name' => 'unique']);
+});
 
-// test('cannot save a record with invalid fields', function () {
-//     $record = Worker::factory()->create();
+test('can save a record and ignore the current record', function () {
+    $record = School::factory()->create([
+        'name' => 'School A'
+    ]);
 
-//     Livewire::test(EditWorker::class, ['record' => $record->getRouteKey()])
-//         ->fillForm([
-//             'services' => ['not a service id'],
-//             'phone' => 'not a phone',
-//             'address' => [
-//                 'state' => 'not a state',
-//                 'postcode' => 'not a postcode',
-//             ],
-//             'can_be_team_lead' => 'not a boolean',
-//         ])
-//         ->call('save')
-//         ->assertHasFormErrors(Arr::dot([
-//             'services.0' => 'in',
-//             'phone' => 'regex',
-//             'address' => [
-//                 'state' => 'in',
-//                 'postcode' => 'digits',
-//             ],
-//             'can_be_team_lead' => 'boolean',
-//         ]));
-// });
+    Livewire::test(EditSchool::class, ['record' => $record->getRouteKey()])
+        ->fillForm([
+            'name' => 'School A',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+});
 
-// test('can save a record', function () {
-//     $service = Service::factory()
-//         ->forResource(Worker::class)
-//         ->create();
+test('can save a record', function () {
+    $record = School::factory()->create();
 
-//     $record = Worker::factory()->create();
+    $newRecord = School::factory()
+        ->make();
 
-//     $record->services()->attach($service);
+    Livewire::test(EditSchool::class, ['record' => $record->getRouteKey()])
+        ->fillForm($newRecord->toArray())
+        ->call('save')
+        ->assertHasNoFormErrors();
 
-//     $newService = Service::factory()
-//         ->forResource(Worker::class)
-//         ->create();
+    expect($record->refresh()->toArray())->toMatchArray($newRecord->toArray());
+});
 
-//     $newRecord = Worker::factory()
-//         ->make();
+test('can save a record without changes', function () {
+    $record = School::factory()->create();
 
-//     Livewire::test(EditWorker::class, ['record' => $record->getRouteKey()])
-//         ->fillForm([
-//             ...$newRecord->toArray(),
-//             'services' => [$newService->getKey()],
-//         ])
-//         ->call('save')
-//         ->assertHasNoFormErrors();
-
-//     $record->refresh();
-
-//     expect($record)->toArray()->toContain(...$newRecord->toArray())
-//         ->and($record->services->map->getKey()->all())->toEqual([$newService->getKey()]);
-// });
-
-// test('can save a record without changes', function () {
-//     $record = Worker::factory()->create();
-
-//     Livewire::test(EditWorker::class, ['record' => $record->getRouteKey()])
-//         ->call('save')
-//         ->assertHasNoFormErrors();
-// });
+    Livewire::test(EditSchool::class, ['record' => $record->getRouteKey()])
+        ->call('save')
+        ->assertHasNoFormErrors();
+});
