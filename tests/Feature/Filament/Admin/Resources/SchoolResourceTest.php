@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use App\Models\School;
-use Livewire\Livewire;
-use Filament\Actions\Testing\TestAction;
-use App\Filament\Admin\Resources\Schools\SchoolResource;
-use App\Filament\Admin\Resources\Schools\Pages\EditSchool;
-use App\Filament\Admin\Resources\Schools\Pages\ViewSchool;
-use App\Filament\Admin\Resources\Schools\Pages\ListSchools;
 use App\Filament\Admin\Resources\Schools\Pages\CreateSchool;
+use App\Filament\Admin\Resources\Schools\Pages\EditSchool;
+use App\Filament\Admin\Resources\Schools\Pages\ListSchools;
+use App\Filament\Admin\Resources\Schools\Pages\ViewSchool;
+use App\Filament\Admin\Resources\Schools\SchoolResource;
+use App\Models\School;
+use Filament\Actions\Testing\TestAction;
+use Livewire\Livewire;
 
 beforeEach(fn () => $this->loginAdmin());
 
@@ -66,7 +66,7 @@ test('cannot create a record with invalid fields', function () {
     School::factory()->create([
         'name' => 'School ABC',
     ]);
-    
+
     Livewire::test(CreateSchool::class)
         ->fillForm([
             'name' => 'School ABC',
@@ -159,7 +159,7 @@ test('cannot save a record with invalid fields', function () {
 
 test('can save a record and ignore the current record', function () {
     $record = School::factory()->create([
-        'name' => 'School A'
+        'name' => 'School A',
     ]);
 
     Livewire::test(EditSchool::class, ['record' => $record->getRouteKey()])
