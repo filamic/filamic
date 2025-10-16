@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\School;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\User;
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\School;
+use App\Models\Classroom;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -25,10 +26,16 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->createSchools();
+        $this->createClassrooms();
     }
 
     public function createSchools(): void
     {
         School::factory(10)->create();
+    }
+
+    public function createClassrooms(): void
+    {
+        Classroom::factory(10)->create();
     }
 }
