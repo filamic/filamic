@@ -16,10 +16,15 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ClassroomResource extends Resource
 {
     protected static ?string $model = Classroom::class;
+
+    protected static UnitEnum | string | null $navigationGroup = 'Academic';
+
+    protected static ?int $navigationSort = 2;
 
     protected static string | BackedEnum | null $navigationIcon = 'tabler-door';
 
