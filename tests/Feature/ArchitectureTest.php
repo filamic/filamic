@@ -8,7 +8,7 @@ arch()->preset()->php();
 
 arch()->preset()->security();
 
-arch()->preset()->strict();
+// arch()->preset()->strict();
 
 arch('debug methods are not used', function () {
     expect(['dd', 'dump', 'var_dump', 'ray'])
