@@ -47,27 +47,6 @@ class SchoolForm
                                 TextInput::make('email')->label('Email address')->email(),
                             ]),
                     ]),
-                // Section::make('School Information')
-                //     ->schema([
-                //         TextInput::make('name')
-                //             ->required()
-                //             ->unique(ignoreRecord: true),
-                //         TextInput::make('address'),
-                //         TextInput::make('npsn'),
-                //         TextInput::make('nis_nss_nds'),
-                //         TextInput::make('telp')
-                //             ->tel(),
-                //         TextInput::make('postal_code'),
-                //         TextInput::make('village'),
-                //         TextInput::make('subdistrict'),
-                //         TextInput::make('city'),
-                //         TextInput::make('province'),
-                //         TextInput::make('website')
-                //             ->url(),
-                //         TextInput::make('email')
-                //             ->label('Email address')
-                //             ->email(),
-                //     ])->columns(2)->columnSpanFull(),
             ]);
     }
 }
