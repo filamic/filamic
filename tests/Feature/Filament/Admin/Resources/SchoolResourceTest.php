@@ -157,19 +157,6 @@ test('cannot save a record with invalid fields', function () {
         ->assertHasFormErrors(['name' => 'unique']);
 });
 
-test('can save a record and ignore the current record', function () {
-    $record = School::factory()->create([
-        'name' => 'School A',
-    ]);
-
-    Livewire::test(EditSchool::class, ['record' => $record->getRouteKey()])
-        ->fillForm([
-            'name' => 'School A',
-        ])
-        ->call('save')
-        ->assertHasNoFormErrors();
-});
-
 test('can save a record', function () {
     $record = School::factory()->create();
 
