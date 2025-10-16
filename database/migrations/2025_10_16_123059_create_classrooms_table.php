@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->foreignIdFor(School::class)->constrained();
-            $table->string('grade')->nullable();
+            $table->tinyInteger('grade')->nullable();
             $table->string('phase')->nullable();
             $table->boolean('is_moving_class')->default(false);
             $table->timestamps();
