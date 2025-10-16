@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 use App\Providers\AppServiceProvider;
 
+arch()->preset()->php();
+
+arch()->preset()->security();
+
+arch()->preset()->strict();
+
 arch('debug methods are not used', function () {
     expect(['dd', 'dump', 'var_dump', 'ray'])
         ->toOnlyBeUsedIn(AppServiceProvider::class);
