@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
@@ -24,6 +24,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string|null $email
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Classroom> $classrooms
+ * @property-read int|null $classrooms_count
  *
  * @method static \Database\Factories\SchoolFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School newModelQuery()

@@ -19,8 +19,8 @@ class ListSchools extends ListRecords
         ];
     }
 
-    public function getSubheading(): string|\Illuminate\Contracts\Support\Htmlable|null
+    public function getSubheading(): string | \Illuminate\Contracts\Support\Htmlable | null
     {
-        return "Schools you have access to are listed below.";
+        return 'Schools you have access to are listed below.';
     }
 }

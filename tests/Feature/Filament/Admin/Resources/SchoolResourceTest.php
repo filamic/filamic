@@ -57,35 +57,27 @@ test('create page is accessible', function () {
 test('cannot create a record without required fields', function () {
     Livewire::test(CreateSchool::class)
         ->call('create')
-        ->assertHasFormErrors([
-            'name' => 'required',
-        ]);
+        ->assertHasFormErrors(['name' => 'required']);
 });
 
-test('cannot create a record with invalid fields', function () {
-    School::factory()->create([
-        'name' => 'School ABC',
-    ]);
+test('cannot create a record with duplicate name', function () {
+    School::factory()->create(['name' => 'School ABC']);
 
     Livewire::test(CreateSchool::class)
-        ->fillForm([
-            'name' => 'School ABC',
-        ])
+        ->fillForm(['name' => 'School ABC'])
         ->call('create')
-        ->assertHasFormErrors([
-            'name' => 'unique',
-        ]);
+        ->assertHasFormErrors(['name' => 'unique']);
 });
 
 test('can create a record', function () {
-    $record = School::factory()->make();
+    $data = School::factory()->make();
 
     Livewire::test(CreateSchool::class)
-        ->fillForm($record->toArray())
+        ->fillForm($data->toArray())
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(School::first())->toMatchArray($record->toArray());
+    expect(School::first())->toMatchArray($data->toArray());
 });
 
 test('view page is accessible', function () {
@@ -95,8 +87,7 @@ test('view page is accessible', function () {
 });
 
 test('view page shows all information', function () {
-    $record = School::factory()
-        ->create();
+    $record = School::factory()->create();
 
     Livewire::test(ViewSchool::class, ['record' => $record->getRouteKey()])
         ->assertSchemaStateSet([
@@ -132,16 +123,12 @@ test('cannot save a record without required fields', function () {
     $record = School::factory()->create();
 
     Livewire::test(EditSchool::class, ['record' => $record->getRouteKey()])
-        ->fillForm([
-            'name' => null,
-        ])
+        ->fillForm(['name' => null])
         ->call('save')
-        ->assertHasFormErrors([
-            'name' => 'required',
-        ]);
+        ->assertHasFormErrors(['name' => 'required']);
 });
 
-test('cannot save a record with invalid fields', function () {
+test('cannot save a record with duplicate name', function () {
     [$schoolA, $schoolB] = School::factory(2)
         ->forEachSequence(
             ['name' => 'School A'],
@@ -150,25 +137,21 @@ test('cannot save a record with invalid fields', function () {
         ->create();
 
     Livewire::test(EditSchool::class, ['record' => $schoolA->getRouteKey()])
-        ->fillForm([
-            'name' => 'School B',
-        ])
+        ->fillForm(['name' => 'School B'])
         ->call('save')
         ->assertHasFormErrors(['name' => 'unique']);
 });
 
 test('can save a record', function () {
     $record = School::factory()->create();
-
-    $newRecord = School::factory()
-        ->make();
+    $newData = School::factory()->make();
 
     Livewire::test(EditSchool::class, ['record' => $record->getRouteKey()])
-        ->fillForm($newRecord->toArray())
+        ->fillForm($newData->toArray())
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($record->refresh()->toArray())->toMatchArray($newRecord->toArray());
+    expect($record->refresh()->toArray())->toMatchArray($newData->toArray());
 });
 
 test('can save a record without changes', function () {

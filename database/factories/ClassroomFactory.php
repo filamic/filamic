@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\School;
@@ -13,11 +15,16 @@ class ClassroomFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->word(),
-            'school_id' => School::inRandomOrder()->first()->getKey(),
-            'grade' => $this->faker->numberBetween(1, 12),
-            'phase' => $this->faker->randomElement(['A', 'B', 'C','D']),
-            'is_moving_class' => $this->faker->boolean(),
+            'name' => fake()->word(),
+            'school_id' => School::factory(),
+            'grade' => fake()->numberBetween(1, 12),
+            'phase' => fake()->randomElement(['A', 'B', 'C', 'D']),
+            'is_moving_class' => fake()->boolean(),
         ];
+    }
+
+    public function forSchool(?School $school = null): static
+    {
+        return $this->for($school ?? School::factory(), 'school');
     }
 }

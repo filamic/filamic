@@ -18,7 +18,7 @@ class SchoolFactory extends Factory
             'address' => fake()->address(),
             'npsn' => fake()->unique()->randomNumber(9),
             'nis_nss_nds' => fake()->unique()->randomNumber(9),
-            'telp' => fake()->phoneNumber(),
+            'telp' => fake()->numerify('08##########'),
             'postal_code' => fake()->postcode(),
             'village' => fake()->cityPrefix(),
             'subdistrict' => fake()->citySuffix(),
