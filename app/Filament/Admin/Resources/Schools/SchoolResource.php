@@ -38,13 +38,6 @@ class SchoolResource extends Resource
         return SchoolInfolist::configure($schema);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
