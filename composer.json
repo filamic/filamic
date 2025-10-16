@@ -78,7 +78,8 @@
         "analyse": [
             "@php artisan ide-helper:models -RW --no-interaction --silent",
             "@php pint",
-            "@php phpstan analyse"
+            "@php phpstan analyse",
+            "composer test"
         ]
     },
     "extra": {
