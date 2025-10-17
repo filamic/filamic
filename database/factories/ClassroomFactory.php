@@ -27,4 +27,32 @@ class ClassroomFactory extends Factory
     {
         return $this->for($school ?? School::factory(), 'school');
     }
+
+    public function forGrade(int $grade): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'grade' => $grade,
+        ]);
+    }
+
+    public function forPhase(string $phase): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'phase' => $phase,
+        ]);
+    }
+
+    public function setAsMovingClass(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_moving_class' => true,
+        ]);
+    }
+
+    public function setAsRegularClass(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_moving_class' => false,
+        ]);
+    }
 }

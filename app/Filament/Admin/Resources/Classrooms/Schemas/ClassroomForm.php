@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Admin\Resources\Classrooms\Schemas;
 
+use App\Models\Classroom;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -25,7 +26,7 @@ class ClassroomForm
                             ->required()
                             ->placeholder('Example: Matthew 1'),
                         Select::make('grade')
-                            ->options(array_map('strval', range(0, 12))),
+                            ->options(Classroom::getGrades()),
                         TextInput::make('phase')
                             ->placeholder('Example: A|B|C|D'),
                         Checkbox::make('is_moving_class')
