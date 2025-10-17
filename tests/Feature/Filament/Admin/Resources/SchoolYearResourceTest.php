@@ -83,21 +83,31 @@ test('cannot create a record with invalid semester', function () {
         ->fillForm([
             'name' => '2024/2025',
             'semester' => 3,
-        ])
-        ->call('create')
-        ->assertHasFormErrors(['semester']);
-});
-
-test('cannot create a record when end_date is before start_date', function () {
-    Livewire::test(CreateSchoolYear::class)
-        ->fillForm([
-            'name' => '2024/2025',
-            'semester' => 1,
             'start_date' => '2024-06-01',
             'end_date' => '2024-01-01',
         ])
         ->call('create')
-        ->assertHasFormErrors(['end_date']);
+        ->assertHasFormErrors([
+            'semester',
+            'end_date' => 'after',
+        ]);
+});
+
+test('cannot create a record with duplicate semester', function () {
+    SchoolYear::factory()->create([
+        'name' => '2024/2025',
+        'semester' => SemesterEnum::ODD,
+    ]);
+
+    Livewire::test(CreateSchoolYear::class)
+        ->fillForm([
+            'name' => '2024/2025',
+            'semester' => SemesterEnum::ODD,
+        ])
+        ->call('create')
+        ->assertHasFormErrors([
+            'semester' => 'unique',
+        ]);
 });
 
 test('can create a record', function () {
