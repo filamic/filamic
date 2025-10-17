@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Providers\AppServiceProvider;
 
-arch()->preset()->php();
+// arch()->preset()->php();
 
 arch()->preset()->security();
 

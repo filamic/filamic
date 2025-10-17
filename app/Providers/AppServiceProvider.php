@@ -10,7 +10,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Component as LivewireComponent;
+use Livewire\Features\SupportTesting\Testable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -47,5 +50,18 @@ class AppServiceProvider extends ServiceProvider
 
             ->placeholder('None')
         );
+
+        Testable::macro('ray', function (): Testable {
+            /** @var LivewireComponent $livewire */
+            $livewire = $this->instance();
+
+            ray()->table([ // @phpstan-ignore-line
+                'Component' => get_class($livewire),
+                'Data' => $livewire->all(),
+                'Errors' => Arr::undot($livewire->getErrorBag()->getMessages()),
+            ]);
+
+            return $this;
+        });
     }
 }
