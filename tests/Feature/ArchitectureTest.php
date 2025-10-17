@@ -26,3 +26,14 @@ arch('ensure all tests are suffixed with Test')
         ->reject(fn (string $path) => str($path)->endsWith('Test.php'))
     )
     ->toBeEmpty();
+
+arch('migrations do not have down function')
+    ->expect(fn () => collect(Illuminate\Support\Facades\File::allFiles('database/migrations'))
+        ->map(fn ($file) => [
+            'path' => $file->getPathName(),
+            'content' => file_get_contents($file->getPathName()),
+        ])
+        ->filter(fn (array $file) => preg_match('/public\s+function\s+down\s*\(/', $file['content']))
+        ->pluck('path')
+    )
+    ->toBeEmpty();
