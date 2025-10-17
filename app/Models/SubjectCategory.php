@@ -8,6 +8,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $school_id
+ * @property string $name
+ * @property int $sort_order
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read School $school
+ *
+ * @method static \Database\Factories\SubjectCategoryFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubjectCategory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubjectCategory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubjectCategory query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubjectCategory whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubjectCategory whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubjectCategory whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubjectCategory whereSchoolId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubjectCategory whereSortOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubjectCategory whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class SubjectCategory extends Model
 {
     /** @use HasFactory<\Database\Factories\SubjectCategoryFactory> */
