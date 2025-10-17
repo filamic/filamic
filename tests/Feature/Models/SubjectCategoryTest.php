@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\School;
+use App\Models\Subject;
 use App\Models\SubjectCategory;
 use Illuminate\Support\Carbon;
 
@@ -26,29 +27,23 @@ test('can mass assign fillable attributes', function () {
 });
 
 test('id is guarded from mass assignment', function () {
-    // Arrange & Act - Try to mass assign id using fill()
-    $subjectCategory = new SubjectCategory;
-    $subjectCategory->fill([
+    // Arrange & Act
+    $subjectCategory = SubjectCategory::create([
         'id' => 999,
         'name' => 'Test Category',
+        'school_id' => School::factory()->create()->id,
     ]);
-    $subjectCategory->school_id = School::factory()->create()->id;
-    $subjectCategory->save();
 
-    // Assert - id should be auto-generated, not 999 (guarded works)
+    // Assert
     expect($subjectCategory->id)->not->toBe(999);
 });
 
 test('sort_order is cast to integer', function () {
     // Arrange & Act
-    $subjectCategory = SubjectCategory::factory()->create([
-        'sort_order' => '5',
-    ]);
+    $subjectCategory = SubjectCategory::factory()->create(['sort_order' => '5']);
 
     // Assert
-    expect($subjectCategory->sort_order)
-        ->toBe(5)
-        ->toBeInt();
+    expect($subjectCategory->sort_order)->toBe(5)->toBeInt();
 });
 
 test('timestamps are automatically cast to Carbon instances', function () {
@@ -66,40 +61,29 @@ test('belongs to school relationship', function () {
     $school = School::factory()->create();
     $subjectCategory = SubjectCategory::factory()->for($school)->create();
 
-    // Act
-    $relatedSchool = $subjectCategory->school;
-
-    // Assert
-    expect($relatedSchool)
+    // Act & Assert
+    expect($subjectCategory->school)
         ->toBeInstanceOf(School::class)
         ->id->toBe($school->id);
 });
 
 test('school relationship returns correct school', function () {
     // Arrange
-    $school1 = School::factory()->create();
-    $school2 = School::factory()->create();
+    [$school1, $school2] = School::factory(2)->create();
     $subjectCategory = SubjectCategory::factory()->for($school1)->create();
 
-    // Act
-    $relatedSchool = $subjectCategory->school;
-
-    // Assert
-    expect($relatedSchool->id)
+    // Act & Assert
+    expect($subjectCategory->school->id)
         ->toBe($school1->id)
         ->not->toBe($school2->id);
 });
 
 test('can eager load school', function () {
     // Arrange
-    $subjectCategory = SubjectCategory::factory()
-        ->for(School::factory())
-        ->create();
+    $subjectCategory = SubjectCategory::factory()->for(School::factory())->create();
 
-    // Act
+    // Act & Assert
     $subjectCategoryWithSchool = SubjectCategory::with('school')->find($subjectCategory->id);
-
-    // Assert
     expect($subjectCategoryWithSchool->relationLoaded('school'))->toBeTrue()
         ->and($subjectCategoryWithSchool->school)->toBeInstanceOf(School::class);
 });
@@ -113,4 +97,53 @@ test('factory creates subject category with sort_order', function () {
         ->toBeInt()
         ->toBeGreaterThanOrEqual(1)
         ->toBeLessThanOrEqual(10);
+});
+
+test('has many subjects relationship', function () {
+    // Arrange
+    $category = SubjectCategory::factory()->for(School::factory())->create();
+    $subjects = Subject::factory(3)->create(['subject_category_id' => $category->id]);
+
+    // Act & Assert
+    expect($category->subjects)
+        ->toHaveCount(3)
+        ->each->toBeInstanceOf(Subject::class)
+        ->and($category->subjects->pluck('id')->sort()->values()->toArray())
+        ->toBe($subjects->pluck('id')->sort()->values()->toArray());
+});
+
+test('subjects relationship returns empty collection when no subjects exist', function () {
+    // Arrange
+    $category = SubjectCategory::factory()->for(School::factory())->create();
+
+    // Act & Assert
+    expect($category->subjects)
+        ->toBeEmpty()
+        ->toBeInstanceOf(Illuminate\Database\Eloquent\Collection::class);
+});
+
+test('can eager load subjects', function () {
+    // Arrange
+    $category = SubjectCategory::factory()->for(School::factory())->create();
+    Subject::factory(2)->create(['subject_category_id' => $category->id]);
+
+    // Act & Assert
+    $categoryWithSubjects = SubjectCategory::with('subjects')->find($category->id);
+    expect($categoryWithSubjects->relationLoaded('subjects'))->toBeTrue()
+        ->and($categoryWithSubjects->subjects)->toHaveCount(2);
+});
+
+test('subjects from different categories are not mixed', function () {
+    // Arrange
+    [$category1, $category2] = SubjectCategory::factory(2)->for(School::factory())->create();
+    $subject1 = Subject::factory()->create(['subject_category_id' => $category1->id]);
+    $subject2 = Subject::factory()->create(['subject_category_id' => $category2->id]);
+
+    // Act & Assert
+    expect($category1->subjects)
+        ->toHaveCount(1)
+        ->first()->id->toBe($subject1->id)
+        ->and($category2->subjects)
+        ->toHaveCount(1)
+        ->first()->id->toBe($subject2->id);
 });
