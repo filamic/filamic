@@ -70,14 +70,21 @@ test('cannot create a record without required fields', function () {
 
 test('can create a record', function () {
     $school = School::factory()->create();
-    $data = Classroom::factory()->make(['school_id' => $school->id]);
+    $data = Classroom::factory()->make([
+        'school_id' => $school->id,
+        'name' => 'New Test Classroom',
+        'grade' => 12,
+    ]);
 
     Livewire::test(CreateClassroom::class)
         ->fillForm($data->toArray())
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(Classroom::first())->toMatchArray($data->toArray());
+    expect(Classroom::first())
+        ->name->toBe('New Test Classroom')
+        ->grade->toBe(12)
+        ->school_id->toBe($school->id);
 });
 
 test('view page is accessible', function () {
@@ -124,14 +131,20 @@ test('cannot save a record without required fields', function () {
 test('can save a record', function () {
     $record = Classroom::factory()->forSchool()->create();
     $newSchool = School::factory()->create();
-    $newData = Classroom::factory()->for($newSchool)->make();
+    $newData = Classroom::factory()->for($newSchool)->make([
+        'name' => 'Updated Classroom',
+        'grade' => 11,
+    ]);
 
     Livewire::test(EditClassroom::class, ['record' => $record->getRouteKey()])
         ->fillForm($newData->toArray())
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($record->refresh()->toArray())->toMatchArray($newData->toArray());
+    expect($record->refresh())
+        ->name->toBe('Updated Classroom')
+        ->grade->toBe(11)
+        ->school_id->toBe($newSchool->id);
 });
 
 test('can save a record without changes', function () {

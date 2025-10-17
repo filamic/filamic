@@ -18,7 +18,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-
         Section::configureUsing(fn (Section $section) => $section
             ->columnSpanFull()
             ->columns(2)

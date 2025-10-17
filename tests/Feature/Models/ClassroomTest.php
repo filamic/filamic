@@ -23,11 +23,11 @@ test('can mass assign fillable attributes', function () {
 
     // Assert
     expect($classroom)
-        ->name->toBe($attributes['name'])
-        ->school_id->toBe($attributes['school_id'])
-        ->grade->toBe($attributes['grade'])
-        ->phase->toBe($attributes['phase'])
-        ->is_moving_class->toBe($attributes['is_moving_class']);
+        ->name->toBe('Test Classroom')
+        ->school_id->toBe($school->id)
+        ->grade->toBe(10)
+        ->phase->toBe('A')
+        ->is_moving_class->toBeTrue();
 });
 
 test('id is guarded from mass assignment', function () {

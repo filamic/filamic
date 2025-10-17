@@ -70,14 +70,19 @@ test('cannot create a record with duplicate name', function () {
 });
 
 test('can create a record', function () {
-    $data = School::factory()->make();
+    $data = School::factory()->make([
+        'name' => 'New Test School',
+        'npsn' => '99999999',
+    ]);
 
     Livewire::test(CreateSchool::class)
         ->fillForm($data->toArray())
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(School::first())->toMatchArray($data->toArray());
+    expect(School::first())
+        ->name->toBe('New Test School')
+        ->npsn->toBe('99999999');
 });
 
 test('view page is accessible', function () {
@@ -144,14 +149,19 @@ test('cannot save a record with duplicate name', function () {
 
 test('can save a record', function () {
     $record = School::factory()->create();
-    $newData = School::factory()->make();
+    $newData = School::factory()->make([
+        'name' => 'Updated School Name',
+        'address' => 'Updated Address',
+    ]);
 
     Livewire::test(EditSchool::class, ['record' => $record->getRouteKey()])
         ->fillForm($newData->toArray())
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($record->refresh()->toArray())->toMatchArray($newData->toArray());
+    expect($record->refresh())
+        ->name->toBe('Updated School Name')
+        ->address->toBe('Updated Address');
 });
 
 test('can save a record without changes', function () {

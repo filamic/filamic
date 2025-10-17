@@ -28,18 +28,18 @@ test('can mass assign fillable attributes', function () {
 
     // Assert
     expect($school)
-        ->name->toBe($attributes['name'])
-        ->address->toBe($attributes['address'])
-        ->npsn->toBe($attributes['npsn'])
-        ->nis_nss_nds->toBe($attributes['nis_nss_nds'])
-        ->telp->toBe($attributes['telp'])
-        ->postal_code->toBe($attributes['postal_code'])
-        ->village->toBe($attributes['village'])
-        ->subdistrict->toBe($attributes['subdistrict'])
-        ->city->toBe($attributes['city'])
-        ->province->toBe($attributes['province'])
-        ->website->toBe($attributes['website'])
-        ->email->toBe($attributes['email']);
+        ->name->toBe('Test School')
+        ->address->toBe('123 Test St')
+        ->npsn->toBe('12345678')
+        ->nis_nss_nds->toBe('87654321')
+        ->telp->toBe('08123456789')
+        ->postal_code->toBe('12345')
+        ->village->toBe('Test Village')
+        ->subdistrict->toBe('Test Subdistrict')
+        ->city->toBe('Test City')
+        ->province->toBe('Test Province')
+        ->website->toBe('https://test.com')
+        ->email->toBe('test@school.com');
 });
 
 test('id is guarded from mass assignment', function () {
