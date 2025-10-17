@@ -27,6 +27,10 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Classroom> $classrooms
  * @property-read int|null $classrooms_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SubjectCategory> $subjectCategories
+ * @property-read int|null $subject_categories_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Subject> $subjects
+ * @property-read int|null $subjects_count
  *
  * @method static \Database\Factories\SchoolFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School newModelQuery()

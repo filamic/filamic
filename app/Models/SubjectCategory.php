@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read School $school
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Subject> $subjects
+ * @property-read int|null $subjects_count
  *
  * @method static \Database\Factories\SubjectCategoryFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubjectCategory newModelQuery()
