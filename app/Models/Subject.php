@@ -11,13 +11,12 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 /**
  * @property int $id
- * @property int $school_id
  * @property int $subject_category_id
  * @property string $name
  * @property int $sort_order
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read SubjectCategory|null $category
+ * @property-read SubjectCategory $category
  * @property-read School|null $school
  *
  * @method static \Database\Factories\SubjectFactory factory($count = null, $state = [])
@@ -27,7 +26,6 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereSchoolId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereSortOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereSubjectCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereUpdatedAt($value)
@@ -50,11 +48,18 @@ class Subject extends Model
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(SubjectCategory::class);
+        return $this->belongsTo(SubjectCategory::class, 'subject_category_id');
     }
 
     public function school(): HasOneThrough
     {
-        return $this->hasOneThrough(School::class, SubjectCategory::class);
+        return $this->hasOneThrough(
+            related: School::class,
+            through: SubjectCategory::class,
+            firstKey: 'id',
+            secondKey: 'id',
+            localKey: 'subject_category_id',
+            secondLocalKey: 'school_id'
+        );
     }
 }
