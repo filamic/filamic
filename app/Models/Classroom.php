@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToSchool;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Collection;
 
 /**
@@ -37,6 +37,8 @@ use Illuminate\Support\Collection;
  */
 class Classroom extends Model
 {
+    use BelongsToSchool;
+
     /** @use HasFactory<\Database\Factories\ClassroomFactory> */
     use HasFactory;
 
@@ -47,11 +49,6 @@ class Classroom extends Model
         return [
             'is_moving_class' => 'boolean',
         ];
-    }
-
-    public function school(): BelongsTo
-    {
-        return $this->belongsTo(School::class);
     }
 
     public static function getGrades(): Collection

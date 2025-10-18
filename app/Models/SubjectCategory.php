@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToSchool;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -35,6 +35,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class SubjectCategory extends Model
 {
+    use BelongsToSchool;
+
     /** @use HasFactory<\Database\Factories\SubjectCategoryFactory> */
     use HasFactory;
 
@@ -45,11 +47,6 @@ class SubjectCategory extends Model
         return [
             'sort_order' => 'integer',
         ];
-    }
-
-    public function school(): BelongsTo
-    {
-        return $this->belongsTo(School::class);
     }
 
     public function subjects(): HasMany
