@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\School;
 use App\Models\Subject;
 use App\Models\SubjectCategory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 test('can mass assign fillable attributes', function () {
@@ -56,16 +57,10 @@ test('timestamps are automatically cast to Carbon instances', function () {
         ->updated_at->toBeInstanceOf(Carbon::class);
 });
 
-test('belongs to school relationship', function () {
-    // Arrange
-    $school = School::factory()->create();
-    $subjectCategory = SubjectCategory::factory()->for($school)->create();
-
-    // Act & Assert
-    expect($subjectCategory->school)
-        ->toBeInstanceOf(School::class)
-        ->id->toBe($school->id);
-});
+test('school relation')
+    ->expect(fn () => SubjectCategory::factory()->create())
+    ->school()->toBeInstanceOf(BelongsTo::class)
+    ->school->toBeInstanceOf(School::class);
 
 test('school relationship returns correct school', function () {
     // Arrange

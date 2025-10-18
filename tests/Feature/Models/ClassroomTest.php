@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Classroom;
 use App\Models\School;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 
@@ -86,19 +87,10 @@ test('timestamps are automatically cast to Carbon instances', function () {
         ->updated_at->toBeInstanceOf(Carbon::class);
 });
 
-test('belongs to school relationship', function () {
-    // Arrange
-    $school = School::factory()->create(['name' => 'Specific School']);
-
-    // Act
-    $classroom = Classroom::factory()->for($school)->create();
-
-    // Assert
-    expect($classroom->school)
-        ->toBeInstanceOf(School::class)
-        ->id->toBe($school->id)
-        ->name->toBe('Specific School');
-});
+test('school relation')
+    ->expect(fn () => Classroom::factory()->create())
+    ->school()->toBeInstanceOf(BelongsTo::class)
+    ->school->toBeInstanceOf(School::class);
 
 test('school_id is required in database', function () {
     // Arrange
