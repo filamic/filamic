@@ -27,21 +27,21 @@ class SchoolYearFactory extends Factory
 
     public function active(): static
     {
-        return $this->state(fn () => [
+        return $this->state([
             'is_active' => true,
         ]);
     }
 
     public function inactive(): static
     {
-        return $this->state(fn () => [
+        return $this->state([
             'is_active' => false,
         ]);
     }
 
     public function semester(int $semester): static
     {
-        return $this->state(fn () => [
+        return $this->state([
             'semester' => $semester,
         ]);
     }
