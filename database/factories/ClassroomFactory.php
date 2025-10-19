@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\School;
+use Database\Factories\Traits\ResolvesSchool;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -12,46 +12,42 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ClassroomFactory extends Factory
 {
+    use ResolvesSchool;
+
     public function definition(): array
     {
         return [
             'name' => fake()->word(),
-            'school_id' => School::factory(),
             'grade' => fake()->numberBetween(1, 12),
             'phase' => fake()->randomElement(['A', 'B', 'C', 'D']),
             'is_moving_class' => fake()->boolean(),
         ];
     }
 
-    public function forSchool(?School $school = null): static
-    {
-        return $this->for($school ?? School::factory(), 'school');
-    }
-
     public function forGrade(int $grade): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state([
             'grade' => $grade,
         ]);
     }
 
     public function forPhase(string $phase): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state([
             'phase' => $phase,
         ]);
     }
 
     public function setAsMovingClass(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state([
             'is_moving_class' => true,
         ]);
     }
 
     public function setAsRegularClass(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state([
             'is_moving_class' => false,
         ]);
     }

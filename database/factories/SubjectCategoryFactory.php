@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\School;
+use Database\Factories\Traits\ResolvesSchool;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -12,10 +12,11 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class SubjectCategoryFactory extends Factory
 {
+    use ResolvesSchool;
+
     public function definition(): array
     {
         return [
-            'school_id' => School::factory(),
             'name' => fake()->word(),
             'sort_order' => fake()->numberBetween(1, 10),
         ];
