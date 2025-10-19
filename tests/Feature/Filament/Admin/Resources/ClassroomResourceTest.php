@@ -186,7 +186,7 @@ test('cannot save a record without required fields', function () {
     Livewire::test(EditClassroom::class, ['record' => $record->getRouteKey()])
         ->fillForm([
             'school_id' => null,
-            'name' => null
+            'name' => null,
         ])
         ->call('save')
         ->assertHasFormErrors([
