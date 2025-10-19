@@ -99,7 +99,7 @@ test('can filter records by category', function () {
 
     // Act & Assert
     Livewire::test(ListSubjects::class)
-        ->filterTable('subject_category_id', $category1->getKey())
+        ->filterTable('subject_category_id', $category1->getRouteKey())
         ->assertCanSeeTableRecords([$subject1])
         ->assertCanNotSeeTableRecords([$subject2]);
 });
@@ -141,7 +141,7 @@ test('cannot create a record with duplicate name in same category', function () 
     Livewire::test(CreateSubject::class)
         ->fillForm([
             'name' => 'Duplicate Name',
-            'subject_category_id' => $category->getKey(),
+            'subject_category_id' => $category->getRouteKey(),
             'sort_order' => 2,
         ])
         ->call('create')
@@ -160,7 +160,7 @@ test('can create a record with duplicate name in different category', function (
     // Act & Assert
     Livewire::test(CreateSubject::class)
         ->fillForm([
-            'subject_category_id' => $category2->getKey(),
+            'subject_category_id' => $category2->getRouteKey(),
             'name' => 'Same Name',
             'sort_order' => 1,
         ])
@@ -178,7 +178,7 @@ test('cannot create a record with invalid sort_order', function (int $sortOrder)
     // Act & Assert
     Livewire::test(CreateSubject::class)
         ->fillForm([
-            'subject_category_id' => $category->getKey(),
+            'subject_category_id' => $category->getRouteKey(),
             'name' => 'Test Subject',
             'sort_order' => $sortOrder,
         ])
@@ -192,7 +192,7 @@ test('cannot create a record with invalid sort_order', function (int $sortOrder)
 test('can create a record', function () {
     $category = SubjectCategory::factory()->for(School::factory())->create();
     $data = Subject::factory()->make([
-        'subject_category_id' => $category->getKey(),
+        'subject_category_id' => $category->getRouteKey(),
         'name' => 'New Test Subject',
         'sort_order' => 5,
     ]);
@@ -205,7 +205,7 @@ test('can create a record', function () {
     expect(Subject::first())
         ->name->toBe('New Test Subject')
         ->sort_order->toBe(5)
-        ->subject_category_id->toBe($category->getKey());
+        ->subject_category_id->toBe($category->getRouteKey());
 });
 
 test('view page is accessible', function () {
@@ -322,7 +322,7 @@ test('can save a record', function () {
     expect($record->refresh())
         ->name->toBe('Updated Subject')
         ->sort_order->toBe(10)
-        ->subject_category_id->toBe($newCategory->getKey());
+        ->subject_category_id->toBe($newCategory->getRouteKey());
 });
 
 test('can save a record without changes', function () {
