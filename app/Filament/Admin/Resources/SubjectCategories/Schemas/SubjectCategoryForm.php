@@ -24,7 +24,7 @@ class SubjectCategoryForm
                             ->required(),
                         TextInput::make('name')
                             ->required()
-                            ->placeholder('Example: Group 1')
+                            ->placeholder('Example: General Subject')
                             ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule, Get $get) => $rule->where('school_id', $get('school_id'))),
                         TextInput::make('sort_order')
                             ->required()
