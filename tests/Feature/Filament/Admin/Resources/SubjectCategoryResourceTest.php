@@ -139,8 +139,10 @@ test('cannot create a record with duplicate name in same school', function () {
 });
 
 test('can create a record', function () {
+    $school = School::factory()->create();
+
     $record = SubjectCategory::factory()->make([
-        'school_id' => School::factory()->create()->getRouteKey(),
+        'school_id' => $school->getRouteKey(),
         'name' => 'General Subject',
         'sort_order' => 1,
     ]);
@@ -153,9 +155,8 @@ test('can create a record', function () {
     expect(SubjectCategory::first())
         ->name->toBe('General Subject')
         ->sort_order->toBe(1)
-        ->school_id->toBe(1);
+        ->school_id->toBe($school->getRouteKey());
 });
-
 
 test('can create a record with duplicate name in different school', function () {
     // Arrange
@@ -273,7 +274,7 @@ test('cannot save a record with duplicate name in same school', function () {
 
 test('can save a record', function () {
     $record = SubjectCategory::factory()->create();
-    
+
     $newData = SubjectCategory::factory()->make([
         'name' => 'Maths',
         'sort_order' => 1,
