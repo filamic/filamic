@@ -40,6 +40,7 @@ class ClassroomsTable
 
                 SelectFilter::make('is_moving_class')
                     ->label('Moving Class')
+                    ->columnSpanFull()
                     ->options([
                         true => 'Yes',
                         false => 'No',
