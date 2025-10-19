@@ -62,7 +62,7 @@ test('can filter records by school', function () {
 
     // Act & Assert
     Livewire::test(ListClassrooms::class)
-        ->filterTable('school_id', $classroom1->school->getKey())
+        ->filterTable('school_id', $classroom1->school->getRouteKey())
         ->assertCanSeeTableRecords([$classroom1])
         ->assertCanNotSeeTableRecords([$classroom2]);
 });
@@ -111,7 +111,7 @@ test('can apply multiple filters simultaneously', function () {
 
     // Act & Assert
     Livewire::test(ListClassrooms::class)
-        ->filterTable('school_id', $classroom1->school->getKey())
+        ->filterTable('school_id', $classroom1->school->getRouteKey())
         ->filterTable('grade', '10')
         ->filterTable('is_moving_class', true)
         ->assertCanSeeTableRecords([$classroom1])
@@ -197,7 +197,7 @@ test('cannot save a record without required fields', function () {
 
 test('can save a record', function () {
     $record = Classroom::factory()->create();
-    
+
     $updatedClassroom = Classroom::factory()->make([
         'name' => 'Updated Classroom',
         'grade' => 11,
