@@ -17,7 +17,7 @@ class SchoolYearFactory extends Factory
         $endDate = fake()->dateTimeBetween($startDate, '+1 year');
 
         return [
-            'name' => fake()->year(),
+            'name' => now()->year . '/' . now()->year + 1,
             'semester' => fake()->numberBetween(1, 2),
             'start_date' => $startDate,
             'end_date' => $endDate,
