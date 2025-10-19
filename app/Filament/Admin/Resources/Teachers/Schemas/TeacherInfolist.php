@@ -16,7 +16,7 @@ class TeacherInfolist
             ->components([
                 Section::make()
                     ->schema([
-                        TextEntry::make('name')
+                        TextEntry::make('name'),
                     ]),
             ]);
     }
