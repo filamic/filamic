@@ -26,6 +26,7 @@ class SubjectCategoriesTable
             ->filters([
                 SelectFilter::make('school_id')
                     ->label('School')
+                    ->columnSpanFull()
                     ->relationship('school', 'name'),
             ])
             ->filtersLayout(FiltersLayout::Modal)

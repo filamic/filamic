@@ -31,6 +31,7 @@ class SubjectsTable
             ->filters([
                 SelectFilter::make('subject_category_id')
                     ->label('Category')
+                    ->columnSpanFull()
                     ->options(fn () => SubjectCategory::with('school')
                         ->orderBy('sort_order')
                         ->get()
@@ -40,7 +41,6 @@ class SubjectsTable
                     ->searchable(),
             ])
             ->filtersLayout(FiltersLayout::Modal)
-            ->filtersFormColumns(2)
             ->recordActions([
                 ViewAction::make(),
             ])
