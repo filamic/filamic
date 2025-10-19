@@ -16,9 +16,9 @@ class SubjectCategoryInfolist
             ->components([
                 Section::make()
                     ->schema([
-                        TextEntry::make('name'),
                         TextEntry::make('school.name')
                             ->label('School'),
+                        TextEntry::make('name'),
                         TextEntry::make('sort_order'),
                     ]),
             ]);
