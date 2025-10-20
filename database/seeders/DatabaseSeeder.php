@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Models\Classroom;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\School;
 use App\Models\SchoolYear;
 use App\Models\Subject;
 use App\Models\SubjectCategory;
@@ -28,11 +29,20 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('mantapjiwa00'),
         ]);
 
-        $this->createClassrooms();
-        $this->createSchoolYear();
-        $this->createSubjectCategories();
-        $this->createSubjects();
-        $this->createTeachers();
+        // $this->createClassrooms();
+        // $this->createSchoolYear();
+        // $this->createSubjectCategories();
+        // $this->createSubjects();
+        // $this->createTeachers();
+    }
+
+    public function createSchools(): void
+    {
+        School::factory()
+            ->state([
+                'name' => 'SD BASIC 1',
+            ])
+            ->create();
     }
 
     public function createClassrooms(): void
