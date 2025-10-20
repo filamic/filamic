@@ -36,6 +36,11 @@ class Teacher extends Model
 
     public function teachings(): HasMany
     {
-        return $this->hasMany(Teaching::class)->active();
+        return $this->allTeachings()->active();
+    }
+
+    public function allTeachings(): HasMany
+    {
+        return $this->hasMany(Teaching::class);
     }
 }
