@@ -26,7 +26,7 @@ class TeachingsTable
                     ->searchable(),
                 TextColumn::make('classroom.school.name')
                     ->searchable(),
-                TextColumn::make('schoolYear.name')
+                TextColumn::make('schoolYear.name_with_semester')
                     ->searchable(),
             ])
             ->recordActions([
