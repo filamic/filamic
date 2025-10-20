@@ -10,6 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Filament\Support\View\Components\ModalComponent;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Component as LivewireComponent;
@@ -63,5 +64,7 @@ class AppServiceProvider extends ServiceProvider
 
             return $this;
         });
+
+        ModalComponent::closedByClickingAway(false);
     }
 }
