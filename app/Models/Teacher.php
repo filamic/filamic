@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Teaching> $allTeachings
+ * @property-read int|null $all_teachings_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Teaching> $teachings
  * @property-read int|null $teachings_count
  *
@@ -34,13 +36,13 @@ class Teacher extends Model
 
     protected $guarded = ['id'];
 
-    public function teachings(): HasMany
-    {
-        return $this->allTeachings()->active();
-    }
-
     public function allTeachings(): HasMany
     {
         return $this->hasMany(Teaching::class);
+    }
+
+    public function teachings(): HasMany
+    {
+        return $this->hasMany(Teaching::class)->active();
     }
 }
