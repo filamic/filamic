@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Models\Subject;
-use App\Models\Teacher;
 use App\Models\Classroom;
 use App\Models\SchoolYear;
+use App\Models\Subject;
+use App\Models\Teacher;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
