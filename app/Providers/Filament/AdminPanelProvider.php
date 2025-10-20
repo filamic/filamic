@@ -60,6 +60,7 @@ class AdminPanelProvider extends PanelProvider
             ->topbar(false)
             ->sidebarWidth('18rem')
             ->brandLogo(asset('logo_filamic.svg'))
-            ->font('Inter');
+            ->font('Inter')
+            ->readOnlyRelationManagersOnResourceViewPagesByDefault(false);
     }
 }
