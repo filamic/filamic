@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\SemesterEnum;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool $is_active
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read mixed $name_with_semester
  *
  * @method static Builder<static>|SchoolYear active()
  * @method static \Database\Factories\SchoolYearFactory factory($count = null, $state = [])
@@ -52,6 +54,13 @@ class SchoolYear extends Model
             'end_date' => 'date',
             'is_active' => 'boolean',
         ];
+    }
+
+    protected function nameWithSemester(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => "{$this->name} ({$this->semester->getLabel()})",
+        );
     }
 
     #[Scope]
