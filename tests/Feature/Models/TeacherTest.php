@@ -6,7 +6,6 @@ use App\Models\Teacher;
 use App\Models\Teaching;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-
 test('teachings relation')
     ->expect(fn () => Teacher::factory()->create())
     ->teachings()->toBeInstanceOf(HasMany::class)
