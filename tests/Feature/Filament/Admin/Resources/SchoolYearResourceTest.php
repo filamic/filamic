@@ -195,6 +195,8 @@ test('view page displays all information', function () {
         ->assertSchemaStateSet([
             'name' => $record->name,
             'semester' => $record->semester,
+            'start_date' => $record->start_date,
+            'end_date' => $record->end_date,
             'is_active' => $record->is_active,
         ]);
 });
