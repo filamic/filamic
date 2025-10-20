@@ -7,7 +7,6 @@ namespace App\Filament\Admin\Resources\Teachings\Tables;
 use App\Models\SchoolYear;
 use App\Models\Teaching;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -28,9 +27,6 @@ class TeachingsTable
                     ->searchable(),
                 TextColumn::make('schoolYear.name_with_semester')
                     ->searchable(),
-            ])
-            ->recordActions([
-                ViewAction::make(),
             ])
             ->filters([
                 SelectFilter::make('subject_id')
