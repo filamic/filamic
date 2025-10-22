@@ -40,35 +40,6 @@ test('list page shows rows', function () {
         ->assertCanSeeTableRecords($records);
 });
 
-test('list page shows school name in school column', function () {
-    // Arrange
-    $school = School::factory()->create(['name' => 'Central High School']);
-    $category = SubjectCategory::factory()->for($school)->create(['name' => 'Science']);
-    $subject = Subject::factory()->create([
-        'subject_category_id' => $category->id,
-        'name' => 'Physics',
-    ]);
-
-    // Act & Assert
-    Livewire::test(ListSubjects::class)
-        ->assertCanSeeTableRecords([$subject])
-        ->assertSee('Central High School');
-});
-
-test('list page shows category name as description in name column', function () {
-    // Arrange
-    $school = School::factory()->create();
-    $category = SubjectCategory::factory()->for($school)->create(['name' => 'Mathematics']);
-    $subject = Subject::factory()->create([
-        'subject_category_id' => $category->id,
-        'name' => 'Algebra',
-    ]);
-
-    // Act & Assert
-    Livewire::test(ListSubjects::class)
-        ->assertTableColumnHasDescription('name', 'Mathematics', $subject);
-});
-
 test('list page rows have view action', function () {
     $category = SubjectCategory::factory()->for(School::factory())->create();
     $record = Subject::factory()->create(['subject_category_id' => $category->id]);

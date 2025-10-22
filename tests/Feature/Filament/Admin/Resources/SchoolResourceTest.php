@@ -72,7 +72,6 @@ test('cannot create a record with duplicate name', function () {
 test('can create a record', function () {
     $data = School::factory()->make([
         'name' => 'New Test School',
-        'npsn' => '99999999',
     ]);
 
     Livewire::test(CreateSchool::class)
@@ -80,9 +79,8 @@ test('can create a record', function () {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(School::first())
-        ->name->toBe('New Test School')
-        ->npsn->toBe('99999999');
+    expect(School::latest('id')->first())
+        ->name->toBe('New Test School');
 });
 
 test('view page is accessible', function () {

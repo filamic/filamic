@@ -8,6 +8,7 @@ use App\Filament\Admin\Resources\Classrooms\Pages\EditClassroom;
 use App\Filament\Admin\Resources\Classrooms\Pages\ListClassrooms;
 use App\Filament\Admin\Resources\Classrooms\Pages\ViewClassroom;
 use App\Models\Classroom;
+use App\Models\School;
 use Filament\Actions\Testing\TestAction;
 use Livewire\Livewire;
 
@@ -58,7 +59,9 @@ test('can search for records on list page', function (string $attribute) {
 test('can filter records by school', function () {
     // Arrange
     $classroom1 = Classroom::factory()->create();
-    $classroom2 = Classroom::factory()->create();
+    $classroom2 = Classroom::factory()
+        ->forSchool(School::factory()->create())
+        ->create();
 
     // Act & Assert
     Livewire::test(ListClassrooms::class)

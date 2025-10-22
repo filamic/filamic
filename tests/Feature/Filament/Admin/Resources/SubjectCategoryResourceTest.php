@@ -57,7 +57,9 @@ test('can search for records on list page', function (string $attribute) {
 test('can filter records by school', function () {
     // Arrange
     $subjectCategory1 = SubjectCategory::factory()->create();
-    $subjectCategory2 = SubjectCategory::factory()->create();
+    $subjectCategory2 = SubjectCategory::factory()
+        ->forSchool(School::factory()->create())
+        ->create();
 
     // Act & Assert
     Livewire::test(ListSubjectCategories::class)
