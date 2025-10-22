@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Admin\Resources\Teachings;
 
-use App\Filament\Admin\Resources\Teachings\Pages\ListTeachings;
+use App\Filament\Admin\Resources\Teachings\Pages\ManageTeachings;
 use App\Filament\Admin\Resources\Teachings\Tables\TeachingsTable;
 use App\Models\Teaching;
 use BackedEnum;
@@ -30,7 +30,7 @@ class TeachingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListTeachings::route('/'),
+            'index' => ManageTeachings::route('/'),
         ];
     }
 }
