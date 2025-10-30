@@ -23,7 +23,7 @@ Jika kalian suka dengan apa yang kami kerjakan, dan ingin terus mendukung produk
 Kami sangat mengapresiasi segala jenis kontribusi yang anda lakukan, silahkan melakukan pull request pada repository ini, team kami akan melakukan review dan jika tidak terdapat masalah pada PR yang diberikan, kami akan segera melakukan merging.
 
 ## Lisensi
-Filamic PPDB open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Filamic open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
 ## Hire Us
 - Open to any job opportunity, let's work together, send me an email (christmex@yahoo.com)✌️
