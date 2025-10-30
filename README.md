@@ -1,4 +1,4 @@
-![Filamic Banner](/public/img/banner.png)
+![Filamic Banner](/public/banner.png)
 
 ## Filamic
 
