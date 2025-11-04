@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\HasSchoolyear;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -41,18 +42,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Teaching extends Model
 {
     /** @use HasFactory<\Database\Factories\TeachingFactory> */
-    use HasFactory;
+    use HasFactory, HasSchoolyear;
 
     protected $guarded = ['id'];
 
     public function classroom(): BelongsTo
     {
         return $this->belongsTo(Classroom::class);
-    }
-
-    public function schoolYear(): BelongsTo
-    {
-        return $this->belongsTo(SchoolYear::class);
     }
 
     public function subject(): BelongsTo
@@ -63,26 +59,5 @@ class Teaching extends Model
     public function teacher(): BelongsTo
     {
         return $this->belongsTo(Teacher::class);
-    }
-
-    #[Scope]
-    protected function active(Builder $query): Builder
-    {
-        return $query->whereRelation('schoolYear', 'is_active', true);
-    }
-
-    public function canDelete(): bool
-    {
-        return $this->isActive();
-    }
-
-    public function isActive(): bool
-    {
-        return $this->schoolYear->isActive();
-    }
-
-    public function isInActive(): bool
-    {
-        return $this->schoolYear->isInactive();
     }
 }

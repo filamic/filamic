@@ -36,9 +36,19 @@ class Teacher extends Model
 
     protected $guarded = ['id'];
 
+    public function allHomeroomClasses(): HasMany
+    {
+        return $this->hasMany(HomeroomClass::class);
+
+    }
     public function allTeachings(): HasMany
     {
         return $this->hasMany(Teaching::class);
+    }
+
+    public function homeroomClasses(): HasMany
+    {
+        return $this->hasMany(HomeroomClass::class)->active();
     }
 
     public function teachings(): HasMany
