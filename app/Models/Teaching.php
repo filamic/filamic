@@ -45,16 +45,6 @@ class Teaching extends Model
 
     protected $guarded = ['id'];
 
-    public function teacher(): BelongsTo
-    {
-        return $this->belongsTo(Teacher::class);
-    }
-
-    public function subject(): BelongsTo
-    {
-        return $this->belongsTo(Subject::class);
-    }
-
     public function classroom(): BelongsTo
     {
         return $this->belongsTo(Classroom::class);
@@ -65,10 +55,25 @@ class Teaching extends Model
         return $this->belongsTo(SchoolYear::class);
     }
 
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(Subject::class);
+    }
+
+    public function teacher(): BelongsTo
+    {
+        return $this->belongsTo(Teacher::class);
+    }
+
     #[Scope]
     protected function active(Builder $query): Builder
     {
         return $query->whereRelation('schoolYear', 'is_active', true);
+    }
+
+    public function canDelete(): bool
+    {
+        return $this->isActive();
     }
 
     public function isActive(): bool
@@ -79,10 +84,5 @@ class Teaching extends Model
     public function isInActive(): bool
     {
         return $this->schoolYear->isInactive();
-    }
-
-    public function canDelete(): bool
-    {
-        return $this->isActive();
     }
 }

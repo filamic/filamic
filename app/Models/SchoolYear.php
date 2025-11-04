@@ -56,13 +56,6 @@ class SchoolYear extends Model
         ];
     }
 
-    protected function nameWithSemester(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => "{$this->name} ({$this->semester->getLabel()})",
-        );
-    }
-
     #[Scope]
     protected function active(Builder $query): Builder
     {
@@ -73,6 +66,12 @@ class SchoolYear extends Model
     protected function inactive(Builder $query): Builder
     {
         return $query->where('is_active', false);
+    }
+
+    public function activateExclusively(): void
+    {
+        static::deactivateOthers();
+        $this->update(['is_active' => true]);
     }
 
     public function isActive(): bool
@@ -90,9 +89,11 @@ class SchoolYear extends Model
         static::query()->active()->update(['is_active' => false]);
     }
 
-    public function activateExclusively(): void
+    protected function nameWithSemester(): Attribute
     {
-        static::deactivateOthers();
-        $this->update(['is_active' => true]);
+        return Attribute::make(
+            get: fn () => "{$this->name} ({$this->semester->getLabel()})",
+        );
     }
+
 }
