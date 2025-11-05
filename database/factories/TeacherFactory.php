@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,5 +17,12 @@ class TeacherFactory extends Factory
         return [
             'name' => $this->faker->name(),
         ];
+    }
+
+    public function withUser(): static
+    {
+        return $this->state([
+            'user_id' => User::factory()->create(),
+        ]);
     }
 }
