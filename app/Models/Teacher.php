@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
- * @property int $user_id
+ * @property int|null $user_id
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int|null $homeroom_classes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Teaching> $teachings
  * @property-read int|null $teachings_count
- * @property-read User $user
+ * @property-read User|null $user
  *
  * @method static \Database\Factories\TeacherFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Teacher newModelQuery()

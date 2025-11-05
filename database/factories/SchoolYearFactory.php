@@ -30,6 +30,7 @@ class SchoolYearFactory extends Factory
     public function active(): static
     {
         return $this->state([
+            'name' => now()->format('Y') . '/' . now()->addYear()->format('Y'),
             'is_active' => true,
         ]);
     }

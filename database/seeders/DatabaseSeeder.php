@@ -30,8 +30,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // $this->createClassrooms();
-        // $this->createSchoolYear();
-        // $this->createSubjectCategories();
+        $this->createSchoolYear();
+        $this->createSubjectCategories();
         // $this->createSubjects();
         // $this->createTeachers();
     }
