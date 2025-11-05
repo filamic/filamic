@@ -35,6 +35,9 @@ jobs:
       - name: Install project dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Composer dumpautoload
+        run: composer dumpautoload -o
+
       - name: Lint code
         run: ./vendor/bin/pint --bail
 
