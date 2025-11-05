@@ -13,8 +13,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, HomeroomClass> $allHomeroomClasses
+ * @property-read int|null $all_homeroom_classes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Teaching> $allTeachings
  * @property-read int|null $all_teachings_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, HomeroomClass> $homeroomClasses
+ * @property-read int|null $homeroom_classes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Teaching> $teachings
  * @property-read int|null $teachings_count
  *
@@ -41,6 +45,7 @@ class Teacher extends Model
         return $this->hasMany(HomeroomClass::class);
 
     }
+
     public function allTeachings(): HasMany
     {
         return $this->hasMany(Teaching::class);

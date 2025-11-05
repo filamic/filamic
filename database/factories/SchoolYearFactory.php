@@ -13,11 +13,13 @@ class SchoolYearFactory extends Factory
 {
     public function definition(): array
     {
-        $startDate = fake()->dateTimeBetween('-1 year', '+1 year');
-        $endDate = fake()->dateTimeBetween($startDate, '+1 year');
+        $startDate = fake()->dateTimeBetween('-10 years', '+10 years');
+        $endDate = (clone $startDate)->modify('+1 year');
+
+        $startYear = (int) $startDate->format('Y');
 
         return [
-            'name' => now()->year . '/' . now()->year + 1,
+            'name' => $startYear . '/' . ($startYear + 1),
             'semester' => fake()->numberBetween(1, 2),
             'start_date' => $startDate,
             'end_date' => $endDate,

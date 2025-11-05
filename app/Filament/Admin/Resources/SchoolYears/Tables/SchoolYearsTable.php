@@ -17,10 +17,8 @@ class SchoolYearsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('semester')
-                    ->sortable(),
+                    ->searchable(),
+                TextColumn::make('semester'),
                 ToggleColumn::make('is_active')
                     ->beforeStateUpdated(function (SchoolYear $record, $state) {
                         if ($state) {

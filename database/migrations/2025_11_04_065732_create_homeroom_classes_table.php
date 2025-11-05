@@ -1,11 +1,13 @@
 <?php
 
-use App\Models\Teacher;
+declare(strict_types=1);
+
 use App\Models\Classroom;
 use App\Models\SchoolYear;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\Teacher;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {

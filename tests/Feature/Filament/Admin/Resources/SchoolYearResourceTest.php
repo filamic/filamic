@@ -53,18 +53,6 @@ test('can search for records on list page', function (string $attribute) {
     'name',
 ]);
 
-test('can sort records by column', function (string $column) {
-    $records = SchoolYear::factory(10)->create();
-
-    Livewire::test(ListSchoolYears::class)
-        ->sortTable($column)
-        ->assertCanSeeTableRecords($records->sortBy($column), inOrder: true)
-        ->sortTable($column, 'desc')
-        ->assertCanSeeTableRecords($records->sortByDesc($column), inOrder: true);
-})->with([
-    'name',
-]);
-
 test('create page is accessible', function () {
     $this->get(SchoolYearResource::getUrl('create'))->assertOk();
 });

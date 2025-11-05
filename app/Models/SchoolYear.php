@@ -95,5 +95,4 @@ class SchoolYear extends Model
             get: fn () => "{$this->name} ({$this->semester->getLabel()})",
         );
     }
-
 }

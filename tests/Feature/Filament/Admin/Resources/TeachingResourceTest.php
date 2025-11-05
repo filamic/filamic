@@ -24,7 +24,7 @@ test('records should have the same school as the subject and classroom', functio
 
 test('list page renders columns', function (string $column) {
     // Arrange
-    $teaching = Teaching::factory()->create();
+    Teaching::factory()->create();
 
     // Act & Assert
     Livewire::test(ManageTeachings::class)
@@ -40,7 +40,7 @@ test('list page renders columns', function (string $column) {
 test('list page shows rows', function () {
     // Arrange
     $records = Teaching::factory(3)
-        ->forSchoolYear()
+        ->forSchoolYear() // we need this to make sure the records are use the same school year
         ->create();
 
     // Act & Assert

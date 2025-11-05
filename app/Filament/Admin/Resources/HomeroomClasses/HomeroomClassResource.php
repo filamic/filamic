@@ -1,30 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\HomeroomClasses;
 
-use UnitEnum;
-use BackedEnum;
-use App\Models\School;
-use App\Models\Classroom;
-use App\Models\SchoolYear;
-use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use App\Models\HomeroomClass;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Resources\Resource;
-use Filament\Actions\DeleteAction;
-use Filament\Support\Icons\Heroicon;
-use Filament\Actions\BulkActionGroup;
-use Filament\Forms\Components\Select;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Validation\Rules\Exists;
-use Illuminate\Validation\Rules\Unique;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Components\Utilities\Get;
 use App\Filament\Admin\Resources\HomeroomClasses\Pages\ManageHomeroomClasses;
+use App\Models\Classroom;
+use App\Models\HomeroomClass;
+use App\Models\School;
+use App\Models\SchoolYear;
+use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Forms\Components\Select;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Validation\Rules\Unique;
+use UnitEnum;
 
 class HomeroomClassResource extends Resource
 {
@@ -67,16 +64,14 @@ class HomeroomClassResource extends Resource
                 Select::make('classroom_id')
                     ->label('Classroom')
                     ->disabled(fn (Get $get) => blank($get('teacher_id')))
-                    ->options(fn(Get $get) => Classroom::where('school_id',$get('school_id'))->pluck('name', 'id'))
+                    ->options(fn (Get $get) => Classroom::where('school_id', $get('school_id'))->pluck('name', 'id'))
                     ->searchable()
                     ->preload()
                     ->required()
                     ->unique(
-                        table: 'homeroom_classes',
-                        column: 'school_year_id',
-                        modifyRuleUsing: fn (Unique $rule, Get $get) => $rule->where('school_year_id',$get('school_year_id'))
+                        modifyRuleUsing: fn (Unique $rule, Get $get) => $rule->where('school_year_id', $get('school_year_id'))
                     ),
-                    
+
             ]);
     }
 
