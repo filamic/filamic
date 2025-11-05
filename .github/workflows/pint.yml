@@ -45,7 +45,7 @@ jobs:
         run: php artisan key:generate
 
       - name: migrate database
-        run: php artisan migrate --seed
+        run: php artisan migrate --force --seed
 
       - name: Analyze code
         run: composer analyse
