@@ -18,4 +18,9 @@ class ManageHomeroomClasses extends ListRecords
             CreateAction::make(),
         ];
     }
+
+    public function getSubheading(): string | \Illuminate\Contracts\Support\Htmlable | null
+    {
+        return 'Homeroom classes you have access to are listed below.';
+    }
 }
