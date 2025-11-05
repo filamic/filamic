@@ -39,7 +39,7 @@ jobs:
         run: cp .env.example.testing .env
 
       - name: Compile assets
-        run: npm run build
+        run: npm ci && npm run build
 
       - name: Generate application key
         run: php artisan key:generate
