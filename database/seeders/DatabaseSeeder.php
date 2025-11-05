@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Classroom;
+use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\School;
-use App\Models\SchoolYear;
 use App\Models\Subject;
-use App\Models\SubjectCategory;
 use App\Models\Teacher;
-use App\Models\User;
+use App\Models\Classroom;
+use App\Models\SchoolYear;
+use App\Models\SubjectCategory;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -29,20 +29,23 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('mantapjiwa00'),
         ]);
 
-        // $this->createClassrooms();
+        $this->createSchools();
+        $this->createClassrooms();
         $this->createSchoolYear();
         $this->createSubjectCategories();
-        // $this->createSubjects();
-        // $this->createTeachers();
+        $this->createSubjects();
+        $this->createTeachers();
     }
 
     public function createSchools(): void
     {
-        School::factory()
+        $school =School::factory()
             ->state([
                 'name' => 'SD BASIC 1',
             ])
             ->create();
+
+        context()->add('school', $school);
     }
 
     public function createClassrooms(): void
@@ -73,7 +76,7 @@ class DatabaseSeeder extends Seeder
             'sort_order' => 1,
         ])->create();
 
-        Subject::factory(10)->create();
+        // Subject::factory(10)->create();
     }
 
     public function createTeachers(): void
