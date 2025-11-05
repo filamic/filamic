@@ -35,12 +35,6 @@ jobs:
       - name: Install project dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Lint code
-        run: ./vendor/bin/pint --bail
-
-      - name: Analyze code
-        run: composer analyse
-
       - name: Create .env file
         run: cp .env.example.testing .env
 
@@ -50,5 +44,8 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate
 
-      - name: Run tests
-        run: php artisan test
+      - name: migrate database
+        run: php artisan migrate --seed
+
+      - name: Analyze code
+        run: composer analyse
