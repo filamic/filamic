@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace App\Filament\Admin\Resources\Teachings\Pages;
 
-use App\Filament\Admin\Resources\Teachings\TeachingResource;
-use App\Models\Classroom;
-use App\Models\School;
-use App\Models\SchoolYear;
-use App\Models\Teaching;
 use Closure;
+use App\Models\School;
+use App\Models\Teaching;
+use App\Models\Classroom;
+use App\Models\SchoolYear;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Repeater\TableColumn;
+use Illuminate\Support\Collection;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Group;
+use Filament\Forms\Components\Repeater;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Schemas\Components\Group;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Repeater\TableColumn;
+use App\Filament\Admin\Resources\Teachings\TeachingResource;
 
 class ManageTeachings extends ListRecords
 {
@@ -128,7 +129,7 @@ class ManageTeachings extends ListRecords
 
                         Select::make('classroom_id')
                             ->disabled(fn (Get $get) => blank($get('subject_id')))
-                            ->options(self::getCLassroomOptions(...))
+                            ->options(self::getClassroomOptions(...))
                             ->searchable()
                             ->preload()
                             ->live()
@@ -177,7 +178,7 @@ class ManageTeachings extends ListRecords
             ->where('school_year_id', $get('../../school_year_id'));
     }
 
-    protected static function getCLassroomOptions(Get $get)
+    protected static function getClassroomOptions(Get $get): Collection
     {
         // exclude classrooms that already have a teaching assignment for the subject and school year
         $excludedClassrooms = self::getExistingTeachingAssignmentsQuery($get)
