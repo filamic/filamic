@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace App\Filament\Admin\Resources\Teachings\Pages;
 
-use Closure;
-use App\Models\School;
-use App\Models\Teaching;
+use App\Filament\Admin\Resources\Teachings\TeachingResource;
 use App\Models\Classroom;
+use App\Models\School;
 use App\Models\SchoolYear;
+use App\Models\Teaching;
+use Closure;
 use Filament\Actions\Action;
-use Illuminate\Support\Collection;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Group;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Forms\Components\Repeater\TableColumn;
-use App\Filament\Admin\Resources\Teachings\TeachingResource;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class ManageTeachings extends ListRecords
 {
