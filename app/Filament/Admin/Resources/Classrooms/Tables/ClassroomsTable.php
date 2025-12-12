@@ -17,9 +17,10 @@ class ClassroomsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultGroup('school.name')
             ->columns([
-                TextColumn::make('school.name')
-                    ->searchable(),
+                // TextColumn::make('school.name')
+                //     ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('grade')
