@@ -47,7 +47,6 @@ class Teacher extends Model
     public function allHomeroomClasses(): HasMany
     {
         return $this->hasMany(HomeroomClass::class);
-
     }
 
     public function allTeachings(): HasMany
