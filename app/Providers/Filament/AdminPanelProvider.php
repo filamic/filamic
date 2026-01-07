@@ -32,10 +32,18 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            
             ->colors([
-                'primary' => Color::Amber,
+                'danger' => '#e63946',
+                'gray' => Color::Gray,
+                'info' => '#457b9d',
+                'primary' => '#575DFA',
+                // 'primary' => '#52B69A',
+                'success' => Color::Emerald,
+                'warning' => '#ffb703',
             ])
+            // ->colors([
+            //     'primary' => Color::Amber,
+            // ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
             ->pages([
