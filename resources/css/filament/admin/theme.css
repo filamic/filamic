@@ -179,10 +179,6 @@ button.fi-btn {
     @apply border-none
 }
 
-
-
-
-
 .fi-pagination {
     @apply border-none
 }
@@ -195,9 +191,12 @@ button.fi-btn {
 .fi-ta-cell.fi-ta-selection-cell {
     @apply border-l-0
 }
-
 .fi-ta-row .fi-ta-cell {
     @apply border-r-0 border-l-0
+}
+
+.fi-ta-group-header-cell {
+    @apply border-none
 }
 
 .fi-ta-filter-indicators {

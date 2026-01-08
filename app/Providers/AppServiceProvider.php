@@ -48,7 +48,6 @@ class AppServiceProvider extends ServiceProvider
         }, isImportant: true);
 
         Entry::configureUsing(fn (Entry $field) => $field
-
             ->placeholder('None')
         );
 
