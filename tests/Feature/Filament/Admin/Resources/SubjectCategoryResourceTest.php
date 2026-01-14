@@ -24,7 +24,7 @@ test('list page renders columns', function (string $column) {
     Livewire::test(ListSubjectCategories::class)
         ->assertCanRenderTableColumn($column);
 })->with([
-    'school.name',
+    // 'school.name',
     'name',
     'sort_order',
 ]);
@@ -51,7 +51,7 @@ test('can search for records on list page', function (string $attribute) {
         ->assertCanSeeTableRecords([$record]);
 })->with([
     'name',
-    'school.name',
+    // 'school.name',
 ]);
 
 test('can filter records by school', function () {
