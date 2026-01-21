@@ -19,11 +19,11 @@ class SchoolEventController extends Controller
         }
 
         if ($request->filled('limit')) {
-            $query->take((int) $request->limit);
+            $query->take(min((int) $request->limit, 100)); // Cap at 100
         }
 
         return SchoolEventResource::collection(
-            $query->get()
+            $query->orderBy('start_date')->get()
         );
     }
 }

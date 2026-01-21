@@ -30,7 +30,7 @@ class SchoolEventResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
 
-    protected static ?string $recordTitleAttribute = 'SchoolEvent';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {
@@ -86,7 +86,7 @@ class SchoolEventResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('SchoolEvent')
+            ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('school.name')
                     ->searchable(),
