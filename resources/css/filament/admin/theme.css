@@ -206,3 +206,8 @@ button.fi-btn {
 .fi-page-header-main-ctn {
     @apply pt-6
 }
+.fi-ta-header-cell,
+.fi-ta-actions-header-cell,
+.fi-ta-cell {
+    @apply py-2
+}

@@ -73,6 +73,11 @@ class School extends Model
         return $this->hasMany(SubjectCategory::class);
     }
 
+    public function events(): HasMany
+    {
+        return $this->hasMany(SchoolEvent::class);
+    }
+
     public function subjects(): HasManyThrough
     {
         return $this->hasManyThrough(Subject::class, SubjectCategory::class);

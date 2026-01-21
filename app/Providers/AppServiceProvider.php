@@ -4,17 +4,22 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Filament\Panel;
+use Illuminate\Support\Arr;
+use Filament\Facades\Filament;
 use Filament\Actions\ViewAction;
+use Filament\Support\Enums\Width;
+use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Platform;
+use Filament\Schemas\Components\Tabs;
 use Filament\Forms\Components\Textarea;
+use Illuminate\Support\ServiceProvider;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
-use Filament\Support\View\Components\ModalComponent;
-use Illuminate\Support\Arr;
-use Illuminate\Support\ServiceProvider;
 use Livewire\Component as LivewireComponent;
 use Livewire\Features\SupportTesting\Testable;
+use Filament\Support\View\Components\ModalComponent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +27,30 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Filament::serving(function () {
+            Filament::getCurrentPanel()
+                
+                ->topbar(false)
+                // ->topNavigation()
+                ->maxContentWidth(Width::Full)
+                ->sidebarWidth('16rem')
+                ->brandLogo(asset('logo_basic_digital.svg'))
+                ->font('Inter')
+                ->readOnlyRelationManagersOnResourceViewPagesByDefault(false)
+                ->viteTheme('resources/css/filament/admin/theme.css')
+                ->brandLogoHeight('1rem')
+                ->spa()
+                // ->sidebarCollapsibleOnDesktop()
+                ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+                ->globalSearchFieldSuffix(fn (): ?string => match (Platform::detect()) {
+                    Platform::Windows, Platform::Linux => 'CTRL+K',
+                    Platform::Mac => '⌘K',
+                    default => null,
+                });
+        });
+
+        
+
         Section::configureUsing(fn (Section $section) => $section
             ->columnSpanFull()
             ->columns(2)
