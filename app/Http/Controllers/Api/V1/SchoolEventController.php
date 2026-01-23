@@ -23,7 +23,7 @@ class SchoolEventController extends Controller
         }
 
         return SchoolEventResource::collection(
-            $query->orderBy('start_date')->get()
+            $query->orderBy('starts_at')->get()
         );
     }
 }

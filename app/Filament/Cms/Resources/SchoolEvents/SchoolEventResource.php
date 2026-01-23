@@ -45,8 +45,8 @@ class SchoolEventResource extends Resource
                     ->required(),
                 TimePicker::make('start_at')
                     ->required(),
-                TimePicker::make('end_at')
-                    ->after('start_at')
+                TimePicker::make('ends_at')
+                    ->after('starts_at')
                     ->required(),
                 FileUpload::make('image')
                     ->image()
@@ -65,9 +65,9 @@ class SchoolEventResource extends Resource
                     ->placeholder('-'),
                 TextEntry::make('name'),
                 TextEntry::make('location'),
-                TextEntry::make('start_at')
+                TextEntry::make('starts_at')
                     ->time(),
-                TextEntry::make('end_at')
+                TextEntry::make('ends_at')
                     ->time(),
                 ImageEntry::make('image')
                     ->placeholder('-'),
@@ -94,9 +94,9 @@ class SchoolEventResource extends Resource
                     ->searchable(),
                 TextColumn::make('location')
                     ->searchable(),
-                TextColumn::make('start_at')
+                TextColumn::make('starts_at')
                     ->sortable(),
-                TextColumn::make('end_at')
+                TextColumn::make('ends_at')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
