@@ -44,7 +44,7 @@ class SchoolEventResource extends Resource
                     ->required(),
                 TextInput::make('location')
                     ->required(),
-                TimePicker::make('start_at')
+                TimePicker::make('starts_at')
                     ->required(),
                 TimePicker::make('ends_at')
                     ->after('starts_at')

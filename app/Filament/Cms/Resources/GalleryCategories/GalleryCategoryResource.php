@@ -37,7 +37,7 @@ class GalleryCategoryResource extends Resource
                     ->required()
                     ->disabled()
                     ->dehydrated()
-                    ->helperText('Can\'t edit this is for the SEO purpose'),
+                    ->helperText('This field is auto-generated and cannot be edited for SEO purposes.'),
             ]);
     }
 
