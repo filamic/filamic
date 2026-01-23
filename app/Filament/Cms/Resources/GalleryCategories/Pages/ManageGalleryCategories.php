@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Cms\Resources\GalleryCategories\Pages;
 
 use App\Filament\Cms\Resources\GalleryCategories\GalleryCategoryResource;

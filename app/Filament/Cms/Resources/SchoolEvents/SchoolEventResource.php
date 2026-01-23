@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Cms\Resources\SchoolEvents;
 
 use App\Filament\Cms\Resources\SchoolEvents\Pages\ManageSchoolEvents;
@@ -12,15 +14,14 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -28,7 +29,7 @@ class SchoolEventResource extends Resource
 {
     protected static ?string $model = SchoolEvent::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
+    protected static string | BackedEnum | null $navigationIcon = Heroicon::Calendar;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -108,7 +109,7 @@ class SchoolEventResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+
             ])
             ->recordActions([
                 EditAction::make(),

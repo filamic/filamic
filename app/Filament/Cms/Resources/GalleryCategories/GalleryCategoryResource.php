@@ -1,27 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Cms\Resources\GalleryCategories;
 
-use BackedEnum;
-use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use App\Models\GalleryCategory;
-use Filament\Actions\EditAction;
-use Filament\Resources\Resource;
-use Filament\Actions\DeleteAction;
-use Filament\Support\Icons\Heroicon;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Utilities\Set;
 use App\Filament\Cms\Resources\GalleryCategories\Pages\ManageGalleryCategories;
+use App\Models\GalleryCategory;
+use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class GalleryCategoryResource extends Resource
 {
     protected static ?string $model = GalleryCategory::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::Hashtag;
+    protected static string | BackedEnum | null $navigationIcon = Heroicon::Hashtag;
 
     public static function form(Schema $schema): Schema
     {
@@ -57,7 +59,7 @@ class GalleryCategoryResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+
             ])
             ->recordActions([
                 EditAction::make(),

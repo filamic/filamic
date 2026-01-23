@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Cms\Resources\SchoolEvents\Pages;
 
 use App\Filament\Cms\Resources\SchoolEvents\SchoolEventResource;

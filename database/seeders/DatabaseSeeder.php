@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Models\Classroom;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\School;
-use App\Models\Subject;
-use App\Models\Teacher;
-use App\Models\Classroom;
-use App\Models\SchoolYear;
 use App\Models\SchoolEvent;
+use App\Models\SchoolYear;
+use App\Models\Subject;
 use App\Models\SubjectCategory;
+use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -86,7 +86,7 @@ class DatabaseSeeder extends Seeder
         Teacher::factory(5)->create();
     }
 
-    public function createSchoolEvents(): void 
+    public function createSchoolEvents(): void
     {
         SchoolEvent::factory(5)->create();
     }

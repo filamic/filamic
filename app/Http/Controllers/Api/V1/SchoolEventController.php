@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+declare(strict_types=1);
 
-use App\Models\SchoolEvent;
-use Illuminate\Http\Request;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SchoolEventResource;
+use App\Models\SchoolEvent;
+use Illuminate\Http\Request;
 
 class SchoolEventController extends Controller
 {
@@ -14,7 +15,7 @@ class SchoolEventController extends Controller
     {
         $query = SchoolEvent::query();
 
-        if ($request->string('filter')->lower() === 'upcoming') {
+        if ($request->string('filter')->lower()->toString() === 'upcoming') {
             $query->upcoming();
         }
 
