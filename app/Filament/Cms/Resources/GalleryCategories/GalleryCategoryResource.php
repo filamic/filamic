@@ -15,6 +15,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Operation;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -34,6 +35,7 @@ class GalleryCategoryResource extends Resource
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', str($state)->slug())),
                 TextInput::make('slug')
+                    ->hiddenOn(Operation::Edit)
                     ->required()
                     ->disabled()
                     ->dehydrated()
