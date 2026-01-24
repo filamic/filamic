@@ -38,6 +38,7 @@ class GalleryForm
                     FileUpload::make('images')
                         ->required()
                         ->image()
+                        ->disk('public')
                         ->panelLayout('grid')
                         ->multiple()
                         ->directory('Gallery')
