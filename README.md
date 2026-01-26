@@ -39,3 +39,4 @@ Filamic open-sourced software licensed under the [MIT license](https://opensourc
 - [ ] CRUD career 
 - [ ] CRUD News
 - [ ] create Request validation for pagination, inside GalleryController and SchoolEventController
+- [ ] Delete gallery image when the record is deleted

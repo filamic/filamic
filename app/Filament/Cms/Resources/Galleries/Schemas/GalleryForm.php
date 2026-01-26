@@ -39,6 +39,7 @@ class GalleryForm
                         ->required()
                         ->image()
                         ->disk('public')
+                        ->maxSize(2048)
                         ->directory('event-galleries')
                         ->panelLayout('grid')
                         ->multiple()
