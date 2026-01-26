@@ -24,8 +24,8 @@ class SchoolEventResource extends JsonResource
             ]),
             'name' => $this->name,
             'location' => $this->location,
-            'starts_at' => $this->starts_at->toISOString(),
-            'ends_at' => $this->ends_at->toISOString(),
+            'start_date' => $this->start_date->toISOString(),
+            'end_date' => $this->end_date->toISOString(),
         ];
     }
 }

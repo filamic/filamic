@@ -24,6 +24,8 @@ class SchoolEventController extends Controller
         $schoolEvents = QueryBuilder::for(SchoolEvent::class)
             ->allowedFilters(
                 AllowedFilter::scope('upcoming'),
+                AllowedFilter::scope('ongoing'),
+                AllowedFilter::scope('past'),
             )
             ->with('school')
             ->paginate($perPage);

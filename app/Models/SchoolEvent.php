@@ -15,8 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $school_id
  * @property string $name
  * @property string $location
- * @property \Illuminate\Support\Carbon $starts_at
- * @property \Illuminate\Support\Carbon $ends_at
+ * @property \Illuminate\Support\Carbon $start_date
+ * @property \Illuminate\Support\Carbon $end_date
  * @property string|null $image
  * @property string|null $details
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -32,13 +32,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder<static>|SchoolEvent upcoming()
  * @method static Builder<static>|SchoolEvent whereCreatedAt($value)
  * @method static Builder<static>|SchoolEvent whereDetails($value)
- * @method static Builder<static>|SchoolEvent whereEndsAt($value)
+ * @method static Builder<static>|SchoolEvent whereEndDate($value)
  * @method static Builder<static>|SchoolEvent whereId($value)
  * @method static Builder<static>|SchoolEvent whereImage($value)
  * @method static Builder<static>|SchoolEvent whereLocation($value)
  * @method static Builder<static>|SchoolEvent whereName($value)
  * @method static Builder<static>|SchoolEvent whereSchoolId($value)
- * @method static Builder<static>|SchoolEvent whereStartsAt($value)
+ * @method static Builder<static>|SchoolEvent whereStartDate($value)
  * @method static Builder<static>|SchoolEvent whereUpdatedAt($value)
  *
  * @mixin \Eloquent
@@ -53,8 +53,8 @@ class SchoolEvent extends Model
     protected function casts(): array
     {
         return [
-            'starts_at' => 'datetime',
-            'ends_at' => 'datetime',
+            'start_date' => 'date',
+            'end_date' => 'date',
         ];
     }
 
@@ -67,23 +67,23 @@ class SchoolEvent extends Model
     protected function upcoming(Builder $query): Builder
     {
         return $query
-            ->where('ends_at', '>=', now())
-            ->orderBy('starts_at');
+            ->where('start_date', '>', now()->toDateString())
+            ->orderBy('start_date');
     }
 
     #[Scope]
     protected function ongoing(Builder $query): Builder
     {
         return $query
-            ->where('starts_at', '<=', now())
-            ->where('ends_at', '>=', now());
+            ->where('start_date', '<=', now()->toDateString())
+            ->where('end_date', '>=', now()->toDateString());
     }
 
     #[Scope]
     protected function past(Builder $query): Builder
     {
         return $query
-            ->where('ends_at', '<', now())
-            ->orderByDesc('ends_at');
+            ->where('end_date', '<', now()->toDateString())
+            ->orderByDesc('end_date');
     }
 }

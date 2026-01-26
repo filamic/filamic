@@ -19,8 +19,8 @@ return new class extends Migration
             $table->foreignIdFor(School::class)->nullable();
             $table->string('name');
             $table->string('location');
-            $table->dateTime('starts_at');
-            $table->dateTime('ends_at');
+            $table->date('start_date');
+            $table->date('end_date');
             $table->string('image')->nullable();
             $table->longText('details')->nullable();
             $table->timestamps();

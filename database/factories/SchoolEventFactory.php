@@ -22,8 +22,8 @@ class SchoolEventFactory extends Factory
         return [
             'name' => fake()->sentence(3),
             'location' => fake()->city(),
-            'starts_at' => $start,
-            'ends_at' => $end,
+            'start_date' => $start,
+            'end_date' => $end,
         ];
     }
 }

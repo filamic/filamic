@@ -12,11 +12,11 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\TimePicker;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
@@ -44,10 +44,10 @@ class SchoolEventResource extends Resource
                     ->required(),
                 TextInput::make('location')
                     ->required(),
-                TimePicker::make('starts_at')
+                DatePicker::make('start_date')
                     ->required(),
-                TimePicker::make('ends_at')
-                    ->after('starts_at')
+                DatePicker::make('end_date')
+                    ->after('start_date')
                     ->required(),
                 FileUpload::make('image')
                     ->image()
@@ -66,10 +66,10 @@ class SchoolEventResource extends Resource
                     ->placeholder('-'),
                 TextEntry::make('name'),
                 TextEntry::make('location'),
-                TextEntry::make('starts_at')
-                    ->time(),
-                TextEntry::make('ends_at')
-                    ->time(),
+                TextEntry::make('start_date')
+                    ->date(),
+                TextEntry::make('end_date')
+                    ->date(),
                 ImageEntry::make('image')
                     ->placeholder('-'),
                 TextEntry::make('details')
@@ -95,9 +95,9 @@ class SchoolEventResource extends Resource
                     ->searchable(),
                 TextColumn::make('location')
                     ->searchable(),
-                TextColumn::make('starts_at')
+                TextColumn::make('start_date')
                     ->sortable(),
-                TextColumn::make('ends_at')
+                TextColumn::make('end_date')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
