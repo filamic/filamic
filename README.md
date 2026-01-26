@@ -38,3 +38,4 @@ Filamic open-sourced software licensed under the [MIT license](https://opensourc
 - [ ] Fix slug feature
 - [ ] CRUD career 
 - [ ] CRUD News
+- [ ] create Request validation for pagination, inside GalleryController and SchoolEventController
