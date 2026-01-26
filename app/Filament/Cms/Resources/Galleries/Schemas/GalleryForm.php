@@ -43,13 +43,8 @@ class GalleryForm
                         ->panelLayout('grid')
                         ->multiple()
                         ->columnSpanFull()
-                        ->formatStateUsing(function ($state) {
-                            return collect($state)->map(fn ($file) => "event-galleries/{$file}")->toArray();
-                        })
-                        ->dehydrateStateUsing(function (array $state) {
-                            return collect($state)->map(fn ($path) => basename($path))->toArray();
-                            
-                        }),
+                        ->formatStateUsing(fn ($state) => collect($state)->map(fn ($file) => "event-galleries/{$file}")->toArray())
+                        ->dehydrateStateUsing(fn (array $state) => collect($state)->map(fn ($path) => basename($path))->toArray()),
                 ]),
             ]);
     }

@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\API\V1;
 
+use App\Http\Controllers\Controller;
+use App\Http\Resources\GalleryResource;
 use App\Models\Gallery;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Http\Resources\GalleryResource;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class GalleryController extends Controller
 {
@@ -20,10 +22,10 @@ class GalleryController extends Controller
         $perPage = $request->integer('page.size', 15);
 
         $galleries = QueryBuilder::for(Gallery::class)
-            ->with('school','category')
-            ->allowedFilters([
+            ->allowedFilters(
                 AllowedFilter::belongsTo('category'),
-            ])
+            )
+            ->with('school', 'category')
             ->paginate($perPage);
 
         return GalleryResource::collection($galleries);

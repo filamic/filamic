@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Traits\BelongsToSchool;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @property int $id
@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read GalleryCategory|null $category
+ * @property-read mixed $formatted_images
  * @property-read School|null $school
  *
  * @method static \Database\Factories\GalleryFactory factory($count = null, $state = [])
@@ -65,23 +66,23 @@ class Gallery extends Model
     protected function formattedImages(): Attribute
     {
         return Attribute::make(
-            get: function(){
+            get: function () {
 
-                    if(blank($this->images)){
-                        return [];
-                    }
-
-                    $disk = config('filesystems.default', 'public');
-        
-                    return collect($this->images)->map(function ($image) use ($disk) {
-                        $filename = is_array($image) ? $image['filename'] : $image;
-                        
-                        return [
-                            'url' => Storage::disk($disk)->url("event-galleries/{$filename}"),
-                            'alt' => $this->name,
-                        ];
-                    })->values()->all();
+                if (blank($this->images)) {
+                    return [];
                 }
+
+                $disk = config('filesystems.default', 'public');
+
+                return collect($this->images)->map(function ($image) use ($disk) {
+                    $filename = is_array($image) ? $image['filename'] : $image;
+
+                    return [
+                        'url' => Storage::disk($disk)->url("event-galleries/{$filename}"),
+                        'alt' => $this->name,
+                    ];
+                })->values()->all();
+            }
         );
     }
 }
