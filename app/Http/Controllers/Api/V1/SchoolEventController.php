@@ -25,6 +25,7 @@ class SchoolEventController extends Controller
             ->allowedFilters(
                 AllowedFilter::scope('upcoming'),
             )
+            ->with('school')
             ->paginate($perPage);
 
         return SchoolEventResource::collection($schoolEvents);

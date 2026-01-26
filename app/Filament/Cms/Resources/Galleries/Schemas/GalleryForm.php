@@ -39,10 +39,17 @@ class GalleryForm
                         ->required()
                         ->image()
                         ->disk('public')
+                        ->directory('event-galleries')
                         ->panelLayout('grid')
                         ->multiple()
-                        ->directory('Gallery')
-                        ->columnSpanFull(),
+                        ->columnSpanFull()
+                        ->formatStateUsing(function ($state) {
+                            return collect($state)->map(fn ($file) => "event-galleries/{$file}")->toArray();
+                        })
+                        ->dehydrateStateUsing(function (array $state) {
+                            return collect($state)->map(fn ($path) => basename($path))->toArray();
+                            
+                        }),
                 ]),
             ]);
     }

@@ -36,3 +36,5 @@ Filamic open-sourced software licensed under the [MIT license](https://opensourc
 ### Todo
 - [ ] Tambahkan spate laravel-image-optimizer
 - [ ] Fix slug feature
+- [ ] CRUD career 
+- [ ] CURD News

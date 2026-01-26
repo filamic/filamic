@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Traits\BelongsToSchool;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
@@ -58,5 +60,28 @@ class Gallery extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(GalleryCategory::class, 'gallery_category_id');
+    }
+
+    protected function formattedImages(): Attribute
+    {
+        return Attribute::make(
+            get: function(){
+
+                    if(blank($this->images)){
+                        return [];
+                    }
+
+                    $disk = config('filesystems.default', 'public');
+        
+                    return collect($this->images)->map(function ($image) use ($disk) {
+                        $filename = is_array($image) ? $image['filename'] : $image;
+                        
+                        return [
+                            'url' => Storage::disk($disk)->url("event-galleries/{$filename}"),
+                            'alt' => $this->name,
+                        ];
+                    })->values()->all();
+                }
+        );
     }
 }
