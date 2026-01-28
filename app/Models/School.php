@@ -28,6 +28,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Classroom> $classrooms
  * @property-read int|null $classrooms_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SchoolEvent> $events
+ * @property-read int|null $events_count
  * @property-read mixed $formatted_npsn
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SubjectCategory> $subjectCategories
  * @property-read int|null $subject_categories_count
@@ -71,6 +73,11 @@ class School extends Model
     public function subjectCategories(): HasMany
     {
         return $this->hasMany(SubjectCategory::class);
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(SchoolEvent::class);
     }
 
     public function subjects(): HasManyThrough

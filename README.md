@@ -27,3 +27,16 @@ Filamic open-sourced software licensed under the [MIT license](https://opensourc
 
 ## Hire Us
 - Open to any job opportunity, let's work together, send me an email (christmex@yahoo.com)✌️
+
+
+
+
+
+## CMS Panel
+### Todo
+- [ ] Tambahkan spate laravel-image-optimizer
+- [ ] Fix slug feature
+- [ ] CRUD career 
+- [ ] CRUD News
+- [ ] create Request validation for pagination, inside GalleryController and SchoolEventController
+- [ ] Delete gallery image when the record is deleted
