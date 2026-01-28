@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property string $id
@@ -16,6 +17,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $address
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, School> $schools
+ * @property-read int|null $schools_count
  *
  * @method static \Database\Factories\BranchFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Branch newModelQuery()
@@ -39,4 +42,9 @@ class Branch extends Model
     use HasUlids;
 
     protected $guarded = ['id'];
+
+    public function schools(): HasMany
+    {
+        return $this->hasMany(School::class);
+    }
 }

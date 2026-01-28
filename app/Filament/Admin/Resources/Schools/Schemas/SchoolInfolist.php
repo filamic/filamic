@@ -16,6 +16,8 @@ class SchoolInfolist
             ->components([
                 Section::make()
                     ->schema([
+                        TextEntry::make('branch.name'),
+                        TextEntry::make('level'),
                         TextEntry::make('name'),
                         TextEntry::make('address'),
                         TextEntry::make('npsn')->label('NPSN'),

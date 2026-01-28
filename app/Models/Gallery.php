@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * @property int $id
- * @property int|null $school_id
+ * @property string|null $school_id
  * @property int|null $gallery_category_id
  * @property string $name
  * @property string $slug

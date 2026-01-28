@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 /**
  * @property int $id
  * @property string $name
- * @property int $school_id
+ * @property string $school_id
  * @property int|null $grade
  * @property string|null $phase
  * @property bool $is_moving_class

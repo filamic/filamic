@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\Admin\Resources\Schools\Schemas;
 
+use App\Enums\LevelEnum;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -20,6 +23,12 @@ class SchoolForm
                         Tabs\Tab::make('School Identity')
                             ->icon(Heroicon::OutlinedIdentification)
                             ->schema([
+                                Select::make('branch_id')
+                                    ->relationship('branch', 'name')
+                                    ->required(),
+                                ToggleButtons::make('level')
+                                    ->options(LevelEnum::class)
+                                    ->inline(),
                                 TextInput::make('name')
                                     ->required()
                                     ->unique(ignoreRecord: true)

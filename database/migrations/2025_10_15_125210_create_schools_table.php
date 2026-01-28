@@ -11,8 +11,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('schools', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique();
+            $table->ulid('id')->primary();
+            $table->foreignUlid('branch_id');
+            $table->string('name');
+            $table->tinyInteger('level');
             $table->string('address')->nullable();
             $table->string('npsn')->nullable();
             $table->string('nis_nss_nds')->nullable();
@@ -25,6 +27,8 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->string('email')->nullable();
             $table->timestamps();
+
+            $table->unique(['branch_id', 'name']);
         });
     }
 };

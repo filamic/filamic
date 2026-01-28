@@ -18,6 +18,8 @@ class SchoolsTable
                 TextColumn::make('name')
                     ->searchable()
                     ->description(fn (School $school) => $school->formatted_npsn),
+                TextColumn::make('branch.name'),
+                TextColumn::make('level'),
             ])
             ->recordActions([
                 ViewAction::make(),

@@ -72,7 +72,7 @@ class ManageTeachings extends ListRecords
             Group::make([
                 Select::make('school_year_id')
                     ->relationship('schoolYear')
-                    ->getOptionLabelFromRecordUsing(fn (SchoolYear $record) => "{$record->name_with_semester}")
+                    // ->getOptionLabelFromRecordUsing(fn (SchoolYear $record) => "{$record->name_with_semester}")
                     ->searchable()
                     ->preload()
                     ->afterStateUpdated(self::resetRepeater(...))

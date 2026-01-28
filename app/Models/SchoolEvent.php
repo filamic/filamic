@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
- * @property int|null $school_id
+ * @property string|null $school_id
  * @property string $name
  * @property string $location
  * @property \Illuminate\Support\Carbon $start_date

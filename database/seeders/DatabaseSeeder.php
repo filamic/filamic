@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Enums\LevelEnum;
 use App\Models\Branch;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Classroom;
@@ -85,9 +86,13 @@ class DatabaseSeeder extends Seeder
 
     public function createSchools(): void
     {
+        $branch = Branch::first();
+
         $school = School::factory()
             ->state([
+                'branch_id' => $branch,
                 'name' => 'SD BASIC 1',
+                'level' => LevelEnum::ELEMENTARY,
             ])
             ->create();
 
