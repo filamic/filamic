@@ -9,6 +9,7 @@ use Filament\Support\Contracts\HasLabel;
 
 enum UserTypeEnum: int implements HasColor, HasLabel
 {
+    case NOTYPE = 0;
     case EMPLOYEE = 1;
     case STUDENT = 2;
     case PARENT = 3;
@@ -18,7 +19,7 @@ enum UserTypeEnum: int implements HasColor, HasLabel
         return match ($this) {
             self::EMPLOYEE => 'Employee',
             self::STUDENT => 'Student',
-            self::PARENT => 'Parents',
+            self::PARENT => 'Parent',
         };
     }
 

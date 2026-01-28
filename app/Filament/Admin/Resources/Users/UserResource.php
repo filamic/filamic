@@ -42,7 +42,9 @@ class UserResource extends Resource
                 DateTimePicker::make('email_verified_at'),
                 TextInput::make('password')
                     ->password()
-                    ->required(),
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? bcrypt($state) : null)
+                    ->dehydrated(fn (?string $state): bool => filled($state)),
             ]);
     }
 
@@ -52,7 +54,7 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
-                    ->description(fn (User $record) => $record->user_type->getLabel()),
+                    ->description(fn (User $record) => $record->user_type?->getLabel()),
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),

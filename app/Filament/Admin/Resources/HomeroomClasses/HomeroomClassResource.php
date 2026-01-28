@@ -61,7 +61,7 @@ class HomeroomClassResource extends Resource
 
                 Select::make('classroom_id')
                     ->label('Classroom')
-                    ->disabled(fn (Get $get) => blank($get('user_id')))
+                    ->disabled(fn (Get $get) => blank($get('school_id')))
                     ->options(fn (Get $get) => Classroom::where('school_id', $get('school_id'))->pluck('name', 'id'))
                     ->searchable()
                     ->preload()
