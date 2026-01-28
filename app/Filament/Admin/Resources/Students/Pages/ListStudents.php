@@ -26,16 +26,12 @@ class ListStudents extends ListRecords
     public function getTabs(): array
     {
         return collect(StudentStatusEnum::cases())
-            ->mapWithKeys(function (StudentStatusEnum $status) {
-                
-                return [
-                    $status->name => Tab::make()
-                        ->label(fn()=>str($status->name)->replace('_', ' ')->title())
-                        ->modifyQueryUsing(fn (Builder|Student $query) => $query->{str($status->name)->camel()->toString()}())
-                        ->icon($status->getIcon()),
-                ];
-                
-            })
+            ->mapWithKeys(fn (StudentStatusEnum $status) => [
+                $status->name => Tab::make()
+                    ->label(fn () => str($status->name)->replace('_', ' ')->title())
+                    ->modifyQueryUsing(fn (Builder | Student $query) => $query->{str($status->name)->camel()->toString()}())
+                    ->icon($status->getIcon()),
+            ])
             ->toArray();
     }
 }

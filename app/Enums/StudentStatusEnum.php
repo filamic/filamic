@@ -7,7 +7,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum StudentStatusEnum: int implements HasLabel, HasIcon
+enum StudentStatusEnum: int implements HasIcon, HasLabel
 {
     case ACTIVE = 1;
     case PROSPECTIVE = 2;
