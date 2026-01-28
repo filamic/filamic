@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models\Traits;
 
-use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 
 trait HasActiveState
 {
@@ -23,8 +24,10 @@ trait HasActiveState
 
     public function activateExclusively(): void
     {
-        static::deactivateOthers();
-        $this->update(['is_active' => true]);
+        DB::transaction(function () {
+            static::deactivateOthers();
+            $this->update(['is_active' => true]);
+        });
     }
 
     public function isActive(): bool
@@ -39,6 +42,9 @@ trait HasActiveState
 
     public static function deactivateOthers(): void
     {
-        static::query()->active()->update(['is_active' => false]);
+        static::query()
+            ->lockForUpdate()
+            ->active()
+            ->update(['is_active' => false]);
     }
 }

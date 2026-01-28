@@ -60,7 +60,7 @@ class SchoolYear extends Model
     protected function nameWithSemester(): Attribute
     {
         return Attribute::make(
-            get: fn () => "{$this->name} (Please fix this we moved the semester to a new tabel)",
+            get: fn () => throw new \RuntimeException('nameWithSemester accessor needs to be updated to use the new semester table'),
         );
     }
 }

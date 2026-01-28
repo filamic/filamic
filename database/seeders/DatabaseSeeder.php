@@ -77,7 +77,7 @@ class DatabaseSeeder extends Seeder
 
     public function createSchoolTerm(): void
     {
-        SchoolTerm::factory()
+        SchoolTerm::factory(2)
             ->forEachSequence(['name' => 1], ['name' => 2])
             ->inactive()
             ->create();
