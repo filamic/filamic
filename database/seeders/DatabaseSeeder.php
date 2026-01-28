@@ -9,6 +9,7 @@ use App\Models\Branch;
 use App\Models\Classroom;
 use App\Models\School;
 use App\Models\SchoolEvent;
+use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
 use App\Models\Subject;
 use App\Models\SubjectCategory;
@@ -23,22 +24,63 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Super Admin',
-            'email' => 'super@admin.com',
-            'password' => bcrypt('mantapjiwa00'),
-        ]);
 
         $this->createBranches();
-        $this->createSchools();
-        $this->createClassrooms();
         $this->createSchoolYear();
-        $this->createSubjectCategories();
-        $this->createSubjects();
-        $this->createTeachers();
-        $this->createSchoolEvents();
+        $this->createSchoolTerm();
+
+        if (app()->environment('local')) {
+
+            User::factory()->create([
+                'name' => 'Super Admin',
+                'email' => 'super@admin.com',
+                'password' => bcrypt('mantapjiwa00'),
+            ]);
+
+            $this->createSchools();
+            $this->createClassrooms();
+            $this->createSubjectCategories();
+            $this->createSubjects();
+            $this->createTeachers();
+            $this->createSchoolEvents();
+        }
+    }
+
+    public function createBranches(): void
+    {
+        Branch::factory(2)
+            ->forEachSequence([
+                'name' => 'Basic Batam Center',
+                'phone' => '(0778) 460817',
+                'whatsapp' => '+6281275402543',
+                'address' => 'Jalan laksamana Kawasan Industri No.1, Baloi Permai, Batam Center, Kota Batam, Kepulauan Riau 29444',
+            ], [
+                'name' => 'Basic Batu Aji',
+                'phone' => '(0778) 3850886',
+                'address' => 'Perumahan Marsyeba Indah, Bukit Tempayan, Kec. Batu Aji, Kota Batam, Kepulauan Riau 29425',
+            ])
+            ->create();
+    }
+
+    public function createSchoolYear(): void
+    {
+        $data = collect(range(2023, 2027))
+            ->map(fn ($year) => [
+                'name' => $year . '/' . ($year + 1),
+            ])->toArray();
+
+        SchoolYear::factory(count($data))
+            ->forEachSequence(...$data)
+            ->inactive()
+            ->create();
+    }
+
+    public function createSchoolTerm(): void
+    {
+        SchoolTerm::factory()
+            ->forEachSequence(['name' => 1], ['name' => 2])
+            ->inactive()
+            ->create();
     }
 
     public function createSchools(): void
@@ -55,11 +97,6 @@ class DatabaseSeeder extends Seeder
     public function createClassrooms(): void
     {
         Classroom::factory(10)->create();
-    }
-
-    public function createSchoolYear(): void
-    {
-        SchoolYear::factory()->active()->create();
     }
 
     public function createSubjectCategories(): void
@@ -91,12 +128,5 @@ class DatabaseSeeder extends Seeder
     public function createSchoolEvents(): void
     {
         SchoolEvent::factory(5)->create();
-    }
-
-    public function createBranches(): void
-    {
-        Branch::factory(2)
-            ->forEachSequence(['name' => 'Basic Batam Center'], ['name' => 'Basic Batu Aji'])
-            ->create();
     }
 }

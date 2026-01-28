@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $teacher_id
  * @property int $subject_id
  * @property int $classroom_id
- * @property int $school_year_id
+ * @property string $school_year_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Classroom $classroom

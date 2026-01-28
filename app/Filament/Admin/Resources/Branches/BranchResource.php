@@ -7,10 +7,6 @@ namespace App\Filament\Admin\Resources\Branches;
 use App\Filament\Admin\Resources\Branches\Pages\ManageBranches;
 use App\Models\Branch;
 use BackedEnum;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -37,18 +33,13 @@ class BranchResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->paginated(false)
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
-            ])
-            ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                    ->description(fn (Branch $record) => $record->address),
+                TextColumn::make('whatsapp')
+                    ->label('Contact')
+                    ->description(fn (Branch $record) => "Phone: {$record->phone}"),
             ]);
     }
 

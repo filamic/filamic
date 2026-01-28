@@ -10,11 +10,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('school_years', function (Blueprint $table) {
+        Schema::create('school_terms', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('name');
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
+            $table->tinyInteger('name')->unique();
             $table->boolean('is_active')->default(false);
             $table->timestamps();
         });

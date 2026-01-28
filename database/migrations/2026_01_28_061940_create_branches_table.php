@@ -13,6 +13,9 @@ return new class extends Migration
         Schema::create('branches', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->string('name')->unique();
+            $table->string('phone')->nullable();
+            $table->string('whatsapp')->nullable();
+            $table->string('address')->nullable();
             $table->timestamps();
         });
     }

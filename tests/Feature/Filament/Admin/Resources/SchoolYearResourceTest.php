@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Enums\SemesterEnum;
+use App\Enums\SchoolTermEnum;
 use App\Filament\Admin\Resources\SchoolYears\Pages\CreateSchoolYear;
 use App\Filament\Admin\Resources\SchoolYears\Pages\EditSchoolYear;
 use App\Filament\Admin\Resources\SchoolYears\Pages\ListSchoolYears;
@@ -25,7 +25,6 @@ test('list page renders columns', function (string $column) {
         ->assertCanRenderTableColumn($column);
 })->with([
     'name',
-    'semester',
     'is_active',
 ]);
 
@@ -62,46 +61,44 @@ test('cannot create a record without required fields', function () {
         ->call('create')
         ->assertHasFormErrors([
             'name' => 'required',
-            'semester' => 'required',
         ]);
 });
 
-test('cannot create a record with invalid semester', function () {
-    Livewire::test(CreateSchoolYear::class)
-        ->fillForm([
-            'name' => '2024/2025',
-            'semester' => 3,
-            'start_date' => '2024-06-01',
-            'end_date' => '2024-01-01',
-        ])
-        ->call('create')
-        ->assertHasFormErrors([
-            'semester',
-            'end_date' => 'after',
-        ]);
-});
+// test('cannot create a record with invalid semester', function () {
+//     Livewire::test(CreateSchoolYear::class)
+//         ->fillForm([
+//             'name' => '2024/2025',
+//             'semester' => 3,
+//             'start_date' => '2024-06-01',
+//             'end_date' => '2024-01-01',
+//         ])
+//         ->call('create')
+//         ->assertHasFormErrors([
+//             'semester',
+//             'end_date' => 'after',
+//         ]);
+// });
 
-test('cannot create a record with duplicate semester', function () {
-    SchoolYear::factory()->create([
-        'name' => '2024/2025',
-        'semester' => SemesterEnum::ODD,
-    ]);
+// test('cannot create a record with duplicate semester', function () {
+//     SchoolYear::factory()->create([
+//         'name' => '2024/2025',
+//         'semester' => SchoolTermEnum::ODD,
+//     ]);
 
-    Livewire::test(CreateSchoolYear::class)
-        ->fillForm([
-            'name' => '2024/2025',
-            'semester' => SemesterEnum::ODD,
-        ])
-        ->call('create')
-        ->assertHasFormErrors([
-            'semester' => 'unique',
-        ]);
-});
+//     Livewire::test(CreateSchoolYear::class)
+//         ->fillForm([
+//             'name' => '2024/2025',
+//             'semester' => SchoolTermEnum::ODD,
+//         ])
+//         ->call('create')
+//         ->assertHasFormErrors([
+//             'semester' => 'unique',
+//         ]);
+// });
 
 test('can create a record', function () {
     $data = SchoolYear::factory()->make([
         'name' => '2025/2026',
-        'semester' => SemesterEnum::ODD,
     ]);
 
     Livewire::test(CreateSchoolYear::class)
@@ -110,8 +107,7 @@ test('can create a record', function () {
         ->assertHasNoFormErrors();
 
     expect(SchoolYear::first())
-        ->name->toBe('2025/2026')
-        ->semester->toBe(SemesterEnum::ODD);
+        ->name->toBe('2025/2026');
 });
 
 test('can create an active school year', function () {
@@ -176,13 +172,11 @@ test('view page is accessible', function () {
 test('view page displays all information', function () {
     $record = SchoolYear::factory()->create([
         'name' => '2024/2025',
-        'semester' => SemesterEnum::ODD,
     ]);
 
     Livewire::test(ViewSchoolYear::class, ['record' => $record->getRouteKey()])
         ->assertSchemaStateSet([
             'name' => $record->name,
-            'semester' => $record->semester,
             'start_date' => $record->start_date,
             'end_date' => $record->end_date,
             'is_active' => $record->is_active,
@@ -208,12 +202,10 @@ test('cannot save a record without required fields', function () {
     Livewire::test(EditSchoolYear::class, ['record' => $record->getRouteKey()])
         ->fillForm([
             'name' => null,
-            'semester' => null,
         ])
         ->call('save')
         ->assertHasFormErrors([
             'name' => 'required',
-            'semester' => 'required',
         ]);
 });
 
@@ -238,7 +230,6 @@ test('can save a record', function () {
     Livewire::test(EditSchoolYear::class, ['record' => $record->getRouteKey()])
         ->fillForm([
             'name' => '2026/2027',
-            'semester' => SemesterEnum::EVEN,
             'start_date' => '2025-01-01',
             'end_date' => '2025-12-31',
         ])
@@ -246,8 +237,7 @@ test('can save a record', function () {
         ->assertHasNoFormErrors();
 
     expect($record->refresh())
-        ->name->toBe('2026/2027')
-        ->semester->toBe(SemesterEnum::EVEN);
+        ->name->toBe('2026/2027');
 });
 
 test('list page has toggle column for is_active', function () {

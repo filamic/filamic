@@ -6,7 +6,7 @@ namespace App\Enums;
 
 use Filament\Support\Contracts\HasLabel;
 
-enum SemesterEnum: int implements HasLabel
+enum SchoolTermEnum: int implements HasLabel
 {
     case ODD = 1;
     case EVEN = 2;
