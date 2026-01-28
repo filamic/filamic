@@ -22,20 +22,20 @@ class ClassroomResource extends Resource
 {
     protected static ?string $model = Classroom::class;
 
-    protected static UnitEnum | string | null $navigationGroup = 'Academic';
+    // protected static UnitEnum | string | null $navigationGroup = 'Academic';
 
     protected static ?int $navigationSort = 2;
 
     protected static string | BackedEnum | null $navigationIcon = 'tabler-door';
+    
+    public static function form(Schema $schema): Schema
+    {
+        return ClassroomForm::configure($schema);
+    }
 
     public static function table(Table $table): Table
     {
         return ClassroomsTable::configure($table);
-    }
-
-    public static function form(Schema $schema): Schema
-    {
-        return ClassroomForm::configure($schema);
     }
 
     public static function infolist(Schema $schema): Schema

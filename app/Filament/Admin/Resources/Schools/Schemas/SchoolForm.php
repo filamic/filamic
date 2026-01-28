@@ -26,15 +26,16 @@ class SchoolForm
                                 Select::make('branch_id')
                                     ->relationship('branch', 'name')
                                     ->required(),
-                                ToggleButtons::make('level')
-                                    ->options(LevelEnum::class)
-                                    ->inline(),
                                 TextInput::make('name')
                                     ->required()
-                                    ->unique(ignoreRecord: true)
-                                    ->columnSpanFull(),
+                                    ->unique(ignoreRecord: true),
                                 TextInput::make('npsn')->label('NPSN'),
                                 TextInput::make('nis_nss_nds')->label('NIS/NSS/NDS'),
+                                ToggleButtons::make('level')
+                                    ->options(LevelEnum::class)
+                                    ->inline()
+                                    ->required()
+                                    ->columnSpanFull(),
                             ]),
                         Tabs\Tab::make('Address & Location')
                             ->icon(Heroicon::OutlinedMapPin)

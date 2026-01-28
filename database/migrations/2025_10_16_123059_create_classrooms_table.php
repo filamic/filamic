@@ -12,13 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('classrooms', function (Blueprint $table) {
-            $table->id();
+            $table->ulid('id');
+            $table->foreignUlid('school_id')->constrained();
             $table->string('name');
-            $table->foreignIdFor(School::class)->constrained();
-            $table->tinyInteger('grade')->nullable();
+            $table->tinyInteger('grade');
+
+            // custom
             $table->string('phase')->nullable();
             $table->boolean('is_moving_class')->default(false);
+            // custom
+            
             $table->timestamps();
+
+            $table->unique(['school_id', 'name']);
         });
     }
 };

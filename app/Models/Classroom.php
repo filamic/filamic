@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\GradeEnum;
 use App\Models\Traits\BelongsToSchool;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -47,12 +48,8 @@ class Classroom extends Model
     protected function casts(): array
     {
         return [
+            'grade' => GradeEnum::class,
             'is_moving_class' => 'boolean',
         ];
-    }
-
-    public static function getGrades(): Collection
-    {
-        return collect(array_map('strval', range(0, 12)));
     }
 }

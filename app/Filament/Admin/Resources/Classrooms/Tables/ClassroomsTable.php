@@ -35,10 +35,6 @@ class ClassroomsTable
                     ->label('School')
                     ->relationship('school', 'name'),
 
-                SelectFilter::make('grade')
-                    ->label('Grade')
-                    ->options(Classroom::getGrades()),
-
                 SelectFilter::make('is_moving_class')
                     ->label('Moving Class')
                     ->columnSpanFull()
