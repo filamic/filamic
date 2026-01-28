@@ -37,18 +37,16 @@ class HomeroomClassResource extends Resource
     {
         return $schema
             ->components([
-
                 Select::make('school_year_id')
                     ->relationship('schoolYear')
-                    // ->getOptionLabelFromRecordUsing(fn (SchoolYear $record) => "{$record->name_with_semester}")
                     ->searchable()
                     ->preload()
                     ->live()
                     ->default(fn ($state) => $state ?? SchoolYear::active()->first()?->getRouteKey())
                     ->required(),
 
-                Select::make('teacher_id')
-                    ->relationship('teacher', 'name')
+                Select::make('user_id')
+                    ->relationship('user', 'name')
                     ->required(),
 
                 Select::make('school_id')
@@ -63,7 +61,7 @@ class HomeroomClassResource extends Resource
 
                 Select::make('classroom_id')
                     ->label('Classroom')
-                    ->disabled(fn (Get $get) => blank($get('teacher_id')))
+                    ->disabled(fn (Get $get) => blank($get('user_id')))
                     ->options(fn (Get $get) => Classroom::where('school_id', $get('school_id'))->pluck('name', 'id'))
                     ->searchable()
                     ->preload()
@@ -79,16 +77,15 @@ class HomeroomClassResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('teacher.name')
+                TextColumn::make('user.name')
                     ->searchable(),
                 TextColumn::make('classroom.name')
                     ->searchable(),
                 TextColumn::make('schoolYear.name_with_semester'),
             ])
             ->filters([
-                SelectFilter::make('teacher_id')
-                    ->label('Teacher')
-                    ->relationship('teacher', 'name'),
+                SelectFilter::make('user_id')
+                    ->relationship('user', 'name'),
 
                 SelectFilter::make('classroom_id')
                     ->label('Classroom')
@@ -97,7 +94,6 @@ class HomeroomClassResource extends Resource
                 SelectFilter::make('school_year_id')
                     ->label('School Year')
                     ->relationship('schoolYear', 'name')
-                    // ->getOptionLabelFromRecordUsing(fn (SchoolYear $record) => "{$record->name_with_semester}")
                     ->default(SchoolYear::active()->first()?->getRouteKey()),
             ])
             ->recordActions([

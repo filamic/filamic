@@ -10,13 +10,17 @@ use BackedEnum;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class BranchResource extends Resource
 {
     protected static ?string $model = Branch::class;
+
+    protected static UnitEnum | string | null $navigationGroup = 'School Infrastructure';
+
+    protected static ?int $navigationSort = 1;
 
     protected static string | BackedEnum | null $navigationIcon = 'tabler-buildings';
 
@@ -37,9 +41,8 @@ class BranchResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->description(fn (Branch $record) => $record->address),
-                TextColumn::make('whatsapp')
-                    ->label('Contact')
-                    ->description(fn (Branch $record) => "Phone: {$record->phone}"),
+                TextColumn::make('whatsapp'),
+                TextColumn::make('phone'),
             ]);
     }
 

@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Filament\Admin\Resources\Classrooms\Schemas;
 
-use App\Models\School;
 use App\Enums\GradeEnum;
-use App\Models\Classroom;
-use Filament\Schemas\Schema;
+use App\Models\School;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 
 class ClassroomForm
 {
@@ -30,8 +29,8 @@ class ClassroomForm
                             ->afterStateUpdated(function (Set $set, $state) {
                                 $school = School::find($state);
 
-                                $set('temp_level', $school?->level?->value ?? null);
-                                
+                                $set('temp_level', $school?->level->value ?? null);
+
                                 $set('grade', null);
                             })
                             ->required(),
@@ -40,11 +39,13 @@ class ClassroomForm
                             ->options(function (Get $get) {
                                 $level = $get('temp_level');
 
-                                if (empty($level)) return [];
+                                if (empty($level)) {
+                                    return [];
+                                }
 
                                 return collect(GradeEnum::forLevel((int) $level))
                                     ->mapWithKeys(fn ($grade) => [
-                                        $grade->value => $grade->getLabel()
+                                        $grade->value => $grade->getLabel(),
                                     ]);
                             })
                             ->required(),

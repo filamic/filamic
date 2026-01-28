@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Enums\LevelEnum;
+use App\Enums\UserTypeEnum;
 use App\Models\Branch;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Classroom;
+use App\Models\Position;
 use App\Models\School;
 use App\Models\SchoolEvent;
 use App\Models\SchoolTerm;
@@ -25,25 +27,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-
-        $this->createBranches();
-        $this->createSchoolYear();
-        $this->createSchoolTerm();
-
         if (app()->environment('local')) {
+
+            $this->createBranches();
+            $this->createSchoolYear();
+            $this->createSchoolTerm();
+            $this->createPosition();
+
+            $this->createSchools();
+            $this->createSubjectCategories();
 
             User::factory()->create([
                 'name' => 'Super Admin',
                 'email' => 'super@admin.com',
+                'user_type' => UserTypeEnum::EMPLOYEE,
                 'password' => bcrypt('mantapjiwa00'),
             ]);
 
-            $this->createSchools();
-            $this->createClassrooms();
-            $this->createSubjectCategories();
-            $this->createSubjects();
-            $this->createTeachers();
-            $this->createSchoolEvents();
+            // $this->createClassrooms();
+
+            // $this->createSubjects();
+            // $this->createTeachers();
+            // $this->createSchoolEvents();
         }
     }
 
@@ -81,6 +86,13 @@ class DatabaseSeeder extends Seeder
         SchoolTerm::factory(2)
             ->forEachSequence(['name' => 1], ['name' => 2])
             ->inactive()
+            ->create();
+    }
+
+    public function createPosition(): void
+    {
+        Position::factory()
+            ->state(['name' => 'Administrator'])
             ->create();
     }
 

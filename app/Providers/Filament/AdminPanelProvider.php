@@ -66,7 +66,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Academic Periods')
-                    ->icon('tabler-calendar-event'),
+                    ->icon('tabler-calendar'),
             ]);
     }
 }

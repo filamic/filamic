@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 use Filament\Support\Contracts\HasLabel;
@@ -29,7 +31,7 @@ enum GradeEnum: int implements HasLabel
     case GRADE_11 = 14;
     case GRADE_12 = 15;
 
-    public function getLabel(): ?string
+    public function getLabel(): string
     {
         return match ($this) {
             self::PLAYGROUP => 'Playgroup',
@@ -50,7 +52,7 @@ enum GradeEnum: int implements HasLabel
         };
     }
 
-    public static function forLevel(int $level): array
+    public static function forLevel(int | LevelEnum | null $level): array
     {
         $levelValue = $level instanceof LevelEnum ? $level->value : $level;
 
