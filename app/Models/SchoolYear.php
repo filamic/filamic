@@ -56,11 +56,4 @@ class SchoolYear extends Model
             'is_active' => 'boolean',
         ];
     }
-
-    protected function nameWithSemester(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => throw new \RuntimeException('nameWithSemester accessor needs to be updated to use the new semester table'),
-        );
-    }
 }
