@@ -96,17 +96,11 @@ class SchoolEventResource extends Resource
                 TextColumn::make('location')
                     ->searchable(),
                 TextColumn::make('start_date')
-                    ->sortable(),
+                    ->sortable()
+                    ->date(),
                 TextColumn::make('end_date')
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->date(),
             ])
             ->filters([
 
