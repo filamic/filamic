@@ -48,6 +48,7 @@ class Teaching extends Model
 
     /** @use HasFactory<\Database\Factories\TeachingFactory> */
     use HasFactory;
+
     use HasSchoolyear;
     use HasUlids;
 

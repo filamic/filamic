@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\Students\Pages;
 
+use App\Filament\Admin\Resources\Students\StudentResource;
+use App\Models\Student;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Admin\Resources\Students\StudentResource;
 
 class ListStudents extends ListRecords
 {
@@ -23,22 +25,22 @@ class ListStudents extends ListRecords
     {
         return [
             'active' => Tab::make()
-                ->modifyQueryUsing(callback: fn (Builder $query) => $query->active())
+                ->modifyQueryUsing(callback: fn (Student $query) => $query->active())
                 ->icon('tabler-rosette-discount-check'),
             'prospective' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->prospective())
+                ->modifyQueryUsing(fn (Student $query) => $query->prospective())
                 ->icon('tabler-star'),
             'graduated' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->graduated())
+                ->modifyQueryUsing(fn (Student $query) => $query->graduated())
                 ->icon('tabler-briefcase-2'),
             'moved' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->moved())
+                ->modifyQueryUsing(fn (Student $query) => $query->moved())
                 ->icon('tabler-outbound'),
             'dropped_out' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->droppedOut())
+                ->modifyQueryUsing(fn (Student $query) => $query->droppedOut())
                 ->icon('tabler-arrow-bear-right'),
             'nonActive' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->nonActive())
+                ->modifyQueryUsing(fn (Student $query) => $query->nonActive())
                 ->icon('tabler-rosette-discount-check-off'),
         ];
     }

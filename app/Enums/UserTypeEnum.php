@@ -17,6 +17,7 @@ enum UserTypeEnum: int implements HasColor, HasLabel
     public function getLabel(): string
     {
         return match ($this) {
+            self::NOTYPE => 'No Type',
             self::EMPLOYEE => 'Employee',
             self::STUDENT => 'Student',
             self::PARENT => 'Parent',
@@ -26,6 +27,7 @@ enum UserTypeEnum: int implements HasColor, HasLabel
     public function getColor(): string
     {
         return match ($this) {
+            self::NOTYPE => 'gray',
             self::EMPLOYEE => 'success',
             self::STUDENT => 'info',
             self::PARENT => 'warning',

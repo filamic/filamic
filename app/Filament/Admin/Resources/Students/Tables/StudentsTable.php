@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\Students\Tables;
 
 use Filament\Actions\BulkActionGroup;
@@ -55,7 +57,7 @@ class StudentsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+
             ])
             ->recordActions([
                 EditAction::make(),

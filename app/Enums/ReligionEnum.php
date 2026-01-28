@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 use Filament\Support\Contracts\HasLabel;
@@ -22,7 +24,7 @@ enum ReligionEnum: int implements HasLabel
             self::CATHOLIC => 'Katolik',
             self::HINDU => 'Hindu',
             self::BUDDHA => 'Buddha',
-            self::KHONGHUCU => 'Konghucu',
+            self::KHONGHUCU => 'Khonghucu',
             self::OTHERS => 'Lainnya',
         };
     }

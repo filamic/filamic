@@ -42,6 +42,7 @@ class HomeroomClass extends Model
 
     /** @use HasFactory<\Database\Factories\HomeroomClassFactory> */
     use HasFactory;
+
     use HasSchoolyear;
     use HasUlids;
 

@@ -54,7 +54,7 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
-                    ->description(fn (User $record) => $record->user_type?->getLabel()),
+                    ->description(fn (User $record) => $record->user_type->getLabel()),
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),

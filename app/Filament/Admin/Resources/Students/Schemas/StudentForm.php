@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\Students\Schemas;
 
 use App\Enums\GenderEnum;
 use App\Enums\ReligionEnum;
-use Filament\Schemas\Schema;
-use App\Enums\StudentStatusEnum;
 use App\Enums\StatusInFamilyEnum;
+use App\Enums\StudentStatusEnum;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class StudentForm
 {
@@ -55,7 +57,7 @@ class StudentForm
                         ->inline()
                         ->columnSpanFull(),
                     // TextInput::make('metadata'),
-                ])
+                ]),
             ]);
     }
 }

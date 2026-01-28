@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\Students;
 
 use App\Filament\Admin\Resources\Students\Pages\CreateStudent;
@@ -11,7 +13,6 @@ use App\Models\Student;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -19,7 +20,6 @@ class StudentResource extends Resource
 {
     protected static ?string $model = Student::class;
 
-    
     protected static UnitEnum | string | null $navigationGroup = 'Core Identity & Access';
 
     protected static ?int $navigationSort = 3;
@@ -39,7 +39,7 @@ class StudentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+
         ];
     }
 
