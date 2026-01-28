@@ -88,6 +88,8 @@ class DatabaseSeeder extends Seeder
     {
         $branch = Branch::first();
 
+        context()->add('branch', $branch);
+
         $school = School::factory()
             ->state([
                 'branch_id' => $branch,
