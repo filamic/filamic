@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Branch;
-use App\Models\School;
-use App\Models\Subject;
-use App\Models\Teacher;
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Classroom;
-use App\Models\SchoolYear;
+use App\Models\School;
 use App\Models\SchoolEvent;
+use App\Models\SchoolYear;
+use App\Models\Subject;
 use App\Models\SubjectCategory;
+use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -96,7 +96,7 @@ class DatabaseSeeder extends Seeder
     public function createBranches(): void
     {
         Branch::factory(2)
-            ->forEachSequence(['name' => 'Basic Batam Center'],['name' => 'Basic Batu Aji'])
+            ->forEachSequence(['name' => 'Basic Batam Center'], ['name' => 'Basic Batu Aji'])
             ->create();
     }
 }

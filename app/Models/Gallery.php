@@ -78,7 +78,7 @@ class Gallery extends Model
                     $filename = is_array($image) ? $image['filename'] : $image;
 
                     return [
-                        'url' => config('app.url').Storage::disk($disk)->url("event-galleries/{$filename}"),
+                        'url' => config('app.url') . Storage::disk($disk)->url("event-galleries/{$filename}"),
                         'alt' => $this->name,
                     ];
                 })->values()->all();
