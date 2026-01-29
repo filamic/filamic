@@ -31,6 +31,7 @@ return new class extends Migration
             $table->tinyInteger('status_in_family')->nullable();
             $table->tinyInteger('religion')->nullable();
             $table->tinyInteger('status');
+            $table->longText('notes')->nullable();
             $table->json('metadata')->nullable();
             $table->timestamps();
         });

@@ -19,5 +19,14 @@ return new class extends Migration
             $table->foreignUlid('school_term_id')->constrained();
             $table->timestamps();
         });
+
+        // TODO: we need to use this later
+        // $table->ulid('id')->primary();
+        // $table->foreignUlid('school_year_id')->constrained();
+        // $table->foreignUlid('classroom_id')->constrained();
+        // $table->foreignUlid('employee_id')->constrained();
+        // $table->foreignUlid('subject_id')->constrained();
+        // $table->foreignUlid('group_id')->nullable()->constrained(); // Null jika kelas reguler
+        // $table->timestamps();
     }
 };

@@ -44,7 +44,9 @@ class PositionResource extends Resource
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable()
+                    ->toggledHiddenByDefault(),
                 TextColumn::make('name')
                     ->searchable(),
             ])

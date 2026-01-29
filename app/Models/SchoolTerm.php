@@ -46,7 +46,6 @@ class SchoolTerm extends Model
     {
         return [
             'name' => SchoolTermEnum::class,
-            'is_active' => 'boolean',
         ];
     }
 }

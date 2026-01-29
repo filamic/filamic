@@ -10,6 +10,7 @@ use App\Enums\StatusInFamilyEnum;
 use App\Enums\StudentStatusEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Section;
@@ -55,6 +56,8 @@ class StudentForm
                         ->options(StudentStatusEnum::class)
                         ->required()
                         ->inline()
+                        ->columnSpanFull(),
+                    Textarea::make('notes')
                         ->columnSpanFull(),
                     // TextInput::make('metadata'),
                 ]),

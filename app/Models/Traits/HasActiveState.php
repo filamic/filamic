@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\DB;
 
 trait HasActiveState
 {
+    protected function initializeHasActiveState(): void
+    {
+        $this->mergeCasts([
+            'is_active' => 'boolean',
+        ]);
+    }
+
     #[Scope]
     protected function active(Builder $query): Builder
     {

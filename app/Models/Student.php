@@ -34,6 +34,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property StatusInFamilyEnum|null $status_in_family
  * @property ReligionEnum|null $religion
  * @property StudentStatusEnum $status
+ * @property string|null $notes
  * @property array<array-key, mixed>|null $metadata
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -65,6 +66,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder<static>|Student whereName($value)
  * @method static Builder<static>|Student whereNis($value)
  * @method static Builder<static>|Student whereNisn($value)
+ * @method static Builder<static>|Student whereNotes($value)
  * @method static Builder<static>|Student wherePreviousEducation($value)
  * @method static Builder<static>|Student whereReligion($value)
  * @method static Builder<static>|Student whereSiblingOrderInFamily($value)
