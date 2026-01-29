@@ -6,7 +6,6 @@ namespace App\Filament\Admin\Resources\Students\Pages;
 
 use App\Enums\StudentStatusEnum;
 use App\Filament\Admin\Resources\Students\StudentResource;
-use App\Models\Student;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -29,7 +28,7 @@ class ListStudents extends ListRecords
             ->mapWithKeys(fn (StudentStatusEnum $status) => [
                 $status->name => Tab::make()
                     ->label(fn () => str($status->name)->replace('_', ' ')->title())
-                    ->modifyQueryUsing(fn (Builder | Student $query) => $query->{str($status->name)->camel()->toString()}())
+                    ->modifyQueryUsing(fn (Builder $query) => $query->{str($status->name)->camel()->toString()}())
                     ->icon($status->getIcon()),
             ])
             ->toArray();
