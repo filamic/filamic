@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Enums\SemesterEnum;
+use App\Enums\SchoolTermEnum;
 use App\Models\SchoolYear;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
@@ -11,7 +11,6 @@ test('can mass assign fillable attributes', function () {
     // Arrange
     $attributes = [
         'name' => '2024/2025',
-        'semester' => SemesterEnum::ODD,
         'start_date' => '2024-09-01',
         'end_date' => '2025-06-30',
         'is_active' => true,
@@ -23,7 +22,6 @@ test('can mass assign fillable attributes', function () {
     // Assert
     expect($schoolYear)
         ->name->toBe('2024/2025')
-        ->semester->toBe(SemesterEnum::ODD)
         ->is_active->toBe(true);
 });
 
@@ -32,34 +30,33 @@ test('id is guarded from mass assignment 2', function () {
     $schoolYear = SchoolYear::create([
         'id' => 999,
         'name' => '2024/2025',
-        'semester' => SemesterEnum::ODD,
     ]);
 
     // Assert - id should be auto-generated, not 999 (guarded works)
     expect($schoolYear->id)->not->toBe(999);
 });
 
-test('semester is cast to SemesterEnum', function () {
-    // Arrange & Act - Create with integer value
-    $schoolYear = SchoolYear::factory()->create([
-        'semester' => 1,
-    ]);
+// test('semester is cast to SemesterEnum', function () {
+//     // Arrange & Act - Create with integer value
+//     $schoolYear = SchoolYear::factory()->create([
+//         'semester' => 1,
+//     ]);
 
-    // Assert - Should be cast to enum
-    expect($schoolYear->semester)
-        ->toBeInstanceOf(SemesterEnum::class)
-        ->toBe(SemesterEnum::ODD);
+//     // Assert - Should be cast to enum
+//     expect($schoolYear->semester)
+//         ->toBeInstanceOf(SchoolTermEnum::class)
+//         ->toBe(SchoolTermEnum::ODD);
 
-    // Arrange & Act - Create with enum value
-    $schoolYear2 = SchoolYear::factory()->create([
-        'semester' => SemesterEnum::EVEN,
-    ]);
+//     // Arrange & Act - Create with enum value
+//     $schoolYear2 = SchoolYear::factory()->create([
+//         'semester' => SchoolTermEnum::EVEN,
+//     ]);
 
-    // Assert
-    expect($schoolYear2->semester)
-        ->toBeInstanceOf(SemesterEnum::class)
-        ->toBe(SemesterEnum::EVEN);
-});
+//     // Assert
+//     expect($schoolYear2->semester)
+//         ->toBeInstanceOf(SchoolTermEnum::class)
+//         ->toBe(SchoolTermEnum::EVEN);
+// });
 
 test('start_date is cast to Carbon instance', function () {
     // Arrange & Act
@@ -123,7 +120,6 @@ test('timestamps are automatically cast to Carbon instances', function () {
 test('name is required in database', function () {
     // Arrange
     $schoolYear = new SchoolYear([
-        'semester' => SemesterEnum::ODD,
         'is_active' => true,
     ]);
 
@@ -132,17 +128,17 @@ test('name is required in database', function () {
         ->toThrow(QueryException::class);
 });
 
-test('semester is required in database', function () {
-    // Arrange
-    $schoolYear = new SchoolYear([
-        'name' => '2024/2025',
-        'is_active' => true,
-    ]);
+// test('semester is required in database', function () {
+//     // Arrange
+//     $schoolYear = new SchoolYear([
+//         'name' => '2024/2025',
+//         'is_active' => true,
+//     ]);
 
-    // Act & Assert
-    expect(fn () => $schoolYear->save())
-        ->toThrow(QueryException::class);
-});
+//     // Act & Assert
+//     expect(fn () => $schoolYear->save())
+//         ->toThrow(QueryException::class);
+// });
 
 test('can scope active school years', function () {
     // Arrange

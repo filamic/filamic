@@ -21,6 +21,6 @@ class ListSchoolYears extends ListRecords
 
     public function getSubheading(): string | \Illuminate\Contracts\Support\Htmlable | null
     {
-        return 'Manage school academic years and semesters.';
+        return 'Manage school academic years.';
     }
 }

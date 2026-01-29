@@ -18,7 +18,6 @@ class SchoolYearInfolist
                 Section::make()
                     ->schema([
                         TextEntry::make('name'),
-                        TextEntry::make('semester'),
                         TextEntry::make('start_date')
                             ->date(),
                         TextEntry::make('end_date')

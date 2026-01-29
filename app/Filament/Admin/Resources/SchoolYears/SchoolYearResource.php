@@ -22,20 +22,20 @@ class SchoolYearResource extends Resource
 {
     protected static ?string $model = SchoolYear::class;
 
-    protected static UnitEnum | string | null $navigationGroup = 'Academic';
+    protected static UnitEnum | string | null $navigationGroup = 'School Infrastructure';
 
     protected static ?int $navigationSort = 3;
 
-    protected static string | BackedEnum | null $navigationIcon = 'tabler-calendar-event';
-
-    public static function table(Table $table): Table
-    {
-        return SchoolYearsTable::configure($table);
-    }
+    protected static string | BackedEnum | null $navigationIcon = 'tabler-calendar';
 
     public static function form(Schema $schema): Schema
     {
         return SchoolYearForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return SchoolYearsTable::configure($table);
     }
 
     public static function infolist(Schema $schema): Schema

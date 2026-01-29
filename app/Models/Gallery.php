@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * @property int $id
- * @property int|null $school_id
+ * @property string|null $school_id
  * @property int|null $gallery_category_id
  * @property string $name
  * @property string $slug
@@ -78,7 +78,7 @@ class Gallery extends Model
                     $filename = is_array($image) ? $image['filename'] : $image;
 
                     return [
-                        'url' => config('app.url').Storage::disk($disk)->url("event-galleries/{$filename}"),
+                        'url' => config('app.url') . Storage::disk($disk)->url("event-galleries/{$filename}"),
                         'alt' => $this->name,
                     ];
                 })->values()->all();

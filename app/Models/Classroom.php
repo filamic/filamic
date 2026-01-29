@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\GradeEnum;
 use App\Models\Traits\BelongsToSchool;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 
 /**
- * @property int $id
+ * @property string $id
+ * @property string $school_id
  * @property string $name
- * @property int $school_id
- * @property int|null $grade
+ * @property GradeEnum $grade
  * @property string|null $phase
  * @property bool $is_moving_class
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -42,17 +43,15 @@ class Classroom extends Model
     /** @use HasFactory<\Database\Factories\ClassroomFactory> */
     use HasFactory;
 
+    use HasUlids;
+
     protected $guarded = ['id'];
 
     protected function casts(): array
     {
         return [
+            'grade' => GradeEnum::class,
             'is_moving_class' => 'boolean',
         ];
-    }
-
-    public static function getGrades(): Collection
-    {
-        return collect(array_map('strval', range(0, 12)));
     }
 }

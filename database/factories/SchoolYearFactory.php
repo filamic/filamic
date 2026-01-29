@@ -20,7 +20,6 @@ class SchoolYearFactory extends Factory
 
         return [
             'name' => $startYear . '/' . ($startYear + 1),
-            'semester' => fake()->numberBetween(1, 2),
             'start_date' => $startDate,
             'end_date' => $endDate,
             'is_active' => fake()->boolean(),
@@ -39,13 +38,6 @@ class SchoolYearFactory extends Factory
     {
         return $this->state([
             'is_active' => false,
-        ]);
-    }
-
-    public function semester(int $semester): static
-    {
-        return $this->state([
-            'semester' => $semester,
         ]);
     }
 }

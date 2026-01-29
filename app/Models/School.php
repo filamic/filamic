@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\LevelEnum;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
- * @property int $id
+ * @property string $id
+ * @property string $branch_id
  * @property string $name
+ * @property LevelEnum $level
  * @property string|null $address
  * @property string|null $npsn
  * @property string|null $nis_nss_nds
@@ -26,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @property string|null $email
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Branch|null $branch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Classroom> $classrooms
  * @property-read int|null $classrooms_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SchoolEvent> $events
@@ -41,10 +47,12 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereBranchId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereCity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereLevel($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereNisNssNds($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereNpsn($value)
@@ -63,7 +71,21 @@ class School extends Model
     /** @use HasFactory<\Database\Factories\SchoolFactory> */
     use HasFactory;
 
+    use HasUlids;
+
     protected $guarded = ['id'];
+
+    public function casts()
+    {
+        return [
+            'level' => LevelEnum::class,
+        ];
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     public function classrooms(): HasMany
     {

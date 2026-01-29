@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Traits\BelongsToSchool;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * @property int $id
- * @property int $school_id
+ * @property string $id
+ * @property string $school_id
  * @property string $name
  * @property int $sort_order
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -39,6 +40,8 @@ class SubjectCategory extends Model
 
     /** @use HasFactory<\Database\Factories\SubjectCategoryFactory> */
     use HasFactory;
+
+    use HasUlids;
 
     protected $guarded = ['id'];
 

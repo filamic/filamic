@@ -45,7 +45,7 @@ class TeachingsTable
                 SelectFilter::make('school_year_id')
                     ->label('School Year')
                     ->relationship('schoolYear', 'name')
-                    ->getOptionLabelFromRecordUsing(fn (SchoolYear $record) => "{$record->name_with_semester}")
+                    // ->getOptionLabelFromRecordUsing(fn (SchoolYear $record) => "{$record->name_with_semester}")
                     ->default(SchoolYear::active()->first()?->getRouteKey()),
             ])
             ->recordActions([
