@@ -1,22 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Finance\Resources\Students\Schemas;
 
 use App\Enums\GenderEnum;
-use App\Enums\ReligionEnum;
-use Filament\Support\RawJs;
-use Filament\Schemas\Schema;
 use App\Enums\StudentStatusEnum;
-use App\Enums\StatusInFamilyEnum;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Tabs;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\DatePicker;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
+use Filament\Support\RawJs;
 
 class StudentForm
 {
@@ -43,7 +42,7 @@ class StudentForm
                                         ->columnSpanFull(),
                                     Textarea::make('notes')
                                         ->columnSpanFull(),
-                                ])
+                                ]),
                             ])
                             ->icon('tabler-list-details'),
                         Tab::make('Payment Detail')
@@ -92,8 +91,8 @@ class StudentForm
                                             ->maxLength(20)
                                             ->unique(ignoreRecord: true)
                                             ->different('monthly_fee_virtual_account'),
-                                    ])
-                                
+                                    ]),
+
                             ])
                             ->icon('tabler-wallet'),
                         Tab::make('Classroom')
@@ -102,8 +101,8 @@ class StudentForm
                             ])
                             ->icon('tabler-door'),
                     ])
-                    ->contained(false)
-                
+                    ->contained(false),
+
             ]);
     }
 }

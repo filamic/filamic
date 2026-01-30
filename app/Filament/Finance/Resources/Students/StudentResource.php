@@ -1,21 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Finance\Resources\Students;
 
-use BackedEnum;
-use App\Models\Student;
-use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
-
-use Filament\Support\Icons\Heroicon;
-use App\Filament\Admin\Resources\Classrooms\ClassroomResource;
+use App\Filament\Finance\Resources\Students\Pages\CreateStudent;
 use App\Filament\Finance\Resources\Students\Pages\EditStudent;
 use App\Filament\Finance\Resources\Students\Pages\ListStudents;
-use App\Filament\Finance\Resources\Students\Pages\CreateStudent;
 use App\Filament\Finance\Resources\Students\Schemas\StudentForm;
 use App\Filament\Finance\Resources\Students\Tables\StudentsTable;
-use App\Filament\Admin\Resources\Students\StudentResource as StudentsStudentResource;
+use App\Models\Student;
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Table;
 
 class StudentResource extends Resource
 {
@@ -36,7 +34,7 @@ class StudentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+
         ];
     }
 

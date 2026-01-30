@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToSchool;
 use App\Models\Traits\BelongsToStudent;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Scope;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int $id
@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read School|null $school
+ * @property-read Student|null $student
  *
  * @method static \Database\Factories\SchoolEventFactory factory($count = null, $state = [])
  * @method static Builder<static>|SchoolEvent newModelQuery()
@@ -46,9 +47,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class SchoolEvent extends Model
 {
+    use BelongsToSchool;
+    use BelongsToStudent;
+
     /** @use HasFactory<\Database\Factories\SchoolEventFactory> */
     use HasFactory;
-    use BelongsToStudent;
 
     protected $guarded = ['id'];
 

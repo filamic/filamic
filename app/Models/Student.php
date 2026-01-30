@@ -42,6 +42,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read User|null $father
  * @property-read User|null $guardian
  * @property-read User|null $mother
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StudentPaymentAccount> $paymentAccounts
+ * @property-read int|null $payment_accounts_count
  * @property-read User|null $user
  *
  * @method static Builder<static>|Student active()
