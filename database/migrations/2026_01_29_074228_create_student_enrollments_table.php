@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignUlid('curriculum_id')->constrained();
             $table->tinyInteger('status')->default(1);
 
-            $table->date('enrolled_at');
+            $table->date('enrolled_at'); // tnggl mulai masuk sekolah
             $table->date('left_at')->nullable();
             $table->timestamps();
 

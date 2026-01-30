@@ -27,7 +27,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Filament::serving(function () {
             Filament::getCurrentPanel()
-
                 ->topbar(false)
                 // ->topNavigation()
                 ->maxContentWidth(Width::Full)

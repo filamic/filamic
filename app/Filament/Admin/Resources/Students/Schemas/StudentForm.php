@@ -42,10 +42,10 @@ class StudentForm
                         ->inline(),
                     // TextInput::make('birth_place'),
                     // DatePicker::make('birth_date'),
-                    TextInput::make('previous_education')
-                        ->placeholder('Example: SDS Kasih Sayang'),
-                    TextInput::make('joined_at_class')
-                        ->placeholder('Example: VII (Joshua 1)'),
+                    // TextInput::make('previous_education')
+                    //     ->placeholder('Example: SDS Kasih Sayang'),
+                    // TextInput::make('joined_at_class')
+                    //     ->placeholder('Example: VII (Joshua 1)'),
                     // TextInput::make('sibling_order_in_family')
                     //     ->numeric(),
                     // Select::make('status_in_family')

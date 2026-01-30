@@ -40,6 +40,8 @@ arch('migrations do not have down function')
     )
     ->toBeEmpty();
 
+// TODO: check all model has test and filament resource also 
+
 // arch('Filament resource tests have minimal required tests')
 //     ->expect(function () {
 //         $results = collect(Illuminate\Support\Facades\File::allFiles('tests/Feature/Filament/Admin/Resources'))

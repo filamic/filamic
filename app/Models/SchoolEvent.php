@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Scope;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Traits\BelongsToStudent;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
@@ -47,6 +48,7 @@ class SchoolEvent extends Model
 {
     /** @use HasFactory<\Database\Factories\SchoolEventFactory> */
     use HasFactory;
+    use BelongsToStudent;
 
     protected $guarded = ['id'];
 
@@ -56,11 +58,6 @@ class SchoolEvent extends Model
             'start_date' => 'date',
             'end_date' => 'date',
         ];
-    }
-
-    public function school(): BelongsTo
-    {
-        return $this->belongsTo(School::class);
     }
 
     #[Scope]
