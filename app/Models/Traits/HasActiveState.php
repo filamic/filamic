@@ -54,4 +54,11 @@ trait HasActiveState
             ->active()
             ->update(['is_active' => false]);
     }
+
+    public static function getActive(): ?static
+    {
+        $cacheKey = static::class . '_active_record';
+
+        return cache()->rememberForever($cacheKey, fn () => static::query()->active()->first());
+    }
 }

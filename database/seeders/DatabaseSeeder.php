@@ -9,6 +9,7 @@ use App\Enums\UserTypeEnum;
 use App\Models\Branch;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Classroom;
+use App\Models\Curriculum;
 use App\Models\Position;
 use App\Models\School;
 use App\Models\SchoolEvent;
@@ -33,6 +34,7 @@ class DatabaseSeeder extends Seeder
             $this->createSchoolYear();
             $this->createSchoolTerm();
             $this->createPosition();
+            $this->createCurriculumn();
 
             $this->createSchools();
             $this->createSubjectCategories();
@@ -44,7 +46,7 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('mantapjiwa00'),
             ]);
 
-            // $this->createClassrooms();
+            $this->createClassrooms();
 
             // $this->createSubjects();
             // $this->createTeachers();
@@ -96,6 +98,14 @@ class DatabaseSeeder extends Seeder
             ->create();
     }
 
+    public function createCurriculumn(): void
+    {
+        Curriculum::factory()
+            ->state(['name' => 'Basic Curriculum'])
+            ->active()
+            ->create();
+    }
+
     public function createSchools(): void
     {
         $branch = Branch::first();
@@ -139,10 +149,10 @@ class DatabaseSeeder extends Seeder
         // Subject::factory(10)->create();
     }
 
-    public function createTeachers(): void
-    {
-        Teacher::factory(5)->create();
-    }
+    // public function createTeachers(): void
+    // {
+    //     Teacher::factory(5)->create();
+    // }
 
     public function createSchoolEvents(): void
     {

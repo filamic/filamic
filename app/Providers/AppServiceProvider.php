@@ -43,7 +43,8 @@ class AppServiceProvider extends ServiceProvider
                     Platform::Windows, Platform::Linux => 'CTRL+K',
                     Platform::Mac => '⌘K',
                     default => null,
-                });
+                })
+                ->databaseTransactions();
         });
 
         Section::configureUsing(fn (Section $section) => $section

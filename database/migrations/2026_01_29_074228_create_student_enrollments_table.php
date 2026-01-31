@@ -16,14 +16,11 @@ return new class extends Migration
             $table->foreignUlid('classroom_id')->constrained();
             $table->foreignUlid('school_year_id')->constrained();
             $table->foreignUlid('school_term_id')->constrained();
-            $table->foreignUlid('curriculum_id')->constrained();
-            $table->tinyInteger('status')->default(1);
+            $table->tinyInteger('status')->default(1)->index();
 
-            $table->date('enrolled_at'); // tnggl mulai masuk sekolah
-            $table->date('left_at')->nullable();
             $table->timestamps();
 
-            $table->index(['student_id', 'school_year_id', 'status']);
+            $table->unique(['student_id', 'classroom_id', 'school_year_id', 'school_term_id'], 'unique_enrollment_term');
         });
     }
 };

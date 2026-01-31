@@ -14,8 +14,8 @@ enum SchoolTermEnum: int implements HasLabel
     public function getLabel(): string
     {
         return match ($this) {
-            self::ODD => 'Odd',
-            self::EVEN => 'Even',
+            self::ODD => 'Ganjil (1)',
+            self::EVEN => 'Genap (2)',
         };
     }
 }

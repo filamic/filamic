@@ -53,4 +53,23 @@ enum StudentEnrollmentStatusEnum: int implements HasColor, HasIcon, HasLabel
             self::DROPPED_OUT => 'heroicon-m-x-circle',
         };
     }
+
+    public static function getActiveStatuses(): array
+    {
+        return [
+            self::ENROLLED,
+            self::PROMOTED,
+            self::STAYED,
+            self::MOVED_INTERNAL,
+        ];
+    }
+
+    public static function getInactiveStatuses(): array
+    {
+        return [
+            self::GRADUATED,
+            self::MOVED_EXTERNAL,
+            self::DROPPED_OUT,
+        ];
+    }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\StudentEnrollmentStatusEnum;
+use App\Models\Traits\BelongsToStudent;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,12 +17,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $classroom_id
  * @property string $school_year_id
  * @property string $school_term_id
- * @property string $curriculum_id
  * @property StudentEnrollmentStatusEnum $status
- * @property string $enrolled_at
- * @property string|null $left_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read SchoolTerm $schoolTerm
+ * @property-read SchoolYear $schoolYear
  * @property-read Student $student
  *
  * @method static \Database\Factories\StudentEnrollmentFactory factory($count = null, $state = [])
@@ -30,10 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereClassroomId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereCurriculumId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereEnrolledAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereLeftAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereSchoolTermId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereSchoolYearId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereStatus($value)
@@ -44,6 +41,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class StudentEnrollment extends Model
 {
+    use BelongsToStudent;
+
     /** @use HasFactory<\Database\Factories\StudentEnrollmentFactory> */
     use HasFactory;
 
@@ -58,8 +57,21 @@ class StudentEnrollment extends Model
         ];
     }
 
-    public function student(): BelongsTo
+    protected static function booted(): void
     {
-        return $this->belongsTo(Student::class);
+        // Trigger setiap kali data pendaftaran dibuat atau diupdate
+        static::saved(function ($enrollment) {
+            $enrollment->student->syncActiveStatus();
+        });
+    }
+
+    public function schoolYear(): BelongsTo
+    {
+        return $this->belongsTo(SchoolYear::class);
+    }
+
+    public function schoolTerm(): BelongsTo
+    {
+        return $this->belongsTo(SchoolTerm::class);
     }
 }

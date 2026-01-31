@@ -27,7 +27,7 @@ return new class extends Migration
             $table->tinyInteger('sibling_order_in_family')->nullable();
             $table->tinyInteger('status_in_family')->nullable();
             $table->tinyInteger('religion')->nullable();
-            $table->tinyInteger('status');
+            $table->boolean('is_active')->default(false);
             $table->longText('notes')->nullable();
             $table->json('metadata')->nullable();
             $table->timestamps();

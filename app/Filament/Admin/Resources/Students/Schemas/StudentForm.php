@@ -52,11 +52,11 @@ class StudentForm
                     //     ->options(StatusInFamilyEnum::class),
                     // Select::make('religion')
                     //     ->options(ReligionEnum::class),
-                    ToggleButtons::make('status')
-                        ->options(StudentStatusEnum::class)
-                        ->required()
-                        ->inline()
-                        ->columnSpanFull(),
+                    // ToggleButtons::make('status')
+                    //     ->options(StudentStatusEnum::class)
+                    //     ->required()
+                    //     ->inline()
+                    //     ->columnSpanFull(),
                     Textarea::make('notes')
                         ->columnSpanFull(),
                     // TextInput::make('metadata'),

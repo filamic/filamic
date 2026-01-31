@@ -22,15 +22,15 @@ class ListStudents extends ListRecords
         ];
     }
 
-    public function getTabs(): array
-    {
-        return collect(StudentStatusEnum::cases())
-            ->mapWithKeys(fn (StudentStatusEnum $status) => [
-                $status->name => Tab::make()
-                    ->label(fn () => str($status->name)->replace('_', ' ')->title())
-                    ->modifyQueryUsing(fn (Builder $query) => $query->{str($status->name)->camel()->toString()}())
-                    ->icon($status->getIcon()),
-            ])
-            ->toArray();
-    }
+    // public function getTabs(): array
+    // {
+    //     return collect(StudentStatusEnum::cases())
+    //         ->mapWithKeys(fn (StudentStatusEnum $status) => [
+    //             $status->name => Tab::make()
+    //                 ->label(fn () => str($status->name)->replace('_', ' ')->title())
+    //                 ->modifyQueryUsing(fn (Builder $query) => $query->{str($status->name)->camel()->toString()}())
+    //                 ->icon($status->getIcon()),
+    //         ])
+    //         ->toArray();
+    // }
 }

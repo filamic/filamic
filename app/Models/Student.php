@@ -7,9 +7,9 @@ namespace App\Models;
 use App\Enums\GenderEnum;
 use App\Enums\ReligionEnum;
 use App\Enums\StatusInFamilyEnum;
-use App\Enums\StudentStatusEnum;
+use App\Enums\StudentEnrollmentStatusEnum;
 use App\Models\Traits\BelongsToUser;
-use Illuminate\Database\Eloquent\Attributes\Scope;
+use App\Models\Traits\HasActiveState;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,11 +34,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $sibling_order_in_family
  * @property StatusInFamilyEnum|null $status_in_family
  * @property ReligionEnum|null $religion
- * @property StudentStatusEnum $status
+ * @property bool $is_active
  * @property string|null $notes
  * @property array<array-key, mixed>|null $metadata
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StudentEnrollment> $enrollments
+ * @property-read int|null $enrollments_count
  * @property-read User|null $father
  * @property-read User|null $guardian
  * @property-read User|null $mother
@@ -47,14 +49,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read User|null $user
  *
  * @method static Builder<static>|Student active()
- * @method static Builder<static>|Student droppedOut()
  * @method static \Database\Factories\StudentFactory factory($count = null, $state = [])
- * @method static Builder<static>|Student graduated()
- * @method static Builder<static>|Student moved()
+ * @method static Builder<static>|Student inactive()
  * @method static Builder<static>|Student newModelQuery()
  * @method static Builder<static>|Student newQuery()
- * @method static Builder<static>|Student nonActive()
- * @method static Builder<static>|Student prospective()
  * @method static Builder<static>|Student query()
  * @method static Builder<static>|Student whereBirthDate($value)
  * @method static Builder<static>|Student whereBirthPlace($value)
@@ -63,6 +61,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static Builder<static>|Student whereGender($value)
  * @method static Builder<static>|Student whereGuardianId($value)
  * @method static Builder<static>|Student whereId($value)
+ * @method static Builder<static>|Student whereIsActive($value)
  * @method static Builder<static>|Student whereJoinedAtClass($value)
  * @method static Builder<static>|Student whereMetadata($value)
  * @method static Builder<static>|Student whereMotherId($value)
@@ -73,7 +72,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static Builder<static>|Student wherePreviousEducation($value)
  * @method static Builder<static>|Student whereReligion($value)
  * @method static Builder<static>|Student whereSiblingOrderInFamily($value)
- * @method static Builder<static>|Student whereStatus($value)
  * @method static Builder<static>|Student whereStatusInFamily($value)
  * @method static Builder<static>|Student whereUpdatedAt($value)
  * @method static Builder<static>|Student whereUserId($value)
@@ -83,6 +81,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Student extends Model
 {
     use BelongsToUser;
+    use HasActiveState;
 
     /** @use HasFactory<\Database\Factories\StudentFactory> */
     use HasFactory;
@@ -97,7 +96,6 @@ class Student extends Model
             'gender' => GenderEnum::class,
             'status_in_family' => StatusInFamilyEnum::class,
             'religion' => ReligionEnum::class,
-            'status' => StudentStatusEnum::class,
             'metadata' => 'array',
         ];
     }
@@ -119,42 +117,29 @@ class Student extends Model
 
     public function paymentAccounts(): HasMany
     {
-        return $this->hasMany(StudentPaymentAccount::class, 'student_id', 'id');
+        return $this->hasMany(StudentPaymentAccount::class);
     }
 
-    #[Scope]
-    protected function active(Builder $query): Builder
+    public function enrollments(): HasMany
     {
-        return $query->where('status', StudentStatusEnum::ACTIVE);
+        return $this->hasMany(StudentEnrollment::class);
     }
 
-    #[Scope]
-    protected function graduated(Builder $query): Builder
+    public function syncActiveStatus(): void
     {
-        return $query->where('status', StudentStatusEnum::GRADUATED);
-    }
+        $activeYear = SchoolYear::getActive();
 
-    #[Scope]
-    protected function moved(Builder $query): Builder
-    {
-        return $query->where('status', StudentStatusEnum::MOVED);
-    }
+        if (! $activeYear) {
+            return;
+        }
 
-    #[Scope]
-    protected function droppedOut(Builder $query): Builder
-    {
-        return $query->where('status', StudentStatusEnum::DROPPED_OUT);
-    }
+        $isActive = $this->enrollments()
+            ->where('school_year_id', $activeYear->getkey())
+            ->whereIn('status', StudentEnrollmentStatusEnum::getActiveStatuses())
+            ->exists();
 
-    #[Scope]
-    protected function nonActive(Builder $query): Builder
-    {
-        return $query->where('status', StudentStatusEnum::NON_ACTIVE);
-    }
-
-    #[Scope]
-    protected function prospective(Builder $query): Builder
-    {
-        return $query->where('status', StudentStatusEnum::PROSPECTIVE);
+        $this->updateQuietly([
+            'is_active' => $isActive,
+        ]);
     }
 }
