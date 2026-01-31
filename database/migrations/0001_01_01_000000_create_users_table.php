@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->tinyInteger('user_type')->default(0)->index();
+            $table->unsignedTinyInteger('user_type')->default(0)->index();
             $table->boolean('is_active')->default(true);
             $table->longText('address')->nullable();
             $table->string('job')->nullable();

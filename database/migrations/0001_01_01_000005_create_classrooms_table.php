@@ -14,7 +14,7 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->foreignUlid('school_id')->constrained();
             $table->string('name');
-            $table->tinyInteger('grade');
+            $table->unsignedTinyInteger('grade');
 
             // custom
             $table->string('phase')->nullable();

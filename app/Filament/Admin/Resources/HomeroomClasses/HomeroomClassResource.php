@@ -98,16 +98,16 @@ class HomeroomClassResource extends Resource
             ])
             ->recordActions([
                 DeleteAction::make()
-                    ->disabled(fn (HomeroomClass $record) => ! $record->canDelete()),
+                    ->disabled(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ])
-            ->checkIfRecordIsSelectableUsing(
-                fn (HomeroomClass $record): bool => $record->canDelete(),
-            );
+            ]);
+        // ->checkIfRecordIsSelectableUsing(
+        //     fn (HomeroomClass $record): bool => $record->canDelete(),
+        // )
     }
 
     public static function getPages(): array

@@ -19,14 +19,14 @@ return new class extends Migration
             $table->foreignUlid('guardian_id')->nullable()->constrained('users');
             $table->string('nisn')->unique()->nullable();
             $table->string('nis')->nullable()->index();
-            $table->tinyInteger('gender');
+            $table->unsignedTinyInteger('gender');
             $table->string('birth_place')->nullable();
             $table->date('birth_date')->nullable();
             $table->string('previous_education')->nullable();
             $table->string('joined_at_class')->nullable();
-            $table->tinyInteger('sibling_order_in_family')->nullable();
-            $table->tinyInteger('status_in_family')->nullable();
-            $table->tinyInteger('religion')->nullable();
+            $table->unsignedTinyInteger('sibling_order_in_family')->nullable();
+            $table->unsignedTinyInteger('status_in_family')->nullable();
+            $table->unsignedTinyInteger('religion')->nullable();
             $table->boolean('is_active')->default(false);
             $table->longText('notes')->nullable();
             $table->json('metadata')->nullable();

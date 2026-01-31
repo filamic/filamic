@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignUlid('classroom_id')->constrained();
             $table->foreignUlid('school_year_id')->constrained();
             $table->foreignUlid('school_term_id')->constrained();
-            $table->tinyInteger('status')->default(1)->index();
+            $table->unsignedTinyInteger('status')->default(1)->index();
 
             $table->timestamps();
 

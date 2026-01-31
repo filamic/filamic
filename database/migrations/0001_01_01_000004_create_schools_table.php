@@ -14,7 +14,7 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->foreignUlid('branch_id');
             $table->string('name');
-            $table->tinyInteger('level');
+            $table->unsignedTinyInteger('level');
             $table->string('address')->nullable();
             $table->string('npsn')->nullable();
             $table->string('nis_nss_nds')->nullable();

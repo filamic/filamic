@@ -31,10 +31,10 @@ class ListStudents extends ListRecords
     {
         return [
             'Aktif' => Tab::make()
-                ->modifyQueryUsing(fn (Builder|Student $query) => $query->active())
+                ->modifyQueryUsing(fn (Builder | Student $query) => $query->active())
                 ->icon('tabler-user-check'),
             'Tidak Aktif' => Tab::make()
-                ->modifyQueryUsing(fn (Builder|Student $query) => $query->inActive())
+                ->modifyQueryUsing(fn (Builder | Student $query) => $query->inActive())
                 ->icon('tabler-user-x'),
             // 'Mutasi Internal' => Tab::make()
             //     ->modifyQueryUsing(fn (Student $query) => $query->inActive())
