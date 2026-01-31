@@ -24,10 +24,10 @@ return new class extends Migration
             $table->string('virtual_account_number');
 
             $table->unsignedTinyInteger('type');
-            $table->decimal('amount', 10);
-            $table->decimal('discount', 10)->default(0);
-            $table->decimal('fine', 10)->default(0);
-            $table->decimal('total_amount', 10);
+            $table->decimal('amount', 10, 2);
+            $table->decimal('discount', 10, 2)->default(0);
+            $table->decimal('fine', 10, 2)->default(0);
+            $table->decimal('total_amount', 10, 2);
             $table->unsignedTinyInteger('month_id')->nullable();
 
             $table->unsignedTinyInteger('payment_method')->nullable();

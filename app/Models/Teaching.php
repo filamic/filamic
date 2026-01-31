@@ -45,11 +45,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Teaching extends Model
 {
     use BelongsToSchoolyear;
-
     use BelongsToUser;
 
     /** @use HasFactory<\Database\Factories\TeachingFactory> */
     use HasFactory;
+
     use HasUlids;
 
     protected $guarded = ['id'];
