@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             $this->createSchoolYear();
             $this->createSchoolTerm();
             $this->createPosition();
-            $this->createCurriculumn();
+            $this->createCurriculum();
 
             $this->createSchools();
             $this->createSubjectCategories();
@@ -98,7 +98,7 @@ class DatabaseSeeder extends Seeder
             ->create();
     }
 
-    public function createCurriculumn(): void
+    public function createCurriculum(): void
     {
         Curriculum::factory()
             ->state(['name' => 'Basic Curriculum'])

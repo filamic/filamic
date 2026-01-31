@@ -14,6 +14,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListStudents extends ListRecords
 {
@@ -30,10 +31,10 @@ class ListStudents extends ListRecords
     {
         return [
             'Aktif' => Tab::make()
-                ->modifyQueryUsing(fn (Student $query) => $query->active())
+                ->modifyQueryUsing(fn (Builder|Student $query) => $query->active())
                 ->icon('tabler-user-check'),
             'Tidak Aktif' => Tab::make()
-                ->modifyQueryUsing(fn (Student $query) => $query->inActive())
+                ->modifyQueryUsing(fn (Builder|Student $query) => $query->inActive())
                 ->icon('tabler-user-x'),
             // 'Mutasi Internal' => Tab::make()
             //     ->modifyQueryUsing(fn (Student $query) => $query->inActive())

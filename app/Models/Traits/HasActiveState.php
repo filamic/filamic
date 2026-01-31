@@ -35,6 +35,7 @@ trait HasActiveState
             static::deactivateOthers();
             $this->update(['is_active' => true]);
         });
+        cache()->forget(static::getActiveCacheKey());
     }
 
     public function isActive(): bool
@@ -53,12 +54,17 @@ trait HasActiveState
             ->lockForUpdate()
             ->active()
             ->update(['is_active' => false]);
+
+        cache()->forget(static::getActiveCacheKey());
     }
 
     public static function getActive(): ?static
     {
-        $cacheKey = static::class . '_active_record';
+        return cache()->rememberForever(static::getActiveCacheKey(), fn () => static::query()->active()->first());
+    }
 
-        return cache()->rememberForever($cacheKey, fn () => static::query()->active()->first());
+    public static function getActiveCacheKey(): string
+    {
+        return static::class . '_active_record';
     }
 }

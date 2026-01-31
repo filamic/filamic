@@ -152,12 +152,12 @@ class StudentForm
                                         Select::make('school_year_id')
                                             ->label('Tahun Ajaran')
                                             ->relationship('schoolYear', 'name')
-                                            ->default(fn () => SchoolYear::getActive()->getKey())
+                                            ->default(fn () => SchoolYear::getActive()?->getKey())
                                             ->required(),
                                         ToggleButtons::make('school_term_id')
                                             ->label('Semester')
                                             ->options(fn () => SchoolTerm::all()->pluck('name.name', 'id'))
-                                            ->default(fn () => SchoolTerm::getActive()->getKey())
+                                            ->default(fn () => SchoolTerm::getActive()?->getKey())
                                             ->inline()
                                             ->required(),
                                         Select::make('classroom_id')
