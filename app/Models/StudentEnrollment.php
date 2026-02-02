@@ -52,11 +52,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class StudentEnrollment extends Model
 {
+    use BelongsToStudent;
     use BelongsToClassroom;
-    use BelongsToSchool;
     use BelongsToSchoolTerm;
     use BelongsToSchoolyear;
-    use BelongsToStudent;
 
     /** @use HasFactory<\Database\Factories\StudentEnrollmentFactory> */
     use HasFactory;

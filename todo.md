@@ -10,6 +10,7 @@
 
 - [ ] panel migrasi dari siswa dan semua tagihan
 - [ ] buat page/halaman pre use, jadi semisal blm ada tahun ajaran aktif/semester aktif, user akan di redirect kesini, spya memastikan tahun ajaran dan semester tetap ada sblm mulai menggunakan
+- [ ] admin hanya bisa edit 1 data student terakhir, yang lain harus menjadi history
 
 
 

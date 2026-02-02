@@ -29,39 +29,53 @@ use Filament\Schemas\Schema;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 use Throwable;
 
 class ListStudents extends ListRecords
 {
     protected static string $resource = StudentResource::class;
 
+    public function getSubheading(): string
+    {
+        $activeYear = SchoolYear::getActive();
+
+        if (blank($activeYear)) {
+            return "Tahun Ajaran/Semester belum aktif! Mohon setel di pengaturan.";
+        }
+
+        $currentMonth = Month::from(now()->month)->name;
+
+        return "Berdasarkan Tahun Ajaran Aktif: {$activeYear->name} — Bulan saat ini: {$currentMonth}";
+    }
+
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make(),
             self::createMonthlyInvoiceAction(),
-
         ];
     }
 
     public static function createMonthlyInvoiceAction(): Action
     {
         return Action::make('createMonthlyInvoice')
+            ->label('Buat Tagihan SPP')
             ->requiresConfirmation()
             ->modalIcon('tabler-invoice')
             ->modalHeading('Buat Tagihan SPP')
             ->modalDescription('Semua siswa aktif tahun ini')
             ->color('success')
             ->mountUsing(function (Action $action, Schema $form) {
-                if (empty(SchoolYear::getActive()) || empty(SchoolTerm::getActive())) {
+                if (blank(SchoolYear::getActive()) || blank(SchoolTerm::getActive())) {
 
                     Notification::make()
-                        ->title('Tahun Ajaran/Semester aktif belum di-set!')
+                        ->title('Tidak bisa membuat tagihan!')
+                        ->body('Tahun Ajaran/Semester belum diaktifkan oleh administrator.')
                         ->warning()
                         ->send();
 
                     $action->cancel();
-
                 }
 
                 $form->fill();
@@ -110,7 +124,7 @@ class ListStudents extends ListRecords
                 if ($studentEnrollments->isEmpty()) {
 
                     Notification::make()
-                        ->title('Gagal Membuat Tagihan!')
+                        ->title('Tagihan tidak dibuat!')
                         ->body('Tidak ada siswa aktif.')
                         ->warning()
                         ->send();
@@ -127,7 +141,7 @@ class ListStudents extends ListRecords
 
                 if ($paymentAccounts->isEmpty()) {
                     Notification::make()
-                        ->title('Gagal Membuat Tagihan!')
+                        ->title('Tagihan tidak dibuat!')
                         ->body('Tidak ada payment account yang aktif.')
                         ->warning()
                         ->send();
@@ -150,9 +164,10 @@ class ListStudents extends ListRecords
 
                     $currentPaymentAccount = $paymentAccounts
                         ->where('student_id', $studentEnrollment->student_id)
+                        ->where('school_id', $studentEnrollment->classroom->school_id)
                         ->first();
 
-                    if (empty($currentPaymentAccount)) {
+                    if (blank($currentPaymentAccount)) {
                         return null;
                     }
 
@@ -180,9 +195,9 @@ class ListStudents extends ListRecords
 
                 })->filter()->toArray();
 
-                if (empty($invoice)) {
+                if (blank($invoice)) {
                     Notification::make()
-                        ->title('Info')
+                        ->title('Tagihan tidak dibuat!')
                         ->body('Semua siswa terpilih sudah memiliki tagihan untuk bulan yang terpilih.')
                         ->info()
                         ->send();
@@ -204,24 +219,25 @@ class ListStudents extends ListRecords
                                 'end_date' => data_get($data, 'end_date'),
                             ]);
                     });
+
+                    Notification::make()
+                        ->title('Berhasil membuat tagihan!')
+                        ->body(count($invoice) . ' tagihan baru telah dibuat dan semua tanggal tagihan yang belum terbayarkan sudah diupdate.')
+                        ->success()
+                        ->send();
+
                 } catch (Throwable $error) {
                     report($error);
 
                     Notification::make()
-                        ->title('Terjadi Kesalahan Sistem')
-                        ->body('Gagal membuat tagihan. Silakan hubungi tim IT. Error: ' . $error->getMessage())
+                        ->title('Gagal membuat tagihan!')
+                        ->body('Terjadi Kesalahan Sistem. Silakan hubungi tim IT.')
                         ->danger()
                         ->persistent()
                         ->send();
 
                     return;
                 }
-
-                Notification::make()
-                    ->title('Berhasil!')
-                    ->body(count($invoice) . ' tagihan baru telah dibuat.')
-                    ->success()
-                    ->send();
             });
     }
 
@@ -266,7 +282,7 @@ class ListStudents extends ListRecords
             ],
             'Tidak Aktif' => [
                 'title' => 'Arsip Siswa',
-                'desc' => 'Menampilkan siswa yang sudah lulus, pindah keluar, atau keluar.',
+                'desc' => 'Menampilkan calon siswa atau siswa yang sudah lulus, pindah keluar, atau dikeluarkan.',
                 'color' => 'danger',
             ],
             'Mutasi Internal' => [

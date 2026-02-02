@@ -131,7 +131,7 @@ class Student extends Model
     {
         $activeYear = SchoolYear::getActive();
 
-        if (empty($activeYear)) {
+        if (blank($activeYear)) {
             return;
         }
 

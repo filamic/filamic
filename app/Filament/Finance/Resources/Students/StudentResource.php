@@ -23,6 +23,11 @@ class StudentResource extends Resource
 
     protected static bool $isScopedToTenant = false;
 
+    public static function getModelLabel(): string
+    {
+        return "Peserta Didik";
+    }
+
     public static function form(Schema $schema): Schema
     {
         return StudentForm::configure($schema);

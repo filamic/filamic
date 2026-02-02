@@ -62,6 +62,7 @@ class FinancePanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'warning' => '#ffb703',
             ])
-            ->tenant(Branch::class);
+            ->tenant(Branch::class)
+            ->resourceCreatePageRedirect('index') ;
     }
 }
