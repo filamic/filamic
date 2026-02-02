@@ -6,7 +6,6 @@ namespace App\Models;
 
 use App\Enums\StudentEnrollmentStatusEnum;
 use App\Models\Traits\BelongsToClassroom;
-use App\Models\Traits\BelongsToSchool;
 use App\Models\Traits\BelongsToSchoolTerm;
 use App\Models\Traits\BelongsToSchoolyear;
 use App\Models\Traits\BelongsToStudent;
@@ -26,7 +25,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Classroom $classroom
- * @property-read School|null $school
  * @property-read SchoolTerm $schoolTerm
  * @property-read SchoolYear $schoolYear
  * @property-read Student $student
@@ -52,10 +50,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class StudentEnrollment extends Model
 {
-    use BelongsToStudent;
     use BelongsToClassroom;
     use BelongsToSchoolTerm;
     use BelongsToSchoolyear;
+    use BelongsToStudent;
 
     /** @use HasFactory<\Database\Factories\StudentEnrollmentFactory> */
     use HasFactory;

@@ -25,7 +25,7 @@ class StudentResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return "Peserta Didik";
+        return 'Peserta Didik';
     }
 
     public static function form(Schema $schema): Schema

@@ -4,33 +4,34 @@ declare(strict_types=1);
 
 namespace App\Filament\Finance\Resources\Students\Pages;
 
-use App\Enums\InvoiceTypeEnum;
-use App\Filament\Finance\Resources\Students\StudentResource;
+use Throwable;
+use Carbon\Month;
 use App\Models\Branch;
 use App\Models\Invoice;
+use App\Models\Student;
 use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
-use App\Models\Student;
-use App\Models\StudentEnrollment;
-use App\Models\StudentPaymentAccount;
-use Carbon\Month;
 use Filament\Actions\Action;
-use Filament\Actions\CreateAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Notifications\Notification;
-use Filament\Resources\Pages\ListRecords;
-use Filament\Schemas\Components\EmbeddedTable;
-use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\RenderHook;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Filament\View\PanelsRenderHook;
-use Illuminate\Database\Eloquent\Builder;
+use App\Enums\InvoiceTypeEnum;
+use Filament\Support\Enums\Size;
+use App\Models\StudentEnrollment;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\CreateAction;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\HtmlString;
-use Throwable;
+use Filament\View\PanelsRenderHook;
+use App\Models\StudentPaymentAccount;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Group;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\DatePicker;
+use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Schemas\Components\RenderHook;
+use Filament\Schemas\Components\EmbeddedTable;
+use App\Filament\Finance\Resources\Students\StudentResource;
 
 class ListStudents extends ListRecords
 {
@@ -41,7 +42,7 @@ class ListStudents extends ListRecords
         $activeYear = SchoolYear::getActive();
 
         if (blank($activeYear)) {
-            return "Tahun Ajaran/Semester belum aktif! Mohon setel di pengaturan.";
+            return 'Tahun Ajaran/Semester belum aktif! Mohon setel di pengaturan.';
         }
 
         $currentMonth = Month::from(now()->month)->name;
@@ -52,19 +53,39 @@ class ListStudents extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
-            self::createMonthlyInvoiceAction(),
+            CreateAction::make()
+                ->icon('tabler-plus')
+                ->color('gray')
+                ->size(Size::Small),
+            ActionGroup::make([
+                self::createMonthlyInvoiceAction(),
+                self::createBookInvoiceAction()
+            ])
+                ->label('Buat Tagihan')
+                ->color('success')
+                ->button()
+                ->icon('tabler-invoice')
+                ->size(Size::Small)
         ];
     }
 
     public static function createMonthlyInvoiceAction(): Action
     {
         return Action::make('createMonthlyInvoice')
-            ->label('Buat Tagihan SPP')
+            ->label('SPP')
             ->requiresConfirmation()
             ->modalIcon('tabler-invoice')
             ->modalHeading('Buat Tagihan SPP')
-            ->modalDescription('Semua siswa aktif tahun ini')
+            ->modalDescription(function () {
+                /** @var Branch $tenant */
+                $tenant = filament()->getTenant();
+
+                $count = StudentEnrollment::whereIn('classroom_id', $tenant->classrooms()->pluck('classrooms.id'))
+                    ->active()
+                    ->count();
+
+                return "Aksi ini akan membuat tagihan SPP untuk {$count} siswa aktif di cabang {$tenant->name}.";
+            })
             ->color('success')
             ->mountUsing(function (Action $action, Schema $form) {
                 if (blank(SchoolYear::getActive()) || blank(SchoolTerm::getActive())) {
@@ -75,6 +96,22 @@ class ListStudents extends ListRecords
                         ->warning()
                         ->send();
 
+                    $action->cancel();
+                }
+
+                /** @var Branch $tenant */
+                $tenant = filament()->getTenant();
+
+                $activeCount = StudentEnrollment::whereIn('classroom_id', $tenant->classrooms()->pluck('classrooms.id'))
+                    ->active()
+                    ->count();
+
+                if ($activeCount === 0) {
+                    Notification::make()
+                        ->title('Tidak bisa membuat tagihan!')
+                        ->body('Tidak ada siswa aktif!')
+                        ->warning()
+                        ->send();
                     $action->cancel();
                 }
 
@@ -239,6 +276,56 @@ class ListStudents extends ListRecords
                     return;
                 }
             });
+    }
+
+    public static function createBookInvoiceAction(): Action 
+    {
+        return Action::make('createBookInvoiceAction')
+        ->label('Buku')
+        ->requiresConfirmation()
+        ->modalIcon('tabler-invoice')
+        ->modalHeading('Buat Tagihan Buku')
+        ->modalDescription(function () {
+            /** @var Branch $tenant */
+            $tenant = filament()->getTenant();
+
+            $count = StudentEnrollment::whereIn('classroom_id', $tenant->classrooms()->pluck('classrooms.id'))
+                ->active()
+                ->count();
+
+            return "Aksi ini akan membuat tagihan buku untuk {$count} siswa aktif di cabang {$tenant->name}.";
+        })
+        ->color('success')
+        ->mountUsing(function (Action $action, Schema $form) {
+            if (blank(SchoolYear::getActive()) || blank(SchoolTerm::getActive())) {
+
+                Notification::make()
+                    ->title('Tidak bisa membuat tagihan!')
+                    ->body('Tahun Ajaran/Semester belum diaktifkan oleh administrator.')
+                    ->warning()
+                    ->send();
+
+                $action->cancel();
+            }
+
+            /** @var Branch $tenant */
+            $tenant = filament()->getTenant();
+
+            $activeCount = StudentEnrollment::whereIn('classroom_id', $tenant->classrooms()->pluck('classrooms.id'))
+                ->active()
+                ->count();
+
+            if ($activeCount === 0) {
+                Notification::make()
+                    ->title('Tidak bisa membuat tagihan!')
+                    ->body('Tidak ada siswa aktif!')
+                    ->warning()
+                    ->send();
+                $action->cancel();
+            }
+
+            $form->fill();
+        });
     }
 
     public function getTabs(): array

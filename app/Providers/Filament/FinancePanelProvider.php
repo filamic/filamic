@@ -63,6 +63,6 @@ class FinancePanelProvider extends PanelProvider
                 'warning' => '#ffb703',
             ])
             ->tenant(Branch::class)
-            ->resourceCreatePageRedirect('index') ;
+            ->resourceCreatePageRedirect('index');
     }
 }

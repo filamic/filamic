@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Filament\Finance\Resources\Students\Schemas;
 
-use App\Models\Student;
 use App\Enums\GenderEnum;
+use App\Enums\StudentStatusEnum;
 use App\Models\Classroom;
 use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
-use Filament\Support\RawJs;
-use Filament\Schemas\Schema;
-use App\Enums\StudentStatusEnum;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Tabs;
+use App\Models\Student;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
+use Filament\Support\RawJs;
 
 class StudentForm
 {
@@ -147,7 +147,7 @@ class StudentForm
                                     ->addActionLabel('Tambah Data Kelas')
                                     ->hiddenLabel()
                                     ->columnSpanFull()
-                                    ->deletable(fn(?Student $record)=> blank($record) ? true : $record->enrollments()->doesntExist())
+                                    ->deletable(fn (?Student $record) => blank($record) ? true : $record->enrollments()->doesntExist())
                                     ->relationship('enrollments')
                                     ->columns(2)
                                     ->schema([
@@ -156,14 +156,14 @@ class StudentForm
                                             ->relationship('schoolYear', 'name')
                                             ->default(fn () => SchoolYear::getActive()?->getKey())
                                             ->required()
-                                            ->hint(fn () => ($active = SchoolYear::getActive()) ? "Tahun ajaran aktif: {$active->name}" : "Tahun ajaran belum aktif!"),
+                                            ->hint(fn () => ($active = SchoolYear::getActive()) ? "Tahun ajaran aktif: {$active->name}" : 'Tahun ajaran belum aktif!'),
                                         ToggleButtons::make('school_term_id')
                                             ->label('Semester')
                                             ->options(fn () => SchoolTerm::all()->pluck('name.name', 'id'))
                                             ->default(fn () => SchoolTerm::getActive()?->getKey())
                                             ->inline()
                                             ->required()
-                                            ->hint(fn () => ($active = SchoolTerm::getActive()) ? "Semester aktif: {$active->name->getLabel()}" : "Semester belum aktif!"),
+                                            ->hint(fn () => ($active = SchoolTerm::getActive()) ? "Semester aktif: {$active->name->getLabel()}" : 'Semester belum aktif!'),
                                         Select::make('classroom_id')
                                             ->label('Pilih Kelas')
                                             ->options(fn () => Classroom::with('school')
