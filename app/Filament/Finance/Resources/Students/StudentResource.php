@@ -21,6 +21,8 @@ class StudentResource extends Resource
 
     protected static string | BackedEnum | null $navigationIcon = 'tabler-friends';
 
+    protected static bool $isScopedToTenant = false;
+
     public static function form(Schema $schema): Schema
     {
         return StudentForm::configure($schema);

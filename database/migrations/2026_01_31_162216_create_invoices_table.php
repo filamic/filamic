@@ -12,9 +12,7 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->foreignUlid('classroom_id')->constrained();
-            $table->foreignUlid('school_year_id')->constrained();
-            $table->foreignUlid('student_id')->constrained();
+            $table->foreignUlid('student_enrollment_id')->constrained();
             $table->foreignUlid('student_payment_account_id')->constrained();
 
             $table->string('school_name');
@@ -42,7 +40,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['student_id', 'type', 'month_id', 'school_year_id']);
+            $table->unique(['student_enrollment_id', 'type', 'month_id']);
         });
     }
 };

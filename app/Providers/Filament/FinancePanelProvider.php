@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Models\Branch;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -60,6 +61,7 @@ class FinancePanelProvider extends PanelProvider
                 'primary' => '#575DFA',
                 'success' => Color::Emerald,
                 'warning' => '#ffb703',
-            ]);
+            ])
+            ->tenant(Branch::class);
     }
 }

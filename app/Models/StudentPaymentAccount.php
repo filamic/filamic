@@ -6,8 +6,10 @@ namespace App\Models;
 
 use App\Models\Traits\BelongsToSchool;
 use App\Models\Traits\BelongsToStudent;
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 /**
  * @property string $id
@@ -44,4 +46,18 @@ class StudentPaymentAccount extends Model
     use HasUlids;
 
     protected $guarded = ['id'];
+
+    #[Scope]
+    protected function activeMonthlyFee(Builder $query): Builder
+    {
+        return $query->whereNotNull('monthly_fee_virtual_account')
+            ->where('monthly_fee_amount', '>=', 0);
+    }
+
+    #[Scope]
+    protected function activeBookFee(Builder $query): Builder
+    {
+        return $query->whereNotNull('book_fee_virtual_account')
+            ->where('book_fee_amount', '>=', 0);
+    }
 }

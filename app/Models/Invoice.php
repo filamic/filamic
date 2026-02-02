@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\InvoiceTypeEnum;
+use Carbon\Month;
 use App\Enums\MonthEnum;
+use App\Enums\InvoiceTypeEnum;
 use App\Enums\PaymentMethodEnum;
+use App\Models\Traits\HasActiveState;
+use App\Models\Traits\BelongsToStudent;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\BelongsToClassroom;
 use App\Models\Traits\BelongsToSchoolyear;
-use App\Models\Traits\BelongsToStudent;
-use App\Models\Traits\HasActiveState;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property string $id
@@ -30,7 +31,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property numeric $discount
  * @property numeric $fine
  * @property numeric $total_amount
- * @property MonthEnum|null $month_id
  * @property PaymentMethodEnum|null $payment_method
  * @property bool $is_paid
  * @property \Illuminate\Support\Carbon|null $paid_at
@@ -90,7 +90,7 @@ class Invoice extends Model
 
     protected $casts = [
         'type' => InvoiceTypeEnum::class,
-        'month_id' => MonthEnum::class,
+        'month_id' => Month::class,
         'payment_method' => PaymentMethodEnum::class,
         'is_paid' => 'boolean',
         'paid_at' => 'datetime',

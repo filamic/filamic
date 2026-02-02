@@ -34,17 +34,18 @@ class DatabaseSeeder extends Seeder
             $this->createSchoolYear();
             $this->createSchoolTerm();
             $this->createPosition();
-            $this->createCurriculum();
-
             $this->createSchools();
+            $this->createCurriculum();
             $this->createSubjectCategories();
 
-            User::factory()->create([
+            $user = User::factory()->create([
                 'name' => 'Super Admin',
                 'email' => 'super@admin.com',
                 'user_type' => UserTypeEnum::EMPLOYEE,
                 'password' => bcrypt('mantapjiwa00'),
             ]);
+
+            $user->branches()->syncWithoutDetaching(Branch::first());
 
             $this->createClassrooms();
 
@@ -58,12 +59,12 @@ class DatabaseSeeder extends Seeder
     {
         Branch::factory(2)
             ->forEachSequence([
-                'name' => 'Basic Batam Center',
+                'name' => 'Batam Center',
                 'phone' => '(0778) 460817',
                 'whatsapp' => '+6281275402543',
                 'address' => 'Jalan laksamana Kawasan Industri No.1, Baloi Permai, Batam Center, Kota Batam, Kepulauan Riau 29444',
             ], [
-                'name' => 'Basic Batu Aji',
+                'name' => 'Batu Aji',
                 'phone' => '(0778) 3850886',
                 'address' => 'Perumahan Marsyeba Indah, Bukit Tempayan, Kec. Batu Aji, Kota Batam, Kepulauan Riau 29425',
             ])

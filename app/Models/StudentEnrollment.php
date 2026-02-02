@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\StudentEnrollmentStatusEnum;
+use App\Models\Traits\BelongsToClassroom;
+use App\Models\Traits\BelongsToSchool;
+use App\Models\Traits\BelongsToSchoolTerm;
 use App\Models\Traits\BelongsToStudent;
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use App\Enums\StudentEnrollmentStatusEnum;
+use App\Models\Traits\BelongsToSchoolyear;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property string $id
@@ -41,12 +47,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class StudentEnrollment extends Model
 {
-    use BelongsToStudent;
-
     /** @use HasFactory<\Database\Factories\StudentEnrollmentFactory> */
     use HasFactory;
-
     use HasUlids;
+    use BelongsToStudent;
+    use BelongsToSchool;
+    use BelongsToSchoolyear;
+    use BelongsToSchoolTerm;
+    use BelongsToClassroom;
 
     protected $guarded = ['id'];
 
@@ -59,19 +67,25 @@ class StudentEnrollment extends Model
 
     protected static function booted(): void
     {
-        // Trigger setiap kali data pendaftaran dibuat atau diupdate
+        // Sync student's active status whenever an enrollment is created or updated
         static::saved(function ($enrollment) {
-            $enrollment->student->syncActiveStatus();
+            $enrollment->student?->syncActiveStatus();
         });
     }
 
-    public function schoolYear(): BelongsTo
+    #[Scope]
+    protected function active(Builder $query): Builder
     {
-        return $this->belongsTo(SchoolYear::class);
+        return $query->where('school_year_id',SchoolYear::getActive()?->getKey())
+            ->where('school_term_id', SchoolTerm::getActive()?->getKey())
+            ->whereIn('status', StudentEnrollmentStatusEnum::getActiveStatuses());
     }
 
-    public function schoolTerm(): BelongsTo
+    #[Scope]
+    protected function inActive(Builder $query): Builder
     {
-        return $this->belongsTo(SchoolTerm::class);
+        return $query->whereNot('school_year_id',SchoolYear::getActive()?->getKey())
+            ->whereNot('school_term_id', SchoolTerm::getActive()?->getKey())
+            ->whereIn('status', StudentEnrollmentStatusEnum::getInactiveStatuses());
     }
 }
