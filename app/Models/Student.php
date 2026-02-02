@@ -9,14 +9,12 @@ use App\Enums\ReligionEnum;
 use App\Enums\StatusInFamilyEnum;
 use App\Models\Traits\BelongsToUser;
 use App\Models\Traits\HasActiveState;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use App\Enums\StudentEnrollmentStatusEnum;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property string $id
@@ -121,25 +119,9 @@ class Student extends Model
         return $this->hasMany(StudentPaymentAccount::class);
     }
 
-    // public function currentPaymentAccount(): HasOne
-    // {
-    //     return $this->hasOne(StudentPaymentAccount::class)
-
-
-    //         // ->where('school_id', filament()->getTenant()->getKey())
-    //         ;
-    // }
-
-    // public function currentPaymentAccount(): HasOne
-    // {
-    //     return $this->hasOne(StudentPaymentAccount::class)->ofMany([
-    //         'published_at' => 'max',
-    //         'id' => 'max',
-    //     ], function (Builder $query) {
-    //         $query->where('published_at', '<', now());
-    //     });
-    // }
-
+    /**
+     * @return HasMany<StudentEnrollment, $this>
+     */
     public function enrollments(): HasMany
     {
         return $this->hasMany(StudentEnrollment::class);

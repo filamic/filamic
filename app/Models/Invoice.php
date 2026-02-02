@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Carbon\Month;
-use App\Enums\MonthEnum;
 use App\Enums\InvoiceTypeEnum;
 use App\Enums\PaymentMethodEnum;
-use App\Models\Traits\HasActiveState;
-use App\Models\Traits\BelongsToStudent;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\BelongsToClassroom;
 use App\Models\Traits\BelongsToSchoolyear;
+use App\Models\Traits\BelongsToStudent;
+use App\Models\Traits\HasActiveState;
+use Carbon\Month;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property string $id
- * @property string $classroom_id
- * @property string $school_year_id
- * @property string $student_id
+ * @property string $student_enrollment_id
  * @property string $student_payment_account_id
  * @property string $school_name
  * @property string $classroom_name
@@ -31,6 +30,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
  * @property numeric $discount
  * @property numeric $fine
  * @property numeric $total_amount
+ * @property Month|null $month_id
  * @property PaymentMethodEnum|null $payment_method
  * @property bool $is_paid
  * @property \Illuminate\Support\Carbon|null $paid_at
@@ -40,41 +40,43 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
  * @property bool $is_active
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Classroom $classroom
- * @property-read SchoolYear $schoolYear
- * @property-read Student $student
+ * @property-read Classroom|null $classroom
+ * @property-read SchoolYear|null $schoolYear
+ * @property-read Student|null $student
  *
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice active()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice activeYear()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice inactive()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereClassroomId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereClassroomName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereDiscount($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereEndDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereFine($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereIsActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereIsPaid($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereMonthId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice wherePaidAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice wherePaymentMethod($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereSchoolName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereSchoolYearId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereSchoolYearName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereStartDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereStudentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereStudentName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereStudentPaymentAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereTotalAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Invoice whereVirtualAccountNumber($value)
+ * @method static Builder<static>|Invoice active()
+ * @method static Builder<static>|Invoice activeYear()
+ * @method static Builder<static>|Invoice inactive()
+ * @method static Builder<static>|Invoice monthlyFee()
+ * @method static Builder<static>|Invoice newModelQuery()
+ * @method static Builder<static>|Invoice newQuery()
+ * @method static Builder<static>|Invoice paid()
+ * @method static Builder<static>|Invoice query()
+ * @method static Builder<static>|Invoice unpaid()
+ * @method static Builder<static>|Invoice unpaidMonthlyFee()
+ * @method static Builder<static>|Invoice whereAmount($value)
+ * @method static Builder<static>|Invoice whereClassroomName($value)
+ * @method static Builder<static>|Invoice whereCreatedAt($value)
+ * @method static Builder<static>|Invoice whereDescription($value)
+ * @method static Builder<static>|Invoice whereDiscount($value)
+ * @method static Builder<static>|Invoice whereEndDate($value)
+ * @method static Builder<static>|Invoice whereFine($value)
+ * @method static Builder<static>|Invoice whereId($value)
+ * @method static Builder<static>|Invoice whereIsActive($value)
+ * @method static Builder<static>|Invoice whereIsPaid($value)
+ * @method static Builder<static>|Invoice whereMonthId($value)
+ * @method static Builder<static>|Invoice wherePaidAt($value)
+ * @method static Builder<static>|Invoice wherePaymentMethod($value)
+ * @method static Builder<static>|Invoice whereSchoolName($value)
+ * @method static Builder<static>|Invoice whereSchoolYearName($value)
+ * @method static Builder<static>|Invoice whereStartDate($value)
+ * @method static Builder<static>|Invoice whereStudentEnrollmentId($value)
+ * @method static Builder<static>|Invoice whereStudentName($value)
+ * @method static Builder<static>|Invoice whereStudentPaymentAccountId($value)
+ * @method static Builder<static>|Invoice whereTotalAmount($value)
+ * @method static Builder<static>|Invoice whereType($value)
+ * @method static Builder<static>|Invoice whereUpdatedAt($value)
+ * @method static Builder<static>|Invoice whereVirtualAccountNumber($value)
  *
  * @mixin \Eloquent
  */
@@ -95,4 +97,34 @@ class Invoice extends Model
         'is_paid' => 'boolean',
         'paid_at' => 'datetime',
     ];
+
+    #[Scope]
+    protected function paid(Builder $query): Builder
+    {
+        return $query->where('is_paid', true)
+            ->whereNotNull('paid_at');
+    }
+
+    #[Scope]
+    protected function unpaid(Builder $query): Builder
+    {
+        return $query->where('is_paid', false)
+            ->whereNull('paid_at');
+    }
+
+    #[Scope]
+    protected function monthlyFee(Builder $query): Builder
+    {
+        return $query->where('type', InvoiceTypeEnum::MONTHLY_FEE);
+    }
+
+    /**
+     * @param  Builder<Invoice>  $query
+     * @return Builder<Invoice>
+     */
+    #[Scope]
+    protected function unpaidMonthlyFee(Builder $query): Builder
+    {
+        return $query->unpaid()->monthlyFee();
+    }
 }

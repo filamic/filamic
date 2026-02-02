@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Illuminate\Support\Arr;
-use Filament\Facades\Filament;
 use Filament\Actions\ViewAction;
-use Filament\Support\Enums\Width;
-use Filament\Support\Enums\Platform;
-use Filament\Schemas\Components\Tabs;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Textarea;
-use Illuminate\Support\ServiceProvider;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Support\Enums\Platform;
+use Filament\Support\Enums\Width;
+use Filament\Support\View\Components\ModalComponent;
+use Illuminate\Support\Arr;
+use Illuminate\Support\ServiceProvider;
 use Livewire\Component as LivewireComponent;
 use Livewire\Features\SupportTesting\Testable;
-use Filament\Support\View\Components\ModalComponent;
 
 class AppServiceProvider extends ServiceProvider
 {

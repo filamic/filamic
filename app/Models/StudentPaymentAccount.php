@@ -6,10 +6,10 @@ namespace App\Models;
 
 use App\Models\Traits\BelongsToSchool;
 use App\Models\Traits\BelongsToStudent;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property string $id
@@ -24,18 +24,20 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
  * @property-read School $school
  * @property-read Student $student
  *
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount whereBookFeeAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount whereBookFeeVirtualAccount($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount whereMonthlyFeeAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount whereMonthlyFeeVirtualAccount($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount whereSchoolId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount whereStudentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentPaymentAccount whereUpdatedAt($value)
+ * @method static Builder<static>|StudentPaymentAccount activeBookFee()
+ * @method static Builder<static>|StudentPaymentAccount activeMonthlyFee()
+ * @method static Builder<static>|StudentPaymentAccount newModelQuery()
+ * @method static Builder<static>|StudentPaymentAccount newQuery()
+ * @method static Builder<static>|StudentPaymentAccount query()
+ * @method static Builder<static>|StudentPaymentAccount whereBookFeeAmount($value)
+ * @method static Builder<static>|StudentPaymentAccount whereBookFeeVirtualAccount($value)
+ * @method static Builder<static>|StudentPaymentAccount whereCreatedAt($value)
+ * @method static Builder<static>|StudentPaymentAccount whereId($value)
+ * @method static Builder<static>|StudentPaymentAccount whereMonthlyFeeAmount($value)
+ * @method static Builder<static>|StudentPaymentAccount whereMonthlyFeeVirtualAccount($value)
+ * @method static Builder<static>|StudentPaymentAccount whereSchoolId($value)
+ * @method static Builder<static>|StudentPaymentAccount whereStudentId($value)
+ * @method static Builder<static>|StudentPaymentAccount whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */

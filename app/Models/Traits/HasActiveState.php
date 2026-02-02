@@ -65,6 +65,8 @@ trait HasActiveState
 
     public static function getActiveCacheKey(): string
     {
-        return static::class . '_active_record';
+        $name = str(class_basename(static::class))->snake();
+
+        return "active_{$name}_record";
     }
 }

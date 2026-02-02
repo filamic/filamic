@@ -58,9 +58,6 @@ enum StudentEnrollmentStatusEnum: int implements HasColor, HasIcon, HasLabel
     {
         return [
             self::ENROLLED,
-            // self::PROMOTED,
-            // self::STAYED,
-            // self::MOVED_INTERNAL,
         ];
     }
 
