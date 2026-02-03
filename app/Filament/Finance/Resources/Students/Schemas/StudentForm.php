@@ -49,6 +49,12 @@ class StudentForm
                                             if ($firstItemKey !== null) {
                                                 $set("paymentAccounts.{$firstItemKey}.school_id", $state);
                                             }
+
+                                            $enrollments = $get('enrollments') ?? [];
+                                            
+                                            foreach (array_keys($enrollments) as $key) {
+                                                $set("enrollments.{$key}.classroom_id", null);
+                                            }
                                         }),
                                     TextInput::make('name')
                                         ->label('Nama Lengkap')

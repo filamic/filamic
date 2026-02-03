@@ -82,10 +82,12 @@ class ListStudents extends ListRecords
                     ->count();
 
                 $schoolYear = SchoolYear::getActive();
+                $schoolTerm = SchoolTerm::getActive();
 
-                $schoolTerm = SchoolTerm::getActive()->name;
+                if (blank($schoolYear) || blank($schoolTerm)) {
+                    return 'Tahun Ajaran/Semester belum aktif.';
+                }
 
-                // return str("Aksi ini akan membuat tagihan SPP untuk {$count} siswa aktif di cabang {$tenant->name}. \n Untuk tahun ajaran {$schoolYear->name} semester {$schoolTerm->name}")->markdown()->toHtmlString();
                 return str("Aksi ini akan membuat tagihan SPP untuk **{$count} siswa** aktif di cabang **{$tenant->name}**.  \n" .
                     "Tahun Ajaran: **{$schoolYear->name}** \n" .
                     "Semester: **{$schoolTerm->getLabel()}**")

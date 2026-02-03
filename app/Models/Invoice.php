@@ -119,6 +119,25 @@ class Invoice extends Model
         'paid_at' => 'datetime',
     ];
 
+
+    protected static function booted()
+    {
+        static::creating(function ($invoice) {
+            if (blank($invoice->fingerprint)) {
+                $invoice->fingerprint = implode('_', [
+                    $invoice->type,
+                    $invoice->student_id,
+                    $invoice->school_year_id,
+                    $invoice->month_id ?? 'annual',
+                ]);
+            }
+
+            if (blank($invoice->reference_number)) {
+                $invoice->reference_number = 'INV/' . now()->format('Ymd') . '/' . str()->random(6)->upper();
+            }
+        });
+    }
+
     #[Scope]
     protected function paid(Builder $query): Builder
     {
