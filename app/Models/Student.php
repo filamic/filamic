@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * @property string $id
  * @property string $name
- * @property string|null $school_id
+ * @property string $school_id
  * @property string|null $user_id
  * @property string|null $father_id
  * @property string|null $mother_id
@@ -52,7 +52,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read User|null $mother
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StudentPaymentAccount> $paymentAccounts
  * @property-read int|null $payment_accounts_count
- * @property-read School|null $school
+ * @property-read School $school
  * @property-read User|null $user
  *
  * @method static Builder<static>|Student active()

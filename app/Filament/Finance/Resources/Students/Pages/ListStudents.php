@@ -90,7 +90,7 @@ class ListStudents extends ListRecords
 
                 return str("Aksi ini akan membuat tagihan SPP untuk **{$count} siswa** aktif di cabang **{$tenant->name}**.  \n" .
                     "Tahun Ajaran: **{$schoolYear->name}** \n" .
-                    "Semester: **{$schoolTerm->getLabel()}**")
+                    "Semester: **{$schoolTerm->name->getLabel()}**")
                     ->markdown()
                     ->toHtmlString();
             })

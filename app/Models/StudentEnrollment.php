@@ -81,6 +81,13 @@ class StudentEnrollment extends Model
 
     protected static function booted(): void
     {
+        static::creating(function ($enrollment) {
+            if ($enrollment->student) {
+                $enrollment->branch_id = $enrollment->student->school->branch_id;
+                $enrollment->school_id = $enrollment->student->school_id;
+            }
+        });
+
         // Sync student's active status whenever an enrollment is created or updated
         static::saved(function ($enrollment) {
             $enrollment->student?->syncActiveStatus();

@@ -15,6 +15,7 @@
 - [ ] admin hanya bisa edit 1 data student terakhir, yang lain harus menjadi history
 - [ ] saat gagal membuat invoice, anak yang gagal beserta keterangan gagal masukkan ke database notifikasi, buat pages dan tampilkan sebagai tabel
 - [ ] g bisa delete first payment method di student form
+- [ ] buat middleware untiuk ngecek apakah aplikasi sudah siap digunakan,. semisal tahun ajaran/semester atau apapun blm siap diguanakn maka dia akan masuk ke halaman tertentu. 
 
 
 - definisikan arti siswa aktif
@@ -50,3 +51,6 @@ Semua history akan tersimpan di student enrollment sebagai source of truth, yg a
     - siswa aktif tahun ajaran ini
 
 setiap siswa yang dibuatkan invoice nomor virtual account invoice itu harus di update juga seperti taggal
+
+
+pas export tagihan baru user admin bisa milih yg nunggak mau bayar berapa bulan dulu klo emng minta keringanan

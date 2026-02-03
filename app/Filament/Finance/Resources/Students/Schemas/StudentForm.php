@@ -51,7 +51,7 @@ class StudentForm
                                             }
 
                                             $enrollments = $get('enrollments') ?? [];
-                                            
+
                                             foreach (array_keys($enrollments) as $key) {
                                                 $set("enrollments.{$key}.classroom_id", null);
                                             }

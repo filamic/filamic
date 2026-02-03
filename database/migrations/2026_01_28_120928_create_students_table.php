@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->string('name')->index();
-            $table->foreignUlid('school_id')->nullable()->constrained();
+            $table->foreignUlid('school_id')->constrained();
             $table->foreignUlid('user_id')->nullable()->constrained();
             $table->foreignUlid('father_id')->nullable()->constrained('users');
             $table->foreignUlid('mother_id')->nullable()->constrained('users');

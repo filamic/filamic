@@ -119,7 +119,6 @@ class Invoice extends Model
         'paid_at' => 'datetime',
     ];
 
-
     protected static function booted()
     {
         static::creating(function ($invoice) {
