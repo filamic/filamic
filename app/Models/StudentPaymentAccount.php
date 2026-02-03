@@ -24,8 +24,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read School $school
  * @property-read Student $student
  *
- * @method static Builder<static>|StudentPaymentAccount activeBookFee()
- * @method static Builder<static>|StudentPaymentAccount activeMonthlyFee()
+ * @method static Builder<static>|StudentPaymentAccount eligibleForBookFee()
+ * @method static Builder<static>|StudentPaymentAccount eligibleForMonthlyFee()
  * @method static Builder<static>|StudentPaymentAccount newModelQuery()
  * @method static Builder<static>|StudentPaymentAccount newQuery()
  * @method static Builder<static>|StudentPaymentAccount query()
@@ -50,16 +50,16 @@ class StudentPaymentAccount extends Model
     protected $guarded = ['id'];
 
     #[Scope]
-    protected function activeMonthlyFee(Builder $query): Builder
+    protected function eligibleForMonthlyFee(Builder $query): Builder
     {
         return $query->whereNotNull('monthly_fee_virtual_account')
-            ->where('monthly_fee_amount', '>=', 0);
+            ->where('monthly_fee_amount', '>', 0);
     }
 
     #[Scope]
-    protected function activeBookFee(Builder $query): Builder
+    protected function eligibleForBookFee(Builder $query): Builder
     {
         return $query->whereNotNull('book_fee_virtual_account')
-            ->where('book_fee_amount', '>=', 0);
+            ->where('book_fee_amount', '>', 0);
     }
 }

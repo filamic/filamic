@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Models\Traits\BelongsToSchoolyear;
+use App\Models\Traits\BelongsToSchoolYear;
 use App\Models\Traits\BelongsToUser;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,7 +38,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class HomeroomClass extends Model
 {
-    use BelongsToSchoolyear;
+    use BelongsToSchoolYear;
     use BelongsToUser;
 
     /** @use HasFactory<\Database\Factories\HomeroomClassFactory> */

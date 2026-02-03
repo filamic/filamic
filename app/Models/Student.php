@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property string $id
@@ -40,10 +41,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property array<array-key, mixed>|null $metadata
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read StudentEnrollment|null $currentEnrollment
+ * @property-read StudentPaymentAccount|null $currentPaymentAccount
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StudentEnrollment> $enrollments
  * @property-read int|null $enrollments_count
  * @property-read User|null $father
  * @property-read User|null $guardian
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
+ * @property-read int|null $invoices_count
  * @property-read User|null $mother
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StudentPaymentAccount> $paymentAccounts
  * @property-read int|null $payment_accounts_count
@@ -104,6 +109,24 @@ class Student extends Model
         ];
     }
 
+    protected static function booted()
+    {
+        static::creating(function ($invoice) {
+            if (blank($invoice->fingerprint)) {
+                $invoice->fingerprint = implode('_', [
+                    $invoice->type,
+                    $invoice->student_id,
+                    $invoice->school_year_id,
+                    $invoice->month_id ?? 'annual',
+                ]);
+            }
+
+            if (blank($invoice->reference_number)) {
+                $invoice->reference_number = 'INV/' . now()->format('Ymd') . '/' . str()->upper(str()->random(6));
+            }
+        });
+    }
+
     public function father(): BelongsTo
     {
         return $this->belongsTo(User::class, 'father_id');
@@ -124,12 +147,38 @@ class Student extends Model
         return $this->hasMany(StudentPaymentAccount::class);
     }
 
+    public function currentPaymentAccount(): HasOne
+    {
+        return $this->hasOne(StudentPaymentAccount::class)
+            ->latestOfMany()
+            ->where('student_payment_accounts.school_id', function ($sub) {
+                $sub->select('school_id')
+                    ->from('students')
+                    ->whereColumn('students.id', 'student_payment_accounts.student_id')
+                    ->limit(1);
+            });
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     /**
      * @return HasMany<StudentEnrollment, $this>
      */
     public function enrollments(): HasMany
     {
         return $this->hasMany(StudentEnrollment::class);
+    }
+
+    public function currentEnrollment(): HasOne
+    {
+        return $this->hasOne(StudentEnrollment::class)
+            ->latestOfMany()
+            ->where(function ($query) {
+                $query->active();
+            });
     }
 
     public function syncActiveStatus(): void
@@ -148,5 +197,41 @@ class Student extends Model
         $this->updateQuietly([
             'is_active' => $isActive,
         ]);
+    }
+
+    public static function createMonthlyFeeInvoice(Branch $branch, array $data)
+    {
+        // implement it here get all the actice student using the branch
+        // create the invoice for all of the student and skip and report the skipped student that doesnt have payment account
+        // dont forget to check if the student invoice for the sleected month is exist then skip it
+        // inser to invoice, update due_date, isseud_at, and virtual_account_number for unpaid invoice
+    }
+
+    public static function createBookFeeInvoice(Branch $branch, array $data)
+    {
+
+        // 1. get all active student based on the givin branch
+        // $branch->students()->active()
+
+        // [
+        //     'student_enrollment_id' => $studentEnrollment->getKey(),
+        //     'student_payment_account_id' => $currentPaymentAccount->getKey(),
+
+        //     'school_name' => $currentPaymentAccount->school->name,
+        //     'classroom_name' => $studentEnrollment->classroom->name,
+        //     'school_year_name' => $studentEnrollment->schoolYear->name,
+        //     'student_name' => $studentEnrollment->student->name,
+        //     'virtual_account_number' => $currentPaymentAccount->monthly_fee_virtual_account,
+
+        //     'type' => InvoiceTypeEnum::BOOK_FEE,
+        //     'amount' => $currentPaymentAccount->monthly_fee_amount,
+        //     'total_amount' => $currentPaymentAccount->monthly_fee_amount,
+
+        //     'is_paid' => false,
+        //     'start_date' => data_get($data, 'start_date'),
+        //     'end_date' => data_get($data, 'end_date'),
+        //     'description' => 'Tagihan uang buku',
+        //     'is_active' => true,
+        // ]
     }
 }

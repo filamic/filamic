@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-trait BelongsToSchoolyear
+trait BelongsToSchoolYear
 {
     public function schoolYear(): BelongsTo
     {

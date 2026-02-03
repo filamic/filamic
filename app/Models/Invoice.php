@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\InvoiceStatusEnum;
 use App\Enums\InvoiceTypeEnum;
 use App\Enums\PaymentMethodEnum;
+use App\Models\Traits\BelongsToBranch;
 use App\Models\Traits\BelongsToClassroom;
-use App\Models\Traits\BelongsToSchoolyear;
+use App\Models\Traits\BelongsToSchool;
+use App\Models\Traits\BelongsToSchoolTerm;
+use App\Models\Traits\BelongsToSchoolYear;
 use App\Models\Traits\BelongsToStudent;
-use App\Models\Traits\HasActiveState;
 use Carbon\Month;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,35 +21,44 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property string $id
- * @property string $student_enrollment_id
- * @property string $student_payment_account_id
+ * @property string $branch_id
+ * @property string $school_id
+ * @property string $classroom_id
+ * @property string $school_year_id
+ * @property string $school_term_id
+ * @property string $student_id
+ * @property string $reference_number
+ * @property string $fingerprint
+ * @property string $branch_name
  * @property string $school_name
  * @property string $classroom_name
  * @property string $school_year_name
+ * @property string $school_term_name
  * @property string $student_name
  * @property string $virtual_account_number
  * @property InvoiceTypeEnum $type
+ * @property Month|null $month_id
  * @property numeric $amount
  * @property numeric $discount
  * @property numeric $fine
  * @property numeric $total_amount
- * @property Month|null $month_id
+ * @property InvoiceStatusEnum $status
  * @property PaymentMethodEnum|null $payment_method
- * @property bool $is_paid
  * @property \Illuminate\Support\Carbon|null $paid_at
- * @property string $start_date
- * @property string $end_date
+ * @property string $due_date
+ * @property string $issued_at
  * @property string|null $description
- * @property bool $is_active
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Classroom|null $classroom
- * @property-read SchoolYear|null $schoolYear
- * @property-read Student|null $student
+ * @property-read Branch $branch
+ * @property-read Classroom $classroom
+ * @property-read School $school
+ * @property-read SchoolTerm $schoolTerm
+ * @property-read SchoolYear $schoolYear
+ * @property-read Student $student
  *
- * @method static Builder<static>|Invoice active()
+ * @method static Builder<static>|Invoice activeTerm()
  * @method static Builder<static>|Invoice activeYear()
- * @method static Builder<static>|Invoice inactive()
  * @method static Builder<static>|Invoice monthlyFee()
  * @method static Builder<static>|Invoice newModelQuery()
  * @method static Builder<static>|Invoice newQuery()
@@ -55,24 +67,31 @@ use Illuminate\Database\Eloquent\Model;
  * @method static Builder<static>|Invoice unpaid()
  * @method static Builder<static>|Invoice unpaidMonthlyFee()
  * @method static Builder<static>|Invoice whereAmount($value)
+ * @method static Builder<static>|Invoice whereBranchId($value)
+ * @method static Builder<static>|Invoice whereBranchName($value)
+ * @method static Builder<static>|Invoice whereClassroomId($value)
  * @method static Builder<static>|Invoice whereClassroomName($value)
  * @method static Builder<static>|Invoice whereCreatedAt($value)
  * @method static Builder<static>|Invoice whereDescription($value)
  * @method static Builder<static>|Invoice whereDiscount($value)
- * @method static Builder<static>|Invoice whereEndDate($value)
+ * @method static Builder<static>|Invoice whereDueDate($value)
  * @method static Builder<static>|Invoice whereFine($value)
+ * @method static Builder<static>|Invoice whereFingerprint($value)
  * @method static Builder<static>|Invoice whereId($value)
- * @method static Builder<static>|Invoice whereIsActive($value)
- * @method static Builder<static>|Invoice whereIsPaid($value)
+ * @method static Builder<static>|Invoice whereIssuedAt($value)
  * @method static Builder<static>|Invoice whereMonthId($value)
  * @method static Builder<static>|Invoice wherePaidAt($value)
  * @method static Builder<static>|Invoice wherePaymentMethod($value)
+ * @method static Builder<static>|Invoice whereReferenceNumber($value)
+ * @method static Builder<static>|Invoice whereSchoolId($value)
  * @method static Builder<static>|Invoice whereSchoolName($value)
+ * @method static Builder<static>|Invoice whereSchoolTermId($value)
+ * @method static Builder<static>|Invoice whereSchoolTermName($value)
+ * @method static Builder<static>|Invoice whereSchoolYearId($value)
  * @method static Builder<static>|Invoice whereSchoolYearName($value)
- * @method static Builder<static>|Invoice whereStartDate($value)
- * @method static Builder<static>|Invoice whereStudentEnrollmentId($value)
+ * @method static Builder<static>|Invoice whereStatus($value)
+ * @method static Builder<static>|Invoice whereStudentId($value)
  * @method static Builder<static>|Invoice whereStudentName($value)
- * @method static Builder<static>|Invoice whereStudentPaymentAccountId($value)
  * @method static Builder<static>|Invoice whereTotalAmount($value)
  * @method static Builder<static>|Invoice whereType($value)
  * @method static Builder<static>|Invoice whereUpdatedAt($value)
@@ -82,10 +101,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Invoice extends Model
 {
+    use BelongsToBranch;
     use BelongsToClassroom;
-    use BelongsToSchoolyear;
+    use BelongsToSchool;
+    use BelongsToSchoolTerm;
+    use BelongsToSchoolYear;
     use BelongsToStudent;
-    use HasActiveState;
     use HasUlids;
 
     protected $guarded = ['id'];
@@ -93,22 +114,22 @@ class Invoice extends Model
     protected $casts = [
         'type' => InvoiceTypeEnum::class,
         'month_id' => Month::class,
+        'status' => InvoiceStatusEnum::class,
         'payment_method' => PaymentMethodEnum::class,
-        'is_paid' => 'boolean',
         'paid_at' => 'datetime',
     ];
 
     #[Scope]
     protected function paid(Builder $query): Builder
     {
-        return $query->where('is_paid', true)
+        return $query->where('status', InvoiceStatusEnum::PAID)
             ->whereNotNull('paid_at');
     }
 
     #[Scope]
     protected function unpaid(Builder $query): Builder
     {
-        return $query->where('is_paid', false)
+        return $query->where('status', InvoiceStatusEnum::UNPAID)
             ->whereNull('paid_at');
     }
 

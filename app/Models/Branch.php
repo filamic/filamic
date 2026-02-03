@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * @property string $id
@@ -22,6 +23,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int|null $classrooms_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, School> $schools
  * @property-read int|null $schools_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Student> $students
+ * @property-read int|null $students_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $users
  * @property-read int|null $users_count
  *
@@ -58,8 +61,13 @@ class Branch extends Model
         return $this->belongsToMany(User::class);
     }
 
-    public function classrooms()
+    public function classrooms(): HasManyThrough
     {
         return $this->hasManyThrough(Classroom::class, School::class);
+    }
+
+    public function students(): HasManyThrough
+    {
+        return $this->hasManyThrough(Student::class, School::class);
     }
 }

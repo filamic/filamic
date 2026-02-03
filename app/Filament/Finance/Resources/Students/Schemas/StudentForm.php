@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Finance\Resources\Students\Schemas;
 
 use App\Enums\GenderEnum;
-use App\Enums\StudentStatusEnum;
 use App\Models\Classroom;
 use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
@@ -18,7 +17,10 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Operation;
 use Filament\Support\RawJs;
 
 class StudentForm
@@ -36,7 +38,18 @@ class StudentForm
                                         ->label('Unit Sekolah')
                                         ->relationship('school', 'name')
                                         ->required()
-                                        ->columnSpanFull(),
+                                        ->columnSpanFull()
+                                        ->disabledOn(Operation::Edit)
+                                        ->live()
+                                        ->afterStateUpdated(function (Set $set, $state, Get $get) {
+                                            $items = $get('paymentAccounts') ?? [];
+
+                                            $firstItemKey = array_key_first($items);
+
+                                            if ($firstItemKey !== null) {
+                                                $set("paymentAccounts.{$firstItemKey}.school_id", $state);
+                                            }
+                                        }),
                                     TextInput::make('name')
                                         ->label('Nama Lengkap')
                                         ->required()
@@ -46,12 +59,6 @@ class StudentForm
                                         ->options(GenderEnum::class)
                                         ->required()
                                         ->inline(),
-                                    // ToggleButtons::make('status')
-                                    //     ->label('Status Siswa')
-                                    //     ->options(StudentStatusEnum::class)
-                                    //     ->required()
-                                    //     ->inline()
-                                    //     ->columnSpanFull(),
                                     TextInput::make('previous_education')
                                         ->label('Pendidikan Sebelumnya')
                                         ->placeholder('Contoh: SDS Kasih Sayang'),
@@ -92,7 +99,15 @@ class StudentForm
                                             ->required()
                                             ->distinct()
                                             ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                            ->columnSpanFull(),
+                                            ->columnSpanFull()
+                                            ->disabled(function (Get $get, $state) {
+                                                $allPaymentAccounts = $get('../../paymentAccounts') ?? [];
+
+                                                $firstItem = reset($allPaymentAccounts);
+
+                                                return $firstItem && isset($firstItem['school_id']) && $state === $get('../../school_id');
+                                            })
+                                            ->dehydrated(true),
                                         TextInput::make('monthly_fee_amount')
                                             ->label('Nominal SPP Bulanan')
                                             ->numeric()
@@ -171,7 +186,8 @@ class StudentForm
                                             ->hint(fn () => ($active = SchoolTerm::getActive()) ? "Semester aktif: {$active->name->getLabel()}" : 'Semester belum aktif!'),
                                         Select::make('classroom_id')
                                             ->label('Pilih Kelas')
-                                            ->options(fn () => Classroom::with('school')
+                                            ->options(fn (Get $get) => Classroom::with('school')
+                                                ->where('school_id', $get('../../school_id'))
                                                 ->get()
                                                 ->groupBy('school.name')
                                                 ->map(fn ($classroom) => $classroom->pluck('name', 'id'))
