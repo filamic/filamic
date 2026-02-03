@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Models\Traits\HasActiveState;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Traits\SyncsStudentStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,9 +17,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  *
- * @method static Builder<static>|SchoolYear active()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolYear active()
  * @method static \Database\Factories\SchoolYearFactory factory($count = null, $state = [])
- * @method static Builder<static>|SchoolYear inactive()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolYear inactive()
  * @method static Builder<static>|SchoolYear newModelQuery()
  * @method static Builder<static>|SchoolYear newQuery()
  * @method static Builder<static>|SchoolYear query()
@@ -40,6 +37,7 @@ class SchoolYear extends AcademicPeriod
 {
     /** @use HasFactory<\Database\Factories\SchoolYearFactory> */
     use HasFactory;
+
     use HasUlids;
 
     protected $guarded = ['id'];

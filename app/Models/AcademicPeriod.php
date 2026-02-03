@@ -1,10 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Models\Traits\HasActiveState;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
+/**
+ * @property bool $is_active
+ */
 abstract class AcademicPeriod extends Model
 {
     use HasActiveState;
@@ -15,14 +21,19 @@ abstract class AcademicPeriod extends Model
 
         static::saved(function ($model) {
             if ($model->wasChanged('is_active')) {
-                Student::query()->update(['is_active' => false]);
-                cache()->forget(static::getActiveCacheKey());
+                DB::transaction(function () use ($model) {
 
-                if($model->is_active === true){
-                    Student::whereHas('enrollments', function ($query) {
-                        $query->active();
-                    })->update(['is_active' => true]);
-                }
+                    Student::query()->update(['is_active' => false]);
+                    cache()->forget(static::getActiveCacheKey());
+
+                    if ($model->is_active === true) {
+                        Student::whereHas('enrollments', function ($query) {
+                            // @phpstan-ignore-next-line
+                            $query->active();
+                        })->update(['is_active' => true]);
+                    }
+
+                });
             }
         });
     }

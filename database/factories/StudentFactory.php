@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class StudentFactory extends Factory
 {
     use ResolvesSchool;
-    
+
     public function definition(): array
     {
         return [

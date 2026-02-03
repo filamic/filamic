@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property string $id
  * @property string $name
+ * @property string|null $school_id
  * @property string|null $user_id
  * @property string|null $father_id
  * @property string|null $mother_id
@@ -46,6 +47,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read User|null $mother
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StudentPaymentAccount> $paymentAccounts
  * @property-read int|null $payment_accounts_count
+ * @property-read School|null $school
  * @property-read User|null $user
  *
  * @method static Builder<static>|Student active()
@@ -71,6 +73,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static Builder<static>|Student whereNotes($value)
  * @method static Builder<static>|Student wherePreviousEducation($value)
  * @method static Builder<static>|Student whereReligion($value)
+ * @method static Builder<static>|Student whereSchoolId($value)
  * @method static Builder<static>|Student whereSiblingOrderInFamily($value)
  * @method static Builder<static>|Student whereStatusInFamily($value)
  * @method static Builder<static>|Student whereUpdatedAt($value)
@@ -80,12 +83,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Student extends Model
 {
+    use BelongsToSchool;
     use BelongsToUser;
     use HasActiveState;
 
     /** @use HasFactory<\Database\Factories\StudentFactory> */
     use HasFactory;
-    use BelongsToSchool;
+
     use HasUlids;
 
     protected $guarded = ['id'];
