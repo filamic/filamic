@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\EnsureAcademicPeriodIsReady;
 use App\Models\Branch;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -53,6 +54,7 @@ class FinancePanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                EnsureAcademicPeriodIsReady::class,
             ])
             ->colors([
                 'danger' => '#e63946',

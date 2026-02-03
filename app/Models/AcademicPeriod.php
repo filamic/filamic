@@ -33,7 +33,7 @@ abstract class AcademicPeriod extends Model
                     }
                 });
 
-                cache()->forget(static::getActiveCacheKey());
+                cache()->deleteMultiple(['academic_period_ready', static::getActiveCacheKey()]);
             }
         });
     }

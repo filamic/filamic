@@ -29,7 +29,6 @@ return new class extends Migration
             $table->string('school_year_name');
             $table->string('school_term_name');
             $table->string('student_name');
-            $table->string('virtual_account_number');
 
             $table->unsignedTinyInteger('type');
             $table->unsignedTinyInteger('month_id')->nullable();

@@ -35,7 +35,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $school_year_name
  * @property string $school_term_name
  * @property string $student_name
- * @property string $virtual_account_number
  * @property InvoiceTypeEnum $type
  * @property Month|null $month_id
  * @property numeric $amount
@@ -95,7 +94,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static Builder<static>|Invoice whereTotalAmount($value)
  * @method static Builder<static>|Invoice whereType($value)
  * @method static Builder<static>|Invoice whereUpdatedAt($value)
- * @method static Builder<static>|Invoice whereVirtualAccountNumber($value)
  *
  * @mixin \Eloquent
  */
@@ -119,21 +117,32 @@ class Invoice extends Model
         'paid_at' => 'datetime',
     ];
 
+    // protected static function booted()
+    // {
+    //     static::creating(function ($invoice) {
+    //         if (blank($invoice->fingerprint)) {
+    //             $invoice->fingerprint = implode('_', [
+    //                 $invoice->type,
+    //                 $invoice->student_id,
+    //                 $invoice->school_year_id,
+    //                 $invoice->month_id ?? 'annual',
+    //             ]);
+    //         }
+
+    //         if (blank($invoice->reference_number)) {
+    //             $invoice->reference_number = 'INV/' . now()->format('Ymd') . '/' . str()->random(6);
+    //         }
+    //     });
+    // }
+
     protected static function booted()
     {
         static::creating(function ($invoice) {
-            if (blank($invoice->fingerprint)) {
-                $invoice->fingerprint = implode('_', [
-                    $invoice->type,
-                    $invoice->student_id,
-                    $invoice->school_year_id,
-                    $invoice->month_id ?? 'annual',
-                ]);
-            }
+            // Panggil fungsi static di atas
+            $defaults = self::generateDefaults($invoice->getAttributes());
 
-            if (blank($invoice->reference_number)) {
-                $invoice->reference_number = 'INV/' . now()->format('Ymd') . '/' . str()->random(6)->upper();
-            }
+            $invoice->fingerprint = $defaults['fingerprint'];
+            $invoice->reference_number = $defaults['reference_number'];
         });
     }
 
@@ -165,5 +174,19 @@ class Invoice extends Model
     protected function unpaidMonthlyFee(Builder $query): Builder
     {
         return $query->unpaid()->monthlyFee();
+    }
+
+    public static function generateDefaults(array $attributes): array
+    {
+        $attributes['fingerprint'] ??= implode('_', [
+            $attributes['type'] instanceof InvoiceTypeEnum ? $attributes['type']->value : $attributes['type'],
+            $attributes['student_id'],
+            $attributes['school_year_id'],
+            $attributes['month_id'] ?? 'annual',
+        ]);
+
+        $attributes['reference_number'] ??= 'INV/' . now()->format('Ymd') . '/' . str()->random(6);
+
+        return $attributes;
     }
 }
