@@ -75,13 +75,6 @@ class ListStudents extends ListRecords
             ->modalHeading('Buat Tagihan SPP')
             ->modalIconColor('success')
             ->modalDescription(function () {
-                /** @var Branch $tenant */
-                $tenant = filament()->getTenant();
-
-                $count = StudentEnrollment::whereIn('classroom_id', $tenant->classrooms()->pluck('classrooms.id'))
-                    ->active()
-                    ->count();
-
                 $schoolYear = SchoolYear::getActive();
                 $schoolTerm = SchoolTerm::getActive();
 
@@ -89,8 +82,7 @@ class ListStudents extends ListRecords
                     return 'Tahun Ajaran/Semester belum aktif.';
                 }
 
-                return str("Membuat tagihan SPP untuk **{$count} siswa** aktif.  \n" .
-                    "Tahun Ajaran: **{$schoolYear->name}** \n" .
+                return str("Tahun Ajaran: **{$schoolYear->name}** \n" .
                     "Semester: **{$schoolTerm->name->getLabel()}**")
                     ->markdown()
                     ->toHtmlString();
