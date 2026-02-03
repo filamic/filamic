@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\GenderEnum;
 use App\Enums\ReligionEnum;
 use App\Enums\StatusInFamilyEnum;
+use App\Models\Traits\BelongsToSchool;
 use App\Models\Traits\BelongsToUser;
 use App\Models\Traits\HasActiveState;
 use Illuminate\Database\Eloquent\Builder;
@@ -84,7 +85,7 @@ class Student extends Model
 
     /** @use HasFactory<\Database\Factories\StudentFactory> */
     use HasFactory;
-
+    use BelongsToSchool;
     use HasUlids;
 
     protected $guarded = ['id'];
@@ -130,8 +131,9 @@ class Student extends Model
     public function syncActiveStatus(): void
     {
         $activeYear = SchoolYear::getActive();
+        $activeTerm = SchoolTerm::getActive();
 
-        if (blank($activeYear)) {
+        if (blank($activeYear) || blank($activeTerm)) {
             return;
         }
 

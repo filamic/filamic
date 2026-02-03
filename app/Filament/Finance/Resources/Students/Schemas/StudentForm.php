@@ -32,6 +32,11 @@ class StudentForm
                         Tab::make('Detail Siswa') // Label diubah dari Student's Detail
                             ->schema([
                                 Section::make([
+                                    Select::make('school_id')
+                                        ->label('Unit Sekolah')
+                                        ->relationship('school', 'name')
+                                        ->required()
+                                        ->columnSpanFull(),
                                     TextInput::make('name')
                                         ->label('Nama Lengkap')
                                         ->required()

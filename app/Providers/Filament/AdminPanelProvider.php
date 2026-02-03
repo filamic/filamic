@@ -61,6 +61,7 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => '#575DFA',
                 'success' => Color::Emerald,
                 'warning' => '#ffb703',
-            ]);
+            ])
+            ->topbar(false);
     }
 }

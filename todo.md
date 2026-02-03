@@ -14,14 +14,21 @@
 - [ ] saat gagal membuat invoice, anak yang gagal beserta keterangan gagal masukkan ke database notifikasi, buat pages dan tampilkan sebagai tabel
 
 
+
 - definisikan arti siswa aktif
+    - school_id tidak null berakrti masih aktif
+    - jika school_id
+    - status = active
+- menjaga siswa aktif tetap konsisten pakai tabel student_enrollment
     - tahun ajaran aktif
     - semester aktif
     - status -> ENROLLED
 
-- definisikan arti payment account aktif
-    - 
+- definisikan arti payment account aktif dari student
+    - ambil school_id kmudian ambil semua classroomid dari relasi chool ke classroom, kmdian stlah mendapatkan classroom id nya
+    - ambil student enrollment yg aktif, ambil classroom_id nya kmduian cocokkan semua classrooms id dari school dan classroom_id yg aktif dari student enrollment
 
 - definisikan arti buat tagihan spp hanya untuk siswa aktif
     - ambil semua school id berdasarkan classrom yg masuk kategori aktif di tabel enrollment,
     - hasil dari school id ambil semua payment account berdasarkan schoolid, kmudian baru ambil siswanya
+

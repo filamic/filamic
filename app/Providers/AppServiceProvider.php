@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Filament\Actions\ViewAction;
+use Illuminate\Support\Arr;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
+use Filament\Actions\ViewAction;
+use Filament\Support\Enums\Size;
+use Filament\Actions\ActionGroup;
+use Filament\Support\Enums\Width;
+use Filament\Support\Enums\Platform;
+use Filament\Schemas\Components\Tabs;
 use Filament\Forms\Components\Textarea;
+use Illuminate\Support\ServiceProvider;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
-use Filament\Support\Enums\Platform;
-use Filament\Support\Enums\Width;
-use Filament\Support\View\Components\ModalComponent;
-use Illuminate\Support\Arr;
-use Illuminate\Support\ServiceProvider;
 use Livewire\Component as LivewireComponent;
 use Livewire\Features\SupportTesting\Testable;
+use Filament\Support\View\Components\ModalComponent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,8 +30,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Filament::serving(function () {
             Filament::getCurrentPanel()
-                ->topbar(false)
-                // ->topNavigation()
                 ->maxContentWidth(Width::Full)
                 ->sidebarWidth('16rem')
                 ->brandLogo(asset('logo_basic_digital.svg'))
@@ -75,6 +76,14 @@ class AppServiceProvider extends ServiceProvider
         Entry::configureUsing(fn (Entry $field) => $field
             ->placeholder('None')
         );
+
+        Action::configureUsing(function(Action $action){
+            $action->size(Size::Small);
+        }, isImportant: true);
+
+        ActionGroup::configureUsing(function(ActionGroup $actionGroup){
+            $actionGroup->size(Size::Small);
+        }, isImportant: true);
 
         Testable::macro('ray', function (): Testable {
             /** @var LivewireComponent $livewire */

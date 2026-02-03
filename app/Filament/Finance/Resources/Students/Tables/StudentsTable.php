@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\Finance\Resources\Students\Tables;
 
+use App\Models\Student;
+use App\Models\StudentPaymentAccount;
+use Filament\Tables\Table;
+use Filament\Actions\EditAction;
+use Filament\Support\Enums\Size;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 
 class StudentsTable
 {
@@ -27,11 +30,14 @@ class StudentsTable
 
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->iconButton()
+                    ->size(Size::ExtraSmall)
+                    ->tooltip('Ubah'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    // DeleteBulkAction::make(),
                 ]),
             ]);
     }
