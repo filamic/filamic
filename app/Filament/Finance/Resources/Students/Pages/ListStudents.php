@@ -116,6 +116,16 @@ class ListStudents extends ListRecords
                 $issuedAt = data_get($data, 'issued_at');
                 $dueDate = data_get($data, 'due_date');
 
+                if(blank($monthId) || blank($issuedAt) || blank($dueDate)){
+                    Notification::make()
+                        ->title('Tagihan tidak dibuat!')
+                        ->body('Data tidak lengkap')
+                        ->info()
+                        ->send();
+
+                    return;
+                }
+
                 /** @var Builder|Student $getStudentsQuery */
                 $getStudentsQuery = $branch->students();
 

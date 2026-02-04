@@ -158,11 +158,17 @@ class Invoice extends Model
     public static function generateFingerprint(array $data): string
     {
         $type = data_get($data, 'type');
+        $studentId = data_get($data, 'student_id');
+        $schoolYearId = data_get($data, 'school_year_id');
+
+        if (empty($studentId) || empty($schoolYearId)) {
+            throw new \InvalidArgumentException('student_id and school_year_id are required for fingerprint generation');
+        }
 
         return implode('_', [
             $type instanceof InvoiceTypeEnum ? $type->value : $type,
-            data_get($data, 'student_id'),
-            data_get($data, 'school_year_id'),
+            $studentId,
+            $schoolYearId,
             data_get($data, 'month_id') ?? 'annual',
         ]);
     }
