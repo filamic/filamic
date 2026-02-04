@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Finance\Resources\Students\Pages;
 
-use App\Enums\InvoiceTypeEnum;
+use App\Actions\GenerateMonthlyFeeInvoice;
 use App\Filament\Finance\Resources\Students\StudentResource;
-use App\Models\Branch;
-use App\Models\Invoice;
 use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
 use App\Models\Student;
-use App\Models\StudentEnrollment;
-use App\Models\StudentPaymentAccount;
 use Carbon\Month;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -29,7 +25,6 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class ListStudents extends ListRecords
@@ -109,117 +104,25 @@ class ListStudents extends ListRecords
                 ])->columns(2),
             ])
             ->action(function (array $data) {
-                /** @var Branch $branch */
-                $branch = filament()->getTenant();
-
-                $monthId = data_get($data, 'month_id');
-                $issuedAt = data_get($data, 'issued_at');
-                $dueDate = data_get($data, 'due_date');
-
-                if(blank($monthId) || blank($issuedAt) || blank($dueDate)){
-                    Notification::make()
-                        ->title('Tagihan tidak dibuat!')
-                        ->body('Data tidak lengkap')
-                        ->info()
-                        ->send();
-
-                    return;
-                }
-
-                /** @var Builder|Student $getStudentsQuery */
-                $getStudentsQuery = $branch->students();
-
-                $students = $getStudentsQuery->active()
-                    ->whereHas('currentPaymentAccount', function ($query) {
-                        /** @var StudentPaymentAccount $query */
-                        // @phpstan-ignore-next-line
-                        $query->eligibleForMonthlyFee();
-                    })
-                    ->whereDoesntHave('invoices', function ($query) use ($monthId) {
-                        /** @var Invoice $query */
-                        // @phpstan-ignore-next-line
-                        $query->where('month_id', $monthId)->monthlyFee();
-                    })
-                    ->with([
-                        'school',
-                        'currentPaymentAccount',
-                        'currentEnrollment.classroom',
-                        'currentEnrollment.schoolYear',
-                        'currentEnrollment.schoolTerm',
-                    ])
-                    ->get();
-
-                if (blank($students)) {
-                    Notification::make()
-                        ->title('Tagihan tidak dibuat!')
-                        ->body('Tidak ada siswa yang memenuhi syarat pembuatan tagihan.')
-                        ->info()
-                        ->send();
-
-                    return;
-                }
-
-                $newInvoices = $students->map(function (Student $student) use ($monthId, $issuedAt, $dueDate, $branch) {
-                    $enrollment = $student->currentEnrollment;
-                    $paymentAccount = $student->currentPaymentAccount;
-
-                    $prepareFingerprint = [
-                        'type' => InvoiceTypeEnum::MONTHLY_FEE->value,
-                        'student_id' => $student->getKey(),
-                        'school_year_id' => $enrollment->school_year_id,
-                        'month_id' => $monthId,
-                    ];
-
-                    $preparedData = [
-                        'fingerprint' => Invoice::generateFingerprint($prepareFingerprint),
-                        'reference_number' => Invoice::generateReferenceNumber(),
-
-                        'branch_id' => $branch->getKey(),
-                        'school_id' => $student->school_id,
-                        'student_id' => $student->getKey(),
-                        'classroom_id' => $enrollment->classroom_id,
-                        'school_year_id' => $enrollment->school_year_id,
-                        'school_term_id' => $enrollment->school_term_id,
-
-                        'branch_name' => $branch->name,
-                        'school_name' => $student->school->name,
-                        'classroom_name' => $enrollment->classroom->name,
-                        'school_year_name' => $enrollment->schoolYear->name,
-                        'school_term_name' => $enrollment->schoolTerm->name,
-                        'student_name' => $student->name,
-
-                        'type' => InvoiceTypeEnum::MONTHLY_FEE,
-                        'month_id' => $monthId,
-
-                        'amount' => $paymentAccount->monthly_fee_amount,
-                        'total_amount' => $paymentAccount->monthly_fee_amount,
-
-                        'due_date' => $dueDate,
-                        'issued_at' => $issuedAt,
-                    ];
-
-                    return $preparedData;
-                })->toArray();
-
                 try {
-                    DB::transaction(function () use ($newInvoices, $branch, $issuedAt, $dueDate, $monthId) {
-                        foreach (array_chunk($newInvoices, 500) as $chunk) {
-                            Invoice::fillAndInsert($chunk);
-                        }
+                    $generateInvoice = GenerateMonthlyFeeInvoice::run(
+                        filament()->getTenant(),
+                        $data
+                    );
 
-                        Invoice::query()
-                            ->whereIn('student_id', $branch->students()->select('students.id'))
-                            ->unpaidMonthlyFee()
-                            ->where('month_id', '!=', $monthId)
-                            ->update([
-                                'issued_at' => $issuedAt,
-                                'due_date' => $dueDate,
-                            ]);
-                    });
+                    if (blank($generateInvoice)) {
+                        Notification::make()
+                            ->title('Tagihan tidak dibuat!')
+                            ->body('Tidak ada siswa yang memenuhi syarat pembuatan tagihan.')
+                            ->info()
+                            ->send();
+
+                        return;
+                    }
 
                     Notification::make()
                         ->title('Berhasil membuat tagihan!')
-                        ->body(count($newInvoices) . ' tagihan baru dibuat.')
+                        ->body("{$generateInvoice} tagihan baru dibuat.")
                         ->success()
                         ->send();
 
@@ -244,51 +147,7 @@ class ListStudents extends ListRecords
             ->label('Buku Tahunan')
             ->requiresConfirmation()
             ->modalIcon('tabler-invoice')
-            ->modalHeading('Buat Tagihan Buku')
-            // ->modalDescription(function () {
-            //     /** @var Branch $tenant */
-            //     $tenant = filament()->getTenant();
-
-            //     $count = StudentEnrollment::whereIn('classroom_id', $tenant->classrooms()->pluck('classrooms.id'))
-            //         ->active()
-            //         ->count();
-
-            //     return "Aksi ini akan membuat tagihan buku untuk {$count} siswa aktif di cabang {$tenant->name}.";
-            // })
-            // ->color('success')
-            // ->mountUsing(function (Action $action, Schema $form) {
-            //     if (blank(SchoolYear::getActive()) || blank(SchoolTerm::getActive())) {
-
-            //         Notification::make()
-            //             ->title('Tidak bisa membuat tagihan!')
-            //             ->body('Tahun Ajaran/Semester belum diaktifkan oleh administrator.')
-            //             ->warning()
-            //             ->send();
-
-            //         $action->cancel();
-            //     }
-
-            //     /** @var Branch $tenant */
-            //     $tenant = filament()->getTenant();
-
-            //     $activeCount = StudentEnrollment::whereIn('classroom_id', $tenant->classrooms()->pluck('classrooms.id'))
-            //         ->active()
-            //         ->count();
-
-            //     if ($activeCount === 0) {
-            //         Notification::make()
-            //             ->title('Tidak bisa membuat tagihan!')
-            //             ->body('Tidak ada siswa aktif!')
-            //             ->warning()
-            //             ->send();
-            //         $action->cancel();
-            //     }
-
-            //     $form->fill();
-            // })
-            ->action(function (array $data) {
-                // Student::createBookFeeInvoice(filament()->getTenant(), $data);
-            });
+            ->modalHeading('Buat Tagihan Buku');
     }
 
     public function getTabs(): array

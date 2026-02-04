@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
+use InvalidArgumentException;
 
 /**
  * @property string $id
@@ -162,7 +163,7 @@ class Invoice extends Model
         $schoolYearId = data_get($data, 'school_year_id');
 
         if (empty($studentId) || empty($schoolYearId)) {
-            throw new \InvalidArgumentException('student_id and school_year_id are required for fingerprint generation');
+            throw new InvalidArgumentException('student_id and school_year_id are required for fingerprint generation');
         }
 
         return implode('_', [
