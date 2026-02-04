@@ -109,27 +109,26 @@ class ListStudents extends ListRecords
                 ])->columns(2),
             ])
             ->action(function (array $data) {
-
                 /** @var Branch $branch */
                 $branch = filament()->getTenant();
 
-                // 1. Ambil data mentah dari request
                 $monthId = data_get($data, 'month_id');
                 $issuedAt = data_get($data, 'issued_at');
                 $dueDate = data_get($data, 'due_date');
 
-                /** @var Builder|Student $query */
-                $query = $branch->students();
+                /** @var Builder|Student $getStudentsQuery */
+                $getStudentsQuery = $branch->students();
 
-                $students = $query->active()
+                $students = $getStudentsQuery->active()
                     ->whereHas('currentPaymentAccount', function ($query) {
                         /** @var StudentPaymentAccount $query */
                         // @phpstan-ignore-next-line
                         $query->eligibleForMonthlyFee();
                     })
                     ->whereDoesntHave('invoices', function ($query) use ($monthId) {
-                        $query->where('month_id', $monthId)
-                            ->where('type', InvoiceTypeEnum::MONTHLY_FEE);
+                        /** @var Invoice $query */
+                        // @phpstan-ignore-next-line
+                        $query->where('month_id', $monthId)->monthlyFee();
                     })
                     ->with([
                         'school',
@@ -151,29 +150,39 @@ class ListStudents extends ListRecords
                 }
 
                 $newInvoices = $students->map(function (Student $student) use ($monthId, $issuedAt, $dueDate, $branch) {
-                    $enroll = $student->currentEnrollment;
-                    $account = $student->currentPaymentAccount;
+                    $enrollment = $student->currentEnrollment;
+                    $paymentAccount = $student->currentPaymentAccount;
+
+                    $prepareFingerprint = [
+                        'type' => InvoiceTypeEnum::MONTHLY_FEE->value,
+                        'student_id' => $student->getKey(),
+                        'school_year_id' => $enrollment->school_year_id,
+                        'month_id' => $monthId,
+                    ];
 
                     $preparedData = [
+                        'fingerprint' => Invoice::generateFingerprint($prepareFingerprint),
+                        'reference_number' => Invoice::generateReferenceNumber(),
+
                         'branch_id' => $branch->getKey(),
                         'school_id' => $student->school_id,
                         'student_id' => $student->getKey(),
-                        'classroom_id' => $enroll->classroom_id,
-                        'school_year_id' => $enroll->school_year_id,
-                        'school_term_id' => $enroll->school_term_id,
+                        'classroom_id' => $enrollment->classroom_id,
+                        'school_year_id' => $enrollment->school_year_id,
+                        'school_term_id' => $enrollment->school_term_id,
 
                         'branch_name' => $branch->name,
                         'school_name' => $student->school->name,
-                        'classroom_name' => $enroll->classroom->name,
-                        'school_year_name' => $enroll->schoolYear->name,
-                        'school_term_name' => $enroll->schoolTerm->name,
+                        'classroom_name' => $enrollment->classroom->name,
+                        'school_year_name' => $enrollment->schoolYear->name,
+                        'school_term_name' => $enrollment->schoolTerm->name,
                         'student_name' => $student->name,
 
                         'type' => InvoiceTypeEnum::MONTHLY_FEE,
                         'month_id' => $monthId,
 
-                        'amount' => $account->monthly_fee_amount,
-                        'total_amount' => $account->monthly_fee_amount,
+                        'amount' => $paymentAccount->monthly_fee_amount,
+                        'total_amount' => $paymentAccount->monthly_fee_amount,
 
                         'due_date' => $dueDate,
                         'issued_at' => $issuedAt,
@@ -182,24 +191,14 @@ class ListStudents extends ListRecords
                     return $preparedData;
                 })->toArray();
 
-                if (blank($newInvoices)) {
-                    Notification::make()
-                        ->title('Tagihan tidak dibuat!')
-                        ->body('Semua siswa terpilih sudah memiliki tagihan untuk bulan yang terpilih.')
-                        ->info()
-                        ->send();
-
-                    return;
-                }
-
                 try {
                     DB::transaction(function () use ($newInvoices, $branch, $issuedAt, $dueDate, $monthId) {
-                        $finalData = collect($newInvoices)->map(fn ($item) => Invoice::generateDefaults($item))->toArray();
-
-                        Invoice::fillAndInsert($finalData);
+                        foreach (array_chunk($newInvoices, 500) as $chunk) {
+                            Invoice::fillAndInsert($chunk);
+                        }
 
                         Invoice::query()
-                            ->whereIn('student_id', $branch->students()->pluck('students.id'))
+                            ->whereIn('student_id', $branch->students()->select('students.id'))
                             ->unpaidMonthlyFee()
                             ->where('month_id', '!=', $monthId)
                             ->update([
@@ -226,91 +225,6 @@ class ListStudents extends ListRecords
 
                     return;
                 }
-
-                // /** @var Branch $branch */
-                // $branch = filament()->getTenant()->load('students');
-
-                // $invoice = $branch->students()->with('currentPaymentAccount','currentEnrollment','invoices')->active()->get()->map(function (Student $student) use ($data, $branch) {
-
-                //     if ($student->invoices()->where('month_id', data_get($data, 'month_id'))) {
-                //         return null;
-                //     }
-
-                //     if (blank($student->currentPaymentAccount)) {
-                //         return null;
-                //     }
-
-                //     return [
-                //         'branch_id' => $branch->getKey(),
-                //         'school_id' => $student->school_id,
-                //         'classroom_id' => $student->currentEnrollment->classroom_id,
-                //         'school_year_id' => $student->currentEnrollment->school_year_id,
-                //         'school_term_id' => $student->currentEnrollment->school_term_id,
-                //         'student_id' => $student->getKey(),
-
-                //         'branch_name' => $branch->name,
-                //         'school_name' => $student->school->name,
-                //         'classroom_name' => $student->currentEnrollment->classroom->name,
-                //         'school_year_name' => $student->currentEnrollment->schoolYear->name,
-                //         'school_term_name' => $student->currentEnrollment->schoolTerm->name,
-                //         'student_name' => $student->name,
-
-                //         'type' => InvoiceTypeEnum::MONTHLY_FEE,
-                //         'month_id' => data_get($data, 'month_id'),
-
-                //         'amount' => $student->currentPaymentAccount->monthly_fee_amount,
-                //         'total_amount' => $student->currentPaymentAccount->monthly_fee_amount,
-
-                //         'due_date' => data_get($data, 'due_date'),
-                //         'issued_at' => data_get($data, 'issued_at'),
-
-                //         'description' => 'Tagihan SPP Bulan ' . Month::from(data_get($data, 'month_id'))->name,
-                //     ];
-
-                // })->filter()->toArray();
-
-                // if (blank($invoice)) {
-                //     Notification::make()
-                //         ->title('Tagihan tidak dibuat!')
-                //         ->body('Semua siswa terpilih sudah memiliki tagihan untuk bulan yang terpilih.')
-                //         ->info()
-                //         ->send();
-
-                //     return;
-                // }
-
-                // try {
-
-                //     DB::transaction(function () use ($invoice, $data, $branch) {
-                //         Invoice::fillAndInsert($invoice);
-
-                //         Invoice::unpaidMonthlyFee()
-                //             ->whereIn('student_id', $branch->students()->pluck('id'))
-                //             ->where('month_id', '!=', data_get($data, 'month_id'))
-                //             ->update([
-                //                 'issued_at' => data_get($data, 'issued_at'),
-                //                 'due_date' => data_get($data, 'due_date')
-                //             ]);
-                //     });
-
-                //     Notification::make()
-                //         ->title('Berhasil membuat tagihan!')
-                //         ->body(count($invoice) . ' tagihan baru telah dibuat dan semua tanggal tagihan yang belum terbayarkan sudah diupdate.')
-                //         ->success()
-                //         ->send();
-
-                // } catch (Throwable $error) {
-                //     report($error);
-
-                //     Notification::make()
-                //         ->title('Gagal membuat tagihan!')
-                //         ->body('Terjadi Kesalahan Sistem. Silakan hubungi tim IT.')
-                //         ->danger()
-                //         ->persistent()
-                //         ->send();
-
-                //     return;
-                // }
             });
     }
 

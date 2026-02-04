@@ -180,40 +180,4 @@ class Student extends Model
             'is_active' => $isActive,
         ]);
     }
-
-    public static function createMonthlyFeeInvoice(Branch $branch, array $data)
-    {
-        // implement it here get all the actice student using the branch
-        // create the invoice for all of the student and skip and report the skipped student that doesnt have payment account
-        // dont forget to check if the student invoice for the sleected month is exist then skip it
-        // inser to invoice, update due_date, isseud_at, and virtual_account_number for unpaid invoice
-    }
-
-    public static function createBookFeeInvoice(Branch $branch, array $data)
-    {
-
-        // 1. get all active student based on the givin branch
-        // $branch->students()->active()
-
-        // [
-        //     'student_enrollment_id' => $studentEnrollment->getKey(),
-        //     'student_payment_account_id' => $currentPaymentAccount->getKey(),
-
-        //     'school_name' => $currentPaymentAccount->school->name,
-        //     'classroom_name' => $studentEnrollment->classroom->name,
-        //     'school_year_name' => $studentEnrollment->schoolYear->name,
-        //     'student_name' => $studentEnrollment->student->name,
-        //     'virtual_account_number' => $currentPaymentAccount->monthly_fee_virtual_account,
-
-        //     'type' => InvoiceTypeEnum::BOOK_FEE,
-        //     'amount' => $currentPaymentAccount->monthly_fee_amount,
-        //     'total_amount' => $currentPaymentAccount->monthly_fee_amount,
-
-        //     'is_paid' => false,
-        //     'start_date' => data_get($data, 'start_date'),
-        //     'end_date' => data_get($data, 'end_date'),
-        //     'description' => 'Tagihan uang buku',
-        //     'is_active' => true,
-        // ]
-    }
 }

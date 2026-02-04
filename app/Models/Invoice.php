@@ -117,32 +117,11 @@ class Invoice extends Model
         'paid_at' => 'datetime',
     ];
 
-    // protected static function booted()
-    // {
-    //     static::creating(function ($invoice) {
-    //         if (blank($invoice->fingerprint)) {
-    //             $invoice->fingerprint = implode('_', [
-    //                 $invoice->type,
-    //                 $invoice->student_id,
-    //                 $invoice->school_year_id,
-    //                 $invoice->month_id ?? 'annual',
-    //             ]);
-    //         }
-
-    //         if (blank($invoice->reference_number)) {
-    //             $invoice->reference_number = 'INV/' . now()->format('Ymd') . '/' . str()->random(6);
-    //         }
-    //     });
-    // }
-
     protected static function booted()
     {
         static::creating(function ($invoice) {
-            // Panggil fungsi static di atas
-            $defaults = self::generateDefaults($invoice->getAttributes());
-
-            $invoice->fingerprint = $defaults['fingerprint'];
-            $invoice->reference_number = $defaults['reference_number'];
+            $invoice->fingerprint = static::generateFingerprint($invoice->toArray());
+            $invoice->reference_number = static::generateReferenceNumber();
         });
     }
 
@@ -176,17 +155,20 @@ class Invoice extends Model
         return $query->unpaid()->monthlyFee();
     }
 
-    public static function generateDefaults(array $attributes): array
+    public static function generateFingerprint(array $data): string
     {
-        $attributes['fingerprint'] ??= implode('_', [
-            $attributes['type'] instanceof InvoiceTypeEnum ? $attributes['type']->value : $attributes['type'],
-            $attributes['student_id'],
-            $attributes['school_year_id'],
-            $attributes['month_id'] ?? 'annual',
+        $type = data_get($data, 'type');
+
+        return implode('_', [
+            $type instanceof InvoiceTypeEnum ? $type->value : $type,
+            data_get($data, 'student_id'),
+            data_get($data, 'school_year_id'),
+            data_get($data, 'month_id') ?? 'annual',
         ]);
+    }
 
-        $attributes['reference_number'] ??= 'INV/' . now()->format('Ymd') . '/' . str()->random(6);
-
-        return $attributes;
+    public static function generateReferenceNumber(): string
+    {
+        return 'INV/' . now()->format('Ymd') . '/' . str()->random(6);
     }
 }
