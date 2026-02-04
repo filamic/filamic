@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\Finance\Resources\Students\Schemas;
 
 use App\Enums\GenderEnum;
+use App\Filament\Finance\Resources\Students\RelationManagers\BookFeeInvoicesRelationManager;
+use App\Filament\Finance\Resources\Students\RelationManagers\MonthlyFeeInvoicesRelationManager;
 use App\Models\Classroom;
 use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
@@ -14,6 +16,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Resources\Pages\Page;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -31,7 +35,7 @@ class StudentForm
             ->components([
                 Tabs::make('Tabs')
                     ->tabs([
-                        Tab::make('Detail Siswa') // Label diubah dari Student's Detail
+                        Tab::make('Detail Siswa')
                             ->schema([
                                 Section::make([
                                     Select::make('school_id')
@@ -78,7 +82,7 @@ class StudentForm
                             ])
                             ->icon('tabler-list-details'),
 
-                        Tab::make('Detail Pembayaran') // Label diubah dari Payment Detail
+                        Tab::make('Detail Pembayaran')
                             ->schema([
                                 Section::make()
                                     ->columnSpanFull()
@@ -88,13 +92,16 @@ class StudentForm
                                             ->toHtmlString()
                                     )
                                     ->icon('tabler-info-circle')
-                                    ->iconColor('info'),
+                                    ->iconColor('info')
+                                    ->visibleOn(Operation::Create),
                                 Repeater::make('paymentAccounts')
                                     ->label('Akun Pembayaran Unit')
                                     ->addActionLabel('Tambah Jenjang Lanjutan')
                                     ->hiddenLabel()
                                     ->columnSpanFull()
                                     ->required()
+                                    ->addable(fn (string $operation) => $operation === Operation::Create->value)
+                                    ->deletable(fn (string $operation) => $operation === Operation::Create->value)
                                     ->relationship('paymentAccounts')
                                     ->columns(2)
                                     ->minItems(1)
@@ -155,7 +162,7 @@ class StudentForm
                             ])
                             ->icon('tabler-wallet'),
 
-                        Tab::make('Data Kelas') // Label diubah dari Classroom
+                        Tab::make('Data Kelas')
                             ->schema([
                                 Section::make()
                                     ->columnSpanFull()
@@ -165,7 +172,8 @@ class StudentForm
                                             ->toHtmlString()
                                     )
                                     ->icon('tabler-info-circle')
-                                    ->iconColor('info'),
+                                    ->iconColor('info')
+                                    ->visibleOn(Operation::Create),
                                 Repeater::make('enrollments')
                                     ->label('Riwayat Pendaftaran Kelas')
                                     ->maxItems(1)
@@ -206,6 +214,19 @@ class StudentForm
                                     ]),
                             ])
                             ->icon('tabler-door'),
+                        Tab::make('Tagihan')
+                            ->visibleOn(Operation::Edit)
+                            ->schema([
+                                Livewire::make(MonthlyFeeInvoicesRelationManager::class, fn (Page $livewire, Student $record) => [
+                                    'ownerRecord' => $record,
+                                    'pageClass' => $livewire::class,
+                                ])->columnSpanFull(),
+                                Livewire::make(BookFeeInvoicesRelationManager::class, fn (Page $livewire, Student $record) => [
+                                    'ownerRecord' => $record,
+                                    'pageClass' => $livewire::class,
+                                ])->columnSpanFull(),
+                            ])
+                            ->icon('tabler-invoice'),
                     ])
                     ->contained(false),
             ]);

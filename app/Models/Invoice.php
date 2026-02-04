@@ -62,10 +62,12 @@ use InvalidArgumentException;
  *
  * @method static Builder<static>|Invoice activeTerm()
  * @method static Builder<static>|Invoice activeYear()
+ * @method static Builder<static>|Invoice bookFee()
  * @method static Builder<static>|Invoice monthlyFee()
  * @method static Builder<static>|Invoice newModelQuery()
  * @method static Builder<static>|Invoice newQuery()
  * @method static Builder<static>|Invoice paid()
+ * @method static Builder<static>|Invoice paidMonthlyFee()
  * @method static Builder<static>|Invoice query()
  * @method static Builder<static>|Invoice unpaid()
  * @method static Builder<static>|Invoice unpaidMonthlyFee()
@@ -153,6 +155,12 @@ class Invoice extends Model
     }
 
     #[Scope]
+    protected function bookFee(Builder $query): Builder
+    {
+        return $query->where('type', InvoiceTypeEnum::BOOK_FEE);
+    }
+
+    #[Scope]
     protected function monthlyFee(Builder $query): Builder
     {
         return $query->where('type', InvoiceTypeEnum::MONTHLY_FEE);
@@ -166,6 +174,16 @@ class Invoice extends Model
     protected function unpaidMonthlyFee(Builder $query): Builder
     {
         return $query->unpaid()->monthlyFee();
+    }
+
+    /**
+     * @param  Builder<Invoice>  $query
+     * @return Builder<Invoice>
+     */
+    #[Scope]
+    protected function paidMonthlyFee(Builder $query): Builder
+    {
+        return $query->paid()->monthlyFee();
     }
 
     public static function generateFingerprint(array $data): string

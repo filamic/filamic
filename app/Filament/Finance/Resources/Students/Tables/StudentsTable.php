@@ -7,6 +7,7 @@ namespace App\Filament\Finance\Resources\Students\Tables;
 use App\Actions\PayMonthlyFeeInvoice;
 use App\Enums\PaymentMethodEnum;
 use App\Models\Invoice;
+use App\Models\SchoolYear;
 use App\Models\Student;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -19,10 +20,12 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Enums\Size;
 use Filament\Support\RawJs;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\PaginationMode;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -37,6 +40,7 @@ class StudentsTable
             ->modifyQueryUsing(function (Builder $query) {
                 $query->with(['currentPaymentAccount', 'unpaidMonthlyFee']);
             })
+            ->paginationMode(PaginationMode::Simple)
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
@@ -46,26 +50,32 @@ class StudentsTable
                     ->label('Nama')
                     ->searchable(),
                 TextColumn::make('currentPaymentAccount')
-                    ->label('Detail Pembayaran')
+                    ->label('Nomor VA')
                     ->markdown()
                     ->formatStateUsing(function ($record) {
                         $account = $record->currentPaymentAccount;
 
-                        if (! $account) {
-                            return '-';
-                        }
-
                         return "**SPP:** {$account->monthly_fee_virtual_account}  \n**Buku:** {$account->book_fee_virtual_account}";
                     }),
+                TextColumn::make('unpaidMonthlyFee.school_year_name')
+                    ->label('TA')
+                    ->listWithLineBreaks(),
                 TextColumn::make('unpaidMonthlyFee.month_id')
                     ->label('Bulan')
-                    ->bulleted()
-                    ->formatStateUsing(fn ($state) => $state ? Carbon::create()->month($state)->translatedFormat('F') : null),
+                    ->listWithLineBreaks()
+                    ->formatStateUsing(fn ($state) => Carbon::create()
+                        ->month($state)
+                        ->translatedFormat('F')
+                    ),
                 TextColumn::make('unpaidMonthlyFee.total_amount')
                     ->label('Tagihan')
                     ->listWithLineBreaks()
+                    ->money('IDR'),
+                TextColumn::make('unpaid_monthly_fee_sum_total_amount')
+                    ->sum('unpaidMonthlyFee', 'total_amount')
                     ->money('IDR')
-                    ->bulleted(),
+                    ->label('Total')
+                    ->sortable(),
             ])
             ->filters([
 
@@ -78,6 +88,7 @@ class StudentsTable
                 ActionGroup::make([
                     Action::make('payMonthlyFeeAction')
                         ->label('Uang Sekolah')
+                        ->visible(fn (Student $record) => $record->hasUnpaidMonthlyFee())
                         ->modalHeading('Bayar Tagihan Uang Sekolah')
                         ->schema([
                             TextInput::make('total_invoice')
@@ -177,6 +188,41 @@ class StudentsTable
                     ->tooltip('Bayar')
                     ->color('success')
                     ->icon('tabler-invoice'),
+                ActionGroup::make([
+                    Action::make('printInvoice')
+                        ->visible(fn (Student $record) => $record->hasPaidMonthlyFee())
+                        ->requiresConfirmation()
+                        ->label('Uang Sekolah')
+                        ->schema([
+                            Select::make('school_year_id')
+                                ->label('Tahun Ajaran')
+                                ->live()
+                                ->options(fn () => SchoolYear::pluck('name', 'id'))
+                                ->default(fn () => SchoolYear::getActive()->getKey()),
+                            CheckboxList::make('invoice_id')
+                                ->label('Tagihan')
+                                ->live()
+                                ->options(fn (Student $record, Get $get): array => $record
+                                    ->paidMonthlyFee()
+                                    ->where('school_year_id', $get('school_year_id'))
+                                    ->orderBy('month_id')
+                                    ->get()
+                                    ->mapWithKeys(fn ($invoice): array => [
+                                        (string) $invoice->getKey() => Carbon::create()
+                                            ->month((int) data_get($invoice, 'month_id.value'))
+                                            ->translatedFormat('F'),
+                                    ])
+                                    ->all()
+                                )
+                                ->columns(3)
+                                ->gridDirection('row'),
+                        ]),
+                ])
+                    ->iconButton()
+                    ->size(Size::ExtraSmall)
+                    ->tooltip('Print')
+                    ->icon('tabler-printer'),
+
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

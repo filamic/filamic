@@ -50,6 +50,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read int|null $invoices_count
  * @property-read User|null $mother
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $paidMonthlyFee
+ * @property-read int|null $paid_monthly_fee_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StudentPaymentAccount> $paymentAccounts
  * @property-read int|null $payment_accounts_count
  * @property-read School $school
@@ -143,14 +145,38 @@ class Student extends Model
             });
     }
 
+    /**
+     * @return HasMany<Invoice, $this>
+     */
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
     }
 
+    public function hasUnpaidMonthlyFee(): bool
+    {
+        return Invoice::query()
+            ->where('student_id', $this->getKey())
+            ->unpaidMonthlyFee()
+            ->exists();
+    }
+
+    public function hasPaidMonthlyFee(): bool
+    {
+        return Invoice::query()
+            ->where('student_id', $this->getKey())
+            ->paidMonthlyFee()
+            ->exists();
+    }
+
     public function unpaidMonthlyFee(): HasMany
     {
         return $this->hasMany(Invoice::class)->unpaidMonthlyFee();
+    }
+
+    public function paidMonthlyFee(): HasMany
+    {
+        return $this->hasMany(Invoice::class)->paidMonthlyFee();
     }
 
     /**

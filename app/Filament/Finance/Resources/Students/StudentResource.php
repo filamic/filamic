@@ -19,7 +19,7 @@ class StudentResource extends Resource
 {
     protected static ?string $model = Student::class;
 
-    protected static string | BackedEnum | null $navigationIcon = 'tabler-friends';
+    protected static string | BackedEnum | null $navigationIcon = 'tabler-users';
 
     protected static bool $isScopedToTenant = false;
 
@@ -43,7 +43,7 @@ class StudentResource extends Resource
     public static function getRelations(): array
     {
         return [
-
+            // InvoicesRelationManager::class
         ];
     }
 
