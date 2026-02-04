@@ -18,4 +18,12 @@ enum SchoolTermEnum: int implements HasLabel
             self::EVEN => 'Genap (2)',
         };
     }
+
+    public function getAllowedMonths(): array
+    {
+        return match ($this) {
+            self::ODD => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            self::EVEN => [0, 1, 2, 3, 4, 5],
+        };
+    }
 }

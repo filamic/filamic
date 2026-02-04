@@ -81,6 +81,7 @@ class ListStudents extends ListRecords
                     Select::make('month_id')
                         ->options(
                             collect(Month::cases())
+                                ->only(SchoolTerm::getActive()->name->getAllowedMonths())
                                 ->mapWithKeys(fn ($month) => [$month->value => $month->name])
                                 ->toArray()
                         )
