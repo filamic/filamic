@@ -23,9 +23,12 @@ class GenerateMonthlyFeeInvoice
         $issuedAt = data_get($data, 'issued_at');
         $dueDate = data_get($data, 'due_date');
 
+        if (blank($monthId) || blank($issuedAt) || blank($dueDate)) {
+            return 0;
+        }
+
         /** @var Builder|Student $getStudentsQuery */
-        // @phpstan-ignore-next-line
-        $getStudentsQuery = $branch->students();
+        $getStudentsQuery = $branch->students()->getQuery();
 
         $students = $getStudentsQuery->active()
             ->whereHas('currentPaymentAccount', function ($query) {

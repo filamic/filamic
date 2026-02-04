@@ -17,13 +17,8 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Schemas\Components\EmbeddedTable;
 use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\RenderHook;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Schema;
-use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Builder;
 use Throwable;
 
@@ -52,7 +47,6 @@ class ListStudents extends ListRecords
                 ->color('gray'),
             ActionGroup::make([
                 self::createMonthlyInvoiceAction(),
-                self::createBookInvoiceAction(),
             ])
                 ->label('Buat Tagihan')
                 ->color('success')
@@ -105,12 +99,12 @@ class ListStudents extends ListRecords
             ])
             ->action(function (array $data) {
                 try {
-                    $generateInvoice = GenerateMonthlyFeeInvoice::run(
+                    $generateMonthlyFeeInvoice = GenerateMonthlyFeeInvoice::run(
                         filament()->getTenant(),
                         $data
                     );
 
-                    if (blank($generateInvoice)) {
+                    if ($generateMonthlyFeeInvoice === 0) {
                         Notification::make()
                             ->title('Tagihan tidak dibuat!')
                             ->body('Tidak ada siswa yang memenuhi syarat pembuatan tagihan.')
@@ -122,7 +116,7 @@ class ListStudents extends ListRecords
 
                     Notification::make()
                         ->title('Berhasil membuat tagihan!')
-                        ->body("{$generateInvoice} tagihan baru dibuat.")
+                        ->body("{$generateMonthlyFeeInvoice} tagihan baru dibuat.")
                         ->success()
                         ->send();
 
@@ -141,15 +135,6 @@ class ListStudents extends ListRecords
             });
     }
 
-    public static function createBookInvoiceAction(): Action
-    {
-        return Action::make('createBookInvoiceAction')
-            ->label('Buku Tahunan')
-            ->requiresConfirmation()
-            ->modalIcon('tabler-invoice')
-            ->modalHeading('Buat Tagihan Buku');
-    }
-
     public function getTabs(): array
     {
         return [
@@ -159,67 +144,6 @@ class ListStudents extends ListRecords
             'Tidak Aktif' => Tab::make()
                 ->modifyQueryUsing(fn (Builder | Student $query) => $query->inActive())
                 ->icon('tabler-user-x'),
-            // 'Mutasi Internal' => Tab::make()
-            //     ->modifyQueryUsing(fn (Student $query) => $query->inActive())
-            //     ->icon('tabler-user-down'),
-            // 'Calon Siswa' => Tab::make()
-            //     ->modifyQueryUsing(fn (Student $query) => $query->inActive())
-            //     ->icon('tabler-user-star'),
         ];
-    }
-
-    public function content(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                $this->getTabsContentComponent(), // This method returns a component to display the tabs above a table
-                $this->setTabInfo(),
-                RenderHook::make(PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABLE_BEFORE),
-                EmbeddedTable::make(), // This is the component that renders the table that is defined in this resource
-                RenderHook::make(PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABLE_AFTER),
-            ]);
-    }
-
-    private function setTabInfo(): ?Section
-    {
-        // TODO: jadikan ini enum aja StudentStatus
-        $content = [
-            'Aktif' => [
-                'title' => 'Daftar Siswa Aktif',
-                'desc' => 'Menampilkan seluruh siswa yang terdaftar pada tahun ajaran berjalan.',
-                'color' => 'success',
-            ],
-            'Tidak Aktif' => [
-                'title' => 'Arsip Siswa',
-                'desc' => 'Menampilkan calon siswa atau siswa yang sudah lulus, pindah keluar, atau dikeluarkan.',
-                'color' => 'danger',
-            ],
-            'Mutasi Internal' => [
-                'title' => 'Perpindahan Cabang',
-                'desc' => 'Menampilkan siswa yang masuk melalui jalur mutasi antar unit sekolah dalam yayasan.',
-                'color' => 'info',
-            ],
-            'Calon Siswa' => [
-                'title' => 'Penerimaan Baru',
-                'desc' => 'Menampilkan calon siswa yang telah mendaftar untuk tahun ajaran mendatang.',
-                'color' => 'warning',
-            ],
-        ];
-
-        $detail = $content[$this->activeTab] ?? null;
-
-        if (! $detail) {
-            return null;
-        }
-
-        return Section::make()
-            ->columnSpanFull()
-            ->description(
-                str("**{$detail['title']}** — {$detail['desc']}")
-                    ->markdown()
-                    ->toHtmlString()
-            )
-            ->icon($this->getTabs()[$this->activeTab]->getIcon())
-            ->iconColor($detail['color']);
     }
 }

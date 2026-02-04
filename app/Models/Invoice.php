@@ -16,8 +16,10 @@ use App\Models\Traits\BelongsToStudent;
 use Carbon\Month;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Number;
 use InvalidArgumentException;
 
 /**
@@ -52,6 +54,7 @@ use InvalidArgumentException;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Branch $branch
  * @property-read Classroom $classroom
+ * @property-read mixed $formatted_amount
  * @property-read School $school
  * @property-read SchoolTerm $schoolTerm
  * @property-read SchoolYear $schoolYear
@@ -124,6 +127,15 @@ class Invoice extends Model
             $invoice->fingerprint = static::generateFingerprint($invoice->toArray());
             $invoice->reference_number = static::generateReferenceNumber();
         });
+    }
+
+    protected function formattedAmount(): Attribute
+    {
+        $amount = Number::format((float) $this->amount, locale: config('app.locale'));
+
+        return Attribute::make(
+            get: fn () => "Rp. {$amount}",
+        );
     }
 
     #[Scope]

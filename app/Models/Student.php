@@ -53,6 +53,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StudentPaymentAccount> $paymentAccounts
  * @property-read int|null $payment_accounts_count
  * @property-read School $school
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $unpaidMonthlyFee
+ * @property-read int|null $unpaid_monthly_fee_count
  * @property-read User|null $user
  *
  * @method static Builder<static>|Student active()
@@ -144,6 +146,11 @@ class Student extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function unpaidMonthlyFee(): HasMany
+    {
+        return $this->hasMany(Invoice::class)->unpaidMonthlyFee();
     }
 
     /**
