@@ -57,9 +57,10 @@ class StudentsTable
 
                         return "**SPP:** {$account->monthly_fee_virtual_account}  \n**Buku:** {$account->book_fee_virtual_account}";
                     }),
-                TextColumn::make('unpaidMonthlyFee.month_id.name')
+                TextColumn::make('unpaidMonthlyFee.month_id')
                     ->label('Bulan')
-                    ->bulleted(),
+                    ->bulleted()
+                    ->formatStateUsing(fn ($state) => $state ? Carbon::create()->month($state)->translatedFormat('F') : null),
                 TextColumn::make('unpaidMonthlyFee.total_amount')
                     ->label('Tagihan')
                     ->listWithLineBreaks()
@@ -96,7 +97,8 @@ class StudentsTable
                                 ->required()
                                 ->options(function (Student $record) {
                                     /** @var Builder|Invoice $query */
-                                    $query = $record->invoices()->getQuery();
+                                    // @phpstan-ignore-next-line
+                                    $query = $record->invoices();
 
                                     return $query
                                         ->unpaidMonthlyFee()
@@ -107,7 +109,17 @@ class StudentsTable
                                         ]);
                                 })
                                 ->columns(6)
-                                ->descriptions(fn (Student $record) => $record->invoices()->orderBy('due_date')->get()->pluck('formatted_amount', 'id'))
+                                ->descriptions(function (Student $record) {
+                                    /** @var Builder|Invoice $query */
+                                    // @phpstan-ignore-next-line
+                                    $query = $record->invoices();
+
+                                    return $query
+                                        ->unpaidMonthlyFee()
+                                        ->orderBy('due_date')
+                                        ->get()
+                                        ->pluck('formatted_amount', 'id');
+                                })
                                 ->gridDirection('row')
                                 ->live()
                                 ->afterStateUpdated(function (Set $set, ?array $state, Student $record) {
@@ -163,7 +175,6 @@ class StudentsTable
                     ->iconButton()
                     ->size(Size::ExtraSmall)
                     ->tooltip('Bayar')
-                    ->label('Buat Tagihan')
                     ->color('success')
                     ->icon('tabler-invoice'),
             ])

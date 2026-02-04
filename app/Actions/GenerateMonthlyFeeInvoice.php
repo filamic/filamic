@@ -28,7 +28,8 @@ class GenerateMonthlyFeeInvoice
         }
 
         /** @var Builder|Student $getStudentsQuery */
-        $getStudentsQuery = $branch->students()->getQuery();
+        // @phpstan-ignore-next-line
+        $getStudentsQuery = $branch->students();
 
         $students = $getStudentsQuery->active()
             ->whereHas('currentPaymentAccount', function ($query) {

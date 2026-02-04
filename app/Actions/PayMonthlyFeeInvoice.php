@@ -32,7 +32,8 @@ class PayMonthlyFeeInvoice
 
         return DB::transaction(function () use ($student, $invoicesIds, $paidAt, $paymentMethod, $description) {
             /** @var Builder|Invoice $query */
-            $query = $student->invoices()->getQuery();
+            // @phpstan-ignore-next-line
+            $query = $student->invoices();
 
             $updatedCount = $query
                 ->whereIn('id', $invoicesIds)
