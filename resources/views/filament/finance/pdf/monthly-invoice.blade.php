@@ -215,7 +215,7 @@
                 <td class="no">{{$loop->iteration}}</td>
                 <td class="desc">
                   <h3>
-                    SPP bln {{$invoice->month?->name}} 
+                    SPP bln {{$invoice->month->getLabel()}} 
                     TA {{$invoice->school_year_name}} ({{$invoice->classroom_name}})<br>
                     Via {{$invoice->payment_method?->name ?? '-'}}<br>
                     Tgl Bayar {{$invoice->paid_at}}
