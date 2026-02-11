@@ -235,7 +235,7 @@ class Invoice extends Model
         }
 
         return collect($components)
-            ->map(fn ($val) => $val instanceof InvoiceTypeEnum ? $val->value : $val)
+            ->map(fn ($val) => $val instanceof \BackedEnum ? $val->value : $val)
             ->join(':');
     }
 

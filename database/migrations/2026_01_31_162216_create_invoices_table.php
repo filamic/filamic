@@ -33,10 +33,10 @@ return new class extends Migration
             $table->unsignedTinyInteger('type');
             $table->unsignedTinyInteger('month')->nullable();
 
-            $table->decimal('amount', 10, 2);
-            $table->decimal('fine', 10, 2)->default(0);
-            $table->decimal('discount', 10, 2)->default(0);
-            $table->decimal('total_amount', 10, 2);
+            $table->unsignedInteger('amount');
+            $table->unsignedInteger('fine')->default(0);
+            $table->unsignedInteger('discount')->default(0);
+            $table->unsignedInteger('total_amount');
 
             $table->date('issued_at');
             $table->date('due_date');
