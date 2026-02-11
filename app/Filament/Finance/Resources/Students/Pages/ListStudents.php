@@ -80,7 +80,7 @@ class ListStudents extends ListRecords
                 Group::make([
                     Select::make('month')
                         ->options(function () {
-                            // TODO: we need to disabled this so user only see next month, this prevent user select another month
+                            // TODO: Restrict options to only show the next month to prevent users from selecting other months
                             $currentTerm = SchoolTerm::getActive();
                             $allowedMonths = $currentTerm->getAllowedMonths();
 
@@ -135,7 +135,7 @@ class ListStudents extends ListRecords
                         return;
                     }
 
-                    // if its not duplicate error, send to throwable
+                    // If it's not a duplicate error, rethrow to be handled by the outer catch
                     throw $error;
                 } catch (Throwable $error) {
                     report($error);

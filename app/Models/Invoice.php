@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\MonthEnum;
-use Illuminate\Support\Str;
-use InvalidArgumentException;
-use App\Enums\InvoiceTypeEnum;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Number;
 use App\Enums\InvoiceStatusEnum;
+use App\Enums\InvoiceTypeEnum;
+use App\Enums\MonthEnum;
 use App\Enums\PaymentMethodEnum;
 use App\Models\Traits\BelongsToBranch;
-use App\Models\Traits\BelongsToSchool;
-use App\Models\Traits\BelongsToStudent;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\BelongsToClassroom;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Traits\BelongsToSchool;
 use App\Models\Traits\BelongsToSchoolTerm;
 use App\Models\Traits\BelongsToSchoolYear;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Models\Traits\BelongsToStudent;
+use BackedEnum;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Number;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 /**
  * @property string $id
@@ -42,22 +43,25 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
  * @property string $student_name
  * @property InvoiceTypeEnum $type
  * @property MonthEnum|null $month
- * @property numeric $amount
- * @property numeric $fine
- * @property numeric $discount
- * @property numeric $total_amount
+ * @property int $amount
+ * @property int $fine
+ * @property int $discount
+ * @property int $total_amount
  * @property string $issued_at
  * @property string $due_date
  * @property InvoiceStatusEnum $status
  * @property PaymentMethodEnum|null $payment_method
- * @property \Illuminate\Support\Carbon|null $paid_at
+ * @property Carbon|null $paid_at
  * @property string|null $payment_reference
  * @property string|null $description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Branch $branch
  * @property-read Classroom $classroom
  * @property-read mixed $formatted_amount
+ * @property-read mixed $formatted_discount
+ * @property-read mixed $formatted_fine
+ * @property-read mixed $formatted_total_amount
  * @property-read School $school
  * @property-read SchoolTerm $schoolTerm
  * @property-read SchoolYear $schoolYear
@@ -141,39 +145,38 @@ class Invoice extends Model
         });
     }
 
+    protected function formatCurrency(int | float $value): string
+    {
+        $formatted = Number::format((float) $value, locale: config('app.locale'));
+
+        return "Rp. {$formatted}";
+    }
+
     protected function formattedAmount(): Attribute
     {
-        $amount = Number::format((float) $this->amount, locale: config('app.locale'));
-
         return Attribute::make(
-            get: fn () => "Rp. {$amount}",
+            get: fn () => $this->formatCurrency($this->amount),
         );
     }
 
     protected function formattedFine(): Attribute
     {
-        $amount = Number::format((float) $this->fine, locale: config('app.locale'));
-
         return Attribute::make(
-            get: fn () => "Rp. {$amount}",
+            get: fn () => $this->formatCurrency($this->fine),
         );
     }
 
     protected function formattedDiscount(): Attribute
     {
-        $amount = Number::format((float) $this->discount, locale: config('app.locale'));
-
         return Attribute::make(
-            get: fn () => "Rp. {$amount}",
+            get: fn () => $this->formatCurrency($this->discount),
         );
     }
 
     protected function formattedTotalAmount(): Attribute
     {
-        $amount = Number::format((float) $this->total_amount, locale: config('app.locale'));
-
         return Attribute::make(
-            get: fn () => "Rp. {$amount}",
+            get: fn () => $this->formatCurrency($this->total_amount),
         );
     }
 
@@ -267,7 +270,7 @@ class Invoice extends Model
         }
 
         return collect($components)
-            ->map(fn ($val) => $val instanceof \BackedEnum ? $val->value : $val)
+            ->map(fn ($val) => $val instanceof BackedEnum ? $val->value : $val)
             ->join(':');
     }
 
@@ -311,5 +314,4 @@ class Invoice extends Model
 
         return (int) ($daysLate * $ratePerDay);
     }
-
 }

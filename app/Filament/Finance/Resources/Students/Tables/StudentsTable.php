@@ -30,7 +30,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\PaginationMode;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Number;
 use Throwable;
 
@@ -224,9 +223,12 @@ class StudentsTable
                                     ->where('school_year_id', $get('school_year_id'))
                                     ->orderBy('month')
                                     ->get()
-                                    ->mapWithKeys(fn ($invoice): array => [
-                                        (string) $invoice->getKey() => $invoice->month->getLabel(),
-                                    ])
+                                    ->mapWithKeys(function ($invoice): array {
+                                        /** @var Invoice $invoice */
+                                        return [
+                                            (string) $invoice->getKey() => $invoice->month->getLabel(),
+                                        ];
+                                    })
                                     ->all()
                                 )
                                 ->columns(3)
