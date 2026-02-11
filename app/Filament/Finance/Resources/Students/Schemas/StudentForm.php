@@ -11,6 +11,8 @@ use App\Models\Classroom;
 use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
 use App\Models\Student;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -129,7 +131,14 @@ class StudentForm
                                             ->mask(RawJs::make('$money($input)'))
                                             ->stripCharacters(',')
                                             ->minValue(0)
-                                            ->required(),
+                                            ->required()
+                                            ->suffixAction(
+                                                Action::make('cihuy')
+                                                    ->label('as')
+                                                    ->icon('tabler-clock')
+                                                    ->tooltip('Update semua tagihan menggunakan nominal ini')
+                                                    ->requiresConfirmation()
+                                            ),
                                         TextInput::make('book_fee_amount')
                                             ->label('Nominal Biaya Buku')
                                             ->numeric()
@@ -158,6 +167,11 @@ class StudentForm
                                             ->maxLength(20)
                                             ->unique(ignoreRecord: true)
                                             ->different('monthly_fee_virtual_account'),
+                                        Checkbox::make('update_all_invoice_amount')
+                                            // ->visible(function(Get $get){
+                                            //     // jika ada perubahan di nominal maka update atau mungkin kita bisa pakai Action Suffix
+                                            // })
+                                            ->label('Update semua nominal tagihan dengan nominal yang baru'),
                                     ]),
                             ])
                             ->icon('tabler-wallet'),

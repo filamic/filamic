@@ -121,6 +121,17 @@ class ListStudents extends ListRecords
                         ->success()
                         ->send();
 
+                } catch (\Illuminate\Database\QueryException $error) {
+                    if ($error->getCode() === 23000 && str_contains($error->getMessage(), 'fingerprint')) {
+                        Notification::make()
+                            ->title('Invoice sudah dibuat sebelumnya!')
+                            ->warning()
+                            ->send();
+
+                        return;
+                    }
+
+                    throw $error;
                 } catch (Throwable $error) {
                     report($error);
 

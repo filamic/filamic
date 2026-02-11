@@ -34,16 +34,18 @@ return new class extends Migration
             $table->unsignedTinyInteger('month_id')->nullable();
 
             $table->decimal('amount', 10, 2);
-            $table->decimal('discount', 10, 2)->default(0);
             $table->decimal('fine', 10, 2)->default(0);
+            $table->decimal('discount', 10, 2)->default(0);
             $table->decimal('total_amount', 10, 2);
+
+            $table->date('issued_at');
+            $table->date('due_date');
 
             $table->unsignedTinyInteger('status')->default(1)->index();
             $table->unsignedTinyInteger('payment_method')->nullable();
             $table->dateTime('paid_at')->nullable();
 
-            $table->date('due_date');
-            $table->date('issued_at');
+            $table->string('payment_reference')->nullable()->index();
 
             $table->longText('description')->nullable();
 

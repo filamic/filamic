@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Number;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 /**
@@ -41,14 +42,14 @@ use InvalidArgumentException;
  * @property InvoiceTypeEnum $type
  * @property Month|null $month_id
  * @property numeric $amount
- * @property numeric $discount
  * @property numeric $fine
+ * @property numeric $discount
  * @property numeric $total_amount
+ * @property string $issued_at
+ * @property string $due_date
  * @property InvoiceStatusEnum $status
  * @property PaymentMethodEnum|null $payment_method
  * @property \Illuminate\Support\Carbon|null $paid_at
- * @property string $due_date
- * @property string $issued_at
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -64,6 +65,7 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice activeYear()
  * @method static Builder<static>|Invoice bookFee()
  * @method static Builder<static>|Invoice monthlyFee()
+ * @method static Builder<static>|Invoice monthlyFeeForThisSchoolYear(?int $monthId = null, $schoolYearId = null)
  * @method static Builder<static>|Invoice newModelQuery()
  * @method static Builder<static>|Invoice newQuery()
  * @method static Builder<static>|Invoice paid()
@@ -71,6 +73,7 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice query()
  * @method static Builder<static>|Invoice unpaid()
  * @method static Builder<static>|Invoice unpaidMonthlyFee()
+ * @method static Builder<static>|Invoice unpaidMonthlyFeeForThisSchoolYear(?int $monthId = null, ?int $schoolYearId = null)
  * @method static Builder<static>|Invoice whereAmount($value)
  * @method static Builder<static>|Invoice whereBranchId($value)
  * @method static Builder<static>|Invoice whereBranchName($value)
@@ -178,6 +181,34 @@ class Invoice extends Model
 
     /**
      * @param  Builder<Invoice>  $query
+     * @param  ?int  $schoolYearId
+     * @return Builder<Invoice>
+     */
+    #[Scope]
+    protected function monthlyFeeForThisSchoolYear(Builder $query, ?int $monthId = null, $schoolYearId = null): Builder
+    {
+        $schoolYearId ??= SchoolYear::getActive()?->getKey();
+
+        return $query
+            ->monthlyFee()
+            ->where('school_year_id', $schoolYearId)
+            ->when($monthId, fn ($q) => $q->where('month_id', $monthId));
+    }
+
+    /**
+     * @param  Builder<Invoice>  $query
+     * @return Builder<Invoice>
+     */
+    #[Scope]
+    protected function unpaidMonthlyFeeForThisSchoolYear(Builder $query, ?int $monthId = null, ?int $schoolYearId = null): Builder
+    {
+        return $query
+            ->monthlyFeeForThisSchoolYear($monthId, $schoolYearId)
+            ->unpaid();
+    }
+
+    /**
+     * @param  Builder<Invoice>  $query
      * @return Builder<Invoice>
      */
     #[Scope]
@@ -196,7 +227,7 @@ class Invoice extends Model
             throw new InvalidArgumentException('student_id and school_year_id are required for fingerprint generation');
         }
 
-        return implode('_', [
+        return implode('/', [
             $type instanceof InvoiceTypeEnum ? $type->value : $type,
             $studentId,
             $schoolYearId,
@@ -206,6 +237,18 @@ class Invoice extends Model
 
     public static function generateReferenceNumber(): string
     {
-        return 'INV/' . now()->format('Ymd') . '/' . str()->random(6);
+        // Menggunakan Str::random lebih clean, atau Str::ulid() untuk keamanan total
+        return sprintf('INV/%s/%s',
+            now()->format('Ymd'),
+            Str::ulid()
+        );
+    }
+
+    public static function generatePaymentReference(): string
+    {
+        return sprintf('PAY/%s/%s',
+            now()->format('Ymd'),
+            Str::ulid()
+        );
     }
 }

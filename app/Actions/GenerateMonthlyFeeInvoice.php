@@ -19,19 +19,17 @@ class GenerateMonthlyFeeInvoice
 
     public function handle(Branch $branch, array $data): int
     {
-        $monthId = data_get($data, 'month_id');
-        $issuedAt = data_get($data, 'issued_at');
-        $dueDate = data_get($data, 'due_date');
-
-        if (blank($monthId) || blank($issuedAt) || blank($dueDate)) {
-            return 0;
-        }
+        $monthId = $data['month_id'];
+        $issuedAt = $data['issued_at'];
+        $dueDate = $data['due_date'];
 
         /** @var Builder|Student $getStudentsQuery */
         // @phpstan-ignore-next-line
         $getStudentsQuery = $branch->students();
 
-        $students = $getStudentsQuery->active()
+        $students = $getStudentsQuery
+            ->active()
+            ->whereHas('currentEnrollment')
             ->whereHas('currentPaymentAccount', function ($query) {
                 /** @var StudentPaymentAccount $query */
                 // @phpstan-ignore-next-line
@@ -40,7 +38,7 @@ class GenerateMonthlyFeeInvoice
             ->whereDoesntHave('invoices', function ($query) use ($monthId) {
                 /** @var Invoice $query */
                 // @phpstan-ignore-next-line
-                $query->where('month_id', $monthId)->monthlyFee();
+                $query->monthlyFeeForThisSchoolYear(monthId: $monthId);
             })
             ->with([
                 'school',
@@ -97,19 +95,10 @@ class GenerateMonthlyFeeInvoice
             return $preparedData;
         })->toArray();
 
-        return DB::transaction(function () use ($newInvoices, $branch, $issuedAt, $dueDate, $monthId) {
+        return DB::transaction(function () use ($newInvoices) {
             foreach (array_chunk($newInvoices, 500) as $chunk) {
                 Invoice::fillAndInsert($chunk);
             }
-
-            Invoice::query()
-                ->whereIn('student_id', $branch->students()->select('students.id'))
-                ->unpaidMonthlyFee()
-                ->where('month_id', '!=', $monthId)
-                ->update([
-                    'issued_at' => $issuedAt,
-                    'due_date' => $dueDate,
-                ]);
 
             return count($newInvoices);
         });

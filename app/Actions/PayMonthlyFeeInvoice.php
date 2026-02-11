@@ -19,23 +19,27 @@ class PayMonthlyFeeInvoice
     {
         $invoicesIds = data_get($data, 'invoice_ids');
         $paidAt = data_get($data, 'paid_at');
+        $fine = data_get($data, 'fine');
+        $discount = data_get($data, 'discount');
         $paymentMethod = data_get($data, 'payment_method');
         $description = data_get($data, 'description');
 
         if (
             blank($invoicesIds) ||
             blank($paidAt) ||
-            blank($paymentMethod)
+            blank($paymentMethod) ||
+            blank($fine) ||
+            blank($discount)
         ) {
             return false;
         }
 
         return DB::transaction(function () use ($student, $invoicesIds, $paidAt, $paymentMethod, $description) {
-            /** @var Builder|Invoice $query */
+            /** @var Builder|Invoice $invoices */
             // @phpstan-ignore-next-line
-            $query = $student->invoices();
+            $invoices = $student->invoices();
 
-            $updatedCount = $query
+            $updatedCount = $invoices
                 ->whereIn('id', $invoicesIds)
                 ->unpaidMonthlyFee()
                 ->update([

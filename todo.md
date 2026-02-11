@@ -1,3 +1,6 @@
+- [ ] fix denda
+- [ ] feature bayar spp
+- [ ] feature print tagihan
 
 - [ ] import siswa
 - [ ] export siswa
@@ -15,8 +18,8 @@
 - [ ] admin hanya bisa edit 1 data student terakhir, yang lain harus menjadi history
 - [ ] saat gagal membuat invoice, anak yang gagal beserta keterangan gagal masukkan ke database notifikasi, buat pages dan tampilkan sebagai tabel
 - [ ] g bisa delete first payment method di student form
-- [ ] buat middleware untiuk ngecek apakah aplikasi sudah siap digunakan,. semisal tahun ajaran/semester atau apapun blm siap diguanakn maka dia akan masuk ke halaman tertentu. 
-
+- [ ] buat middleware untiuk ngecek apakah aplikasi sudah siap digunakan,. semisal tahun ajaran/semester atau apapun blm siap diguanakn maka dia akan masuk ke halaman tertentu.
+- [ ] bug di denda saat menghitung denda, ada validaasi yang g lewat max value gtu yg string 255.
 
 - definisikan arti siswa aktif
     - school_id tidak null berakrti masih aktif
@@ -28,7 +31,7 @@
     - status -> ENROLLED
 
 - definisi student g aktif
-    - statusnya non aktif 
+    - statusnya non aktif
     - school_id di tabel student null
 
 - cra menonaktifkan siswa
@@ -46,11 +49,17 @@ Semua history akan tersimpan di student enrollment sebagai source of truth, yg a
     - ambil semua school id berdasarkan classrom yg masuk kategori aktif di tabel enrollment,
     - hasil dari school id ambil semua payment account berdasarkan schoolid, kmudian baru ambil siswanya
 
-
 - siapa aja yang bisa dibuatkan invoice?
     - siswa aktif tahun ajaran ini
 
 setiap siswa yang dibuatkan invoice nomor virtual account invoice itu harus di update juga seperti taggal
 
-
 pas export tagihan baru user admin bisa milih yg nunggak mau bayar berapa bulan dulu klo emng minta keringanan
+
+flow kenaikan kelas
+
+1. admin finance buat data di student enrollment edngan status draft buat siapa aja yg tahun ajaran selnajutnya ada di kelas mana aja
+2. nanti setelah sudah final, jadi dia bisa klik finalisasi agar semua yg draft di tahun ajaran itu di update menjadi Enrolled
+   catatan: masih dipikirkan apakah perlu status draft atau tidak, atau lngsung enrolled aja, klo g jadi tinggl di hapus
+
+Harus selalu pastikan student yg active ada value saat query $student->currentEnrollment -> bagaimana kita pastikan hal ini?

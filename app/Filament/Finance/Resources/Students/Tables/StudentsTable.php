@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Finance\Resources\Students\Tables;
 
 use App\Actions\PayMonthlyFeeInvoice;
+use App\Actions\PrintMonthlyFeeInvoice;
 use App\Enums\PaymentMethodEnum;
 use App\Models\Invoice;
 use App\Models\SchoolYear;
@@ -20,6 +21,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Enums\Size;
@@ -106,6 +108,7 @@ class StudentsTable
                             CheckboxList::make('invoice_ids')
                                 ->label('Tagihan Berdasarkan Bulan')
                                 ->required()
+                                ->bulkToggleable()
                                 ->options(function (Student $record) {
                                     /** @var Builder|Invoice $query */
                                     // @phpstan-ignore-next-line
@@ -140,6 +143,25 @@ class StudentsTable
 
                                     $set('total_invoice', $totalAmount);
                                 }),
+                            Group::make([
+                                TextInput::make('fine')
+                                    ->label('Denda')
+                                    ->default(self::calculateFine(...))
+                                    ->numeric()
+                                    ->readOnly()
+                                    ->mask(RawJs::make('$money($input)'))
+                                    ->stripCharacters(',')
+                                    ->prefix('Rp')
+                                    ->minValue(0),
+                                TextInput::make('discount')
+                                    ->label('Diskon')
+                                    ->minValue(0)
+                                    ->numeric()
+                                    ->mask(RawJs::make('$money($input)'))
+                                    ->stripCharacters(',')
+                                    ->prefix('Rp')
+                                    ->default(0),
+                            ])->columns(2),
                             Select::make('payment_method')
                                 ->label('Metode Pembayaran')
                                 ->required()
@@ -199,9 +221,10 @@ class StudentsTable
                                 ->live()
                                 ->options(fn () => SchoolYear::pluck('name', 'id'))
                                 ->default(fn () => SchoolYear::getActive()->getKey()),
-                            CheckboxList::make('invoice_id')
+                            CheckboxList::make('invoice_ids')
                                 ->label('Tagihan')
                                 ->live()
+                                ->required()
                                 ->options(fn (Student $record, Get $get): array => $record
                                     ->paidMonthlyFee()
                                     ->where('school_year_id', $get('school_year_id'))
@@ -216,7 +239,48 @@ class StudentsTable
                                 )
                                 ->columns(3)
                                 ->gridDirection('row'),
-                        ]),
+                        ])
+                        ->action(function (Student $record, array $data) {
+                            try {
+                                $printMonthlyFeeInvoice = PrintMonthlyFeeInvoice::run(
+                                    $record,
+                                    $data
+                                );
+
+                                if (blank($printMonthlyFeeInvoice)) {
+                                    Notification::make()
+                                        ->title('Gagal membuat pdf tagihan!')
+                                        ->info()
+                                        ->send();
+
+                                    return;
+                                }
+
+                                Notification::make()
+                                    ->title('Berhasil membuat pdf tagihan!')
+                                    ->success()
+                                    ->actions([
+                                        Action::make('view')
+                                            ->label('Klik disini untuk lihat')
+                                            ->url(asset('storage/' . $printMonthlyFeeInvoice))
+                                            ->link()
+                                            ->openUrlInNewTab(),
+                                    ])
+                                    ->send();
+
+                            } catch (Throwable $error) {
+                                report($error);
+
+                                Notification::make()
+                                    ->title('Gagal membuat pdf invoice, tidak ada data!')
+                                    ->body('Terjadi Kesalahan Sistem. Silakan hubungi tim IT.')
+                                    ->danger()
+                                    ->persistent()
+                                    ->send();
+
+                                return;
+                            }
+                        }),
                 ])
                     ->iconButton()
                     ->size(Size::ExtraSmall)
@@ -229,5 +293,25 @@ class StudentsTable
                     // DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    private static function calculateFine(Student $record)
+    {
+        // TODO: fix this
+        // $defaultFine = (int) config('app.fine');
+
+        // /** @var Builder|Invoice $bill */
+        // $bill = $record->unpaidMonthlyFee()
+        //     ->orderBy('due_date')
+        //     ->firstOrFail();
+
+        // $issuedAt = Carbon::parse($bill->due_date)->addDay();
+        // $dueDate = now();
+
+        // if ($dueDate->lessThanOrEqualTo($issuedAt)) {
+        //     return 0;
+        // }
+
+        // return $issuedAt->diffInDays($dueDate) * $defaultFine;
     }
 }
