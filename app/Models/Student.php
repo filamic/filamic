@@ -137,6 +137,7 @@ class Student extends Model
     {
         return $this->hasOne(StudentPaymentAccount::class)
             ->latestOfMany()
+            // ->where('school_id', $this->school_id);
             ->where('student_payment_accounts.school_id', function ($sub) {
                 $sub->select('school_id')
                     ->from('students')
@@ -155,6 +156,7 @@ class Student extends Model
 
     public function hasUnpaidMonthlyFee(): bool
     {
+        // return $this->invoices()->unpaidMonthlyFee()->exists();
         return Invoice::query()
             ->where('student_id', $this->getKey())
             ->unpaidMonthlyFee()
@@ -163,6 +165,7 @@ class Student extends Model
 
     public function hasPaidMonthlyFee(): bool
     {
+        // return $this->invoices()->paidMonthlyFee()->exists();
         return Invoice::query()
             ->where('student_id', $this->getKey())
             ->paidMonthlyFee()
@@ -191,17 +194,12 @@ class Student extends Model
     {
         return $this->hasOne(StudentEnrollment::class)
             ->latestOfMany()
-            ->where(function ($query) {
-                $query->active();
-            });
+            ->active();
     }
 
     public function syncActiveStatus(): void
     {
-        $activeYear = SchoolYear::getActive();
-        $activeTerm = SchoolTerm::getActive();
-
-        if (blank($activeYear) || blank($activeTerm)) {
+        if (blank(SchoolYear::getActive()) || blank(SchoolTerm::getActive())) {
             return;
         }
 

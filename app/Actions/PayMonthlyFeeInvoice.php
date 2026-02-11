@@ -8,10 +8,10 @@ use App\Enums\InvoiceStatusEnum;
 use App\Enums\PaymentMethodEnum;
 use App\Models\Invoice;
 use App\Models\Student;
-use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class PayMonthlyFeeInvoice
@@ -22,7 +22,7 @@ class PayMonthlyFeeInvoice
     {
         $validated = Validator::make($data, [
             'invoice_ids' => ['required', 'array'],
-            'invoice_ids.*' => ['required', 'exists:invoices,id'],
+            'invoice_ids.*' => ['required', 'exists:invoices,id,student_id,' . $student->getKey()],
             'paid_at' => ['required', 'date'],
             'payment_method' => ['required', new Enum(PaymentMethodEnum::class)],
 
@@ -31,7 +31,6 @@ class PayMonthlyFeeInvoice
         ])->validate();
 
         return DB::transaction(function () use ($student, $validated) {
-            $fine = Invoice::calculateAccumulatedFine($student);
             $invoicesToPay = $student->invoices()
                 ->whereIn('id', $validated['invoice_ids'])
                 ->unpaidMonthlyFee()
@@ -39,14 +38,16 @@ class PayMonthlyFeeInvoice
                 ->lockForUpdate()
                 ->get();
 
+            $fine = Invoice::calculateAccumulatedFine($student);
+
             if ($invoicesToPay->isEmpty()) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
+                throw ValidationException::withMessages([
                     'invoice_ids' => 'Tidak ada tagihan yang dapat diproses. Silakan refresh halaman.',
                 ]);
             }
 
             if ($invoicesToPay->count() !== count($validated['invoice_ids'])) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
+                throw ValidationException::withMessages([
                     'invoice_ids' => 'Beberapa tagihan sudah diproses atau tidak ditemukan. Silakan refresh halaman.',
                 ]);
             }
@@ -54,7 +55,7 @@ class PayMonthlyFeeInvoice
             $maxDiscount = $invoicesToPay->first()->amount + $fine;
 
             if ($validated['discount'] > $maxDiscount) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
+                throw ValidationException::withMessages([
                     'discount' => 'Discount tidak boleh melebihi total tagihan.',
                 ]);
             }
@@ -64,7 +65,7 @@ class PayMonthlyFeeInvoice
             foreach ($invoicesToPay as $index => $invoice) {
                 $isOldest = ($index === 0);
 
-                $updated = $invoice->update([
+                $invoice->updateOrFail([
                     'status' => InvoiceStatusEnum::PAID,
                     'paid_at' => $validated['paid_at'],
                     'payment_method' => $validated['payment_method'],
@@ -80,10 +81,6 @@ class PayMonthlyFeeInvoice
                         ? ($invoice->amount + $fine - $validated['discount'])
                         : $invoice->amount,
                 ]);
-
-                if (! $updated) {
-                    throw new Exception("Gagal mengupdate invoice ID: {$invoice->id}");
-                }
             }
 
             return true;

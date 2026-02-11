@@ -113,7 +113,7 @@ class ListStudents extends ListRecords
                         Notification::make()
                             ->title('Tagihan tidak dibuat!')
                             ->body('Tidak ada siswa yang memenuhi syarat pembuatan tagihan.')
-                            ->info()
+                            ->warning()
                             ->send();
 
                         return;
@@ -126,7 +126,9 @@ class ListStudents extends ListRecords
                         ->send();
 
                 } catch (\Illuminate\Database\QueryException $error) {
-                    if ($error->getCode() === '23000' && str_contains($error->getMessage(), 'fingerprint')) {
+                    // SQLSTATE 23000 = Integrity constraint violation (duplicate key)
+                    // Check for unique constraint on fingerprint column
+                    if ($error->getCode() === '23000' && str_contains(mb_strtolower($error->getMessage()), 'fingerprint')) {
                         Notification::make()
                             ->title('Invoice sudah dibuat sebelumnya!')
                             ->warning()

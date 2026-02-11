@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
   <meta charset="utf-8">
@@ -183,7 +183,7 @@
 <body>
   <header class="clearfix">
     <div id="logo">
-      <img src="logo.png">
+      <img src="{{ public_path('logo.png') }}">
       <h2 class="name">SEKOLAH BASIC</h2>
       <p>Jl. Laksamana Kawasan Industri No.1 | (0778) 460817</p>
     </div>
@@ -216,29 +216,26 @@
         </tr>
       </thead>
       <tbody>
-        @php 
-          $total = 0;
-        @endphp
-      @foreach($invoices as $invoice)
-        <tr>
+        @foreach($invoices as $invoice)
+          <tr>
             <td class="no">{{$loop->iteration}}</td>
             <td class="desc">
               <h3>
-                SPP bln {{$invoice->month->getLabel()}} 
+                SPP bln {{$invoice->month?->getLabel() ?? '-'}}
                 TA {{$invoice->school_year_name}} ({{$invoice->classroom_name}})<br>
                 Via {{$invoice->payment_method?->name ?? '-'}}<br>
-                Tgl Bayar {{$invoice->paid_at}}
+                Tgl Bayar {{$invoice->paid_at?->format('d-m-Y') ?? '-'}}
               </h3>
             </td>
             <td class="qty">{{$invoice->formatted_amount}}</td>
             <td class="unit">{{$invoice->formatted_fine}}</td>
-              <td class="qty">{{$invoice->formatted_discount}}</td>
-              <td class="total">{{$invoice->formatted_total_amount}}</td>
-            </tr>
-      @endforeach
+            <td class="qty">{{$invoice->formatted_discount}}</td>
+            <td class="total">{{$invoice->formatted_total_amount}}</td>
+          </tr>
+        @endforeach
       </tbody>
-        <tfoot>
-          <!-- <tr>
+      <tfoot>
+        <!-- <tr>
             <td colspan="2"></td>
             <td colspan="2">SUBTOTAL</td>
             <td>$5,200.00</td>
@@ -254,8 +251,8 @@
           <td>{{'Rp ' . Number::format($totalAmount, locale: 'id')}}</td>
         </tr>
       </tfoot>
-      </table>
-      <!-- <div id="thanks">Thank you!</div>
+    </table>
+    <!-- <div id="thanks">Thank you!</div>
       <div id="notices">
         <div>NOTICE:</div>
       <div class="notice">A finance charge of 1.5% will be made on unpaid balances after 30 days.</div>
@@ -267,16 +264,18 @@
       <br>
       <br>
       <br>
-      <p>{{ Str::before(auth()->user()?->name ?? 'System', ' ') }}</p>
+      <p>{{ $cashierName ? Str::before($cashierName, ' ') : '-' }}</p>
     </div>
-  <div id="footer-right">
-    <ul style="font-size:12px;list-style-type: none;">
+    <div id="footer-right">
+      <ul style="font-size:12px;list-style-type: none;">
 
-                   <li>1. Uang yang telah dibayarkan tidak dapat ditarik kembali!</li>
-          <li>2. Pembayaran SPP yang telat akan dikenakan denda Rp {{Number::format(config('app.fine'), locale: 'id')}}/hari</li>
+        <li>1. Uang yang telah dibayarkan tidak dapat ditarik kembali!</li>
+        <li>2. Pembayaran SPP yang telat akan dikenakan denda Rp
+          {{Number::format(config('app.fine', 0), locale: 'id')}}/hari
+        </li>
       </ul>
-    </d
-iv>
-    </main>
-  </body>
+    </div>
+  </main>
+</body>
+
 </html>

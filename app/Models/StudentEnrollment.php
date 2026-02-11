@@ -82,7 +82,7 @@ class StudentEnrollment extends Model
     protected static function booted(): void
     {
         static::creating(function ($enrollment) {
-            if ($enrollment->student) {
+            if ($enrollment->student?->school) {
                 $enrollment->branch_id = $enrollment->student->school->branch_id;
                 $enrollment->school_id = $enrollment->student->school_id;
             }
@@ -105,8 +105,13 @@ class StudentEnrollment extends Model
     #[Scope]
     protected function inactive(Builder $query): Builder
     {
-        return $query->whereNot('school_year_id', SchoolYear::getActive()?->getKey())
-            ->whereNot('school_term_id', SchoolTerm::getActive()?->getKey())
-            ->whereIn('status', StudentEnrollmentStatusEnum::getInactiveStatuses());
+        $activeYearId = SchoolYear::getActive()?->getKey();
+        $activeTermId = SchoolTerm::getActive()?->getKey();
+
+        return $query->where(function (Builder $q) use ($activeYearId, $activeTermId) {
+            $q->whereIn('status', StudentEnrollmentStatusEnum::getInactiveStatuses())
+                ->orWhere('school_year_id', '!=', $activeYearId)
+                ->orWhere('school_term_id', '!=', $activeTermId);
+        });
     }
 }

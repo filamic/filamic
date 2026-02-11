@@ -40,7 +40,7 @@ arch('migrations do not have down function')
     )
     ->toBeEmpty();
 
-// TODO: check all model has test and filament resource also
+// TODO: check all models have tests and filament resources also
 
 // arch('Filament resource tests have minimal required tests')
 //     ->expect(function () {

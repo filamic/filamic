@@ -96,10 +96,10 @@ class StudentsTable
                                 ->prefix('Rp'),
                             DateTimePicker::make('paid_at')
                                 ->required()
-                                ->maxDate(now())
+                                ->maxDate(fn () => now())
                                 ->label('Tanggal Bayar')
                                 ->hint('Tanggal Sesuai Rekening Koran/Tanggal Saat Bayar')
-                                ->default(date('Y-m-d H:i:s')),
+                                ->default(fn () => now()),
                             CheckboxList::make('invoice_ids')
                                 ->label('Tagihan Berdasarkan Bulan')
                                 ->required()
@@ -125,15 +125,15 @@ class StudentsTable
 
                                     return $query
                                         ->unpaidMonthlyFee()
-                                        ->orderBy('month')
+                                        ->orderBy('due_date')
                                         ->get()
                                         ->pluck('formatted_amount', 'id');
                                 })
                                 ->gridDirection('row')
                                 ->live()
                                 ->afterStateUpdated(function (Set $set, ?array $state, Student $record) {
-                                    $totalAmount = Number::format($record->invoices
-                                        ->whereIn('id', $state)
+                                    $totalAmount = Number::format($record->invoices()
+                                        ->whereIn('id', $state ?? [])
                                         ->sum('amount'), locale: config('app.locale'));
 
                                     $set('total_invoice', $totalAmount);

@@ -64,7 +64,10 @@ enum StudentEnrollmentStatusEnum: int implements HasColor, HasIcon, HasLabel
     public static function getInactiveStatuses(): array
     {
         return [
+            self::PROMOTED,
+            self::STAYED,
             self::GRADUATED,
+            self::MOVED_INTERNAL,
             self::MOVED_EXTERNAL,
             self::DROPPED_OUT,
         ];

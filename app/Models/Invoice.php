@@ -71,7 +71,7 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice activeYear()
  * @method static Builder<static>|Invoice bookFee()
  * @method static Builder<static>|Invoice monthlyFee()
- * @method static Builder<static>|Invoice monthlyFeeForThisSchoolYear(?int $month = null, $schoolYearId = null)
+ * @method static Builder<static>|Invoice monthlyFeeForThisSchoolYear(?int $month = null, ?int $schoolYearId = null)
  * @method static Builder<static>|Invoice newModelQuery()
  * @method static Builder<static>|Invoice newQuery()
  * @method static Builder<static>|Invoice paid()
@@ -139,8 +139,14 @@ class Invoice extends Model
 
     protected static function booted()
     {
-        static::creating(function ($invoice) {
-            $invoice->fingerprint = static::generateFingerprint($invoice->toArray());
+        static::creating(function (Invoice $invoice) {
+            $invoice->fingerprint = static::generateFingerprint([
+                'type' => $invoice->type,
+                'student_id' => $invoice->student_id,
+                'school_year_id' => $invoice->school_year_id,
+                'month' => $invoice->month,
+            ]);
+
             $invoice->reference_number = static::generateReferenceNumber();
         });
     }
@@ -218,11 +224,10 @@ class Invoice extends Model
 
     /**
      * @param  Builder<Invoice>  $query
-     * @param  ?int  $schoolYearId
      * @return Builder<Invoice>
      */
     #[Scope]
-    protected function monthlyFeeForThisSchoolYear(Builder $query, ?int $month = null, $schoolYearId = null): Builder
+    protected function monthlyFeeForThisSchoolYear(Builder $query, ?int $month = null, ?int $schoolYearId = null): Builder
     {
         $schoolYearId ??= SchoolYear::getActive()?->getKey();
 
