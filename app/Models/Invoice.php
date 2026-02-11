@@ -221,25 +221,26 @@ class Invoice extends Model
 
     public static function generateFingerprint(array $data): string
     {
-        $type = data_get($data, 'type');
-        $studentId = data_get($data, 'student_id');
-        $schoolYearId = data_get($data, 'school_year_id');
+        $components = [
+            'type' => data_get($data, 'type'),
+            'student_id' => data_get($data, 'student_id'),
+            'school_year_id' => data_get($data, 'school_year_id'),
+            'month' => data_get($data, 'month', 'annual'),
+        ];
 
-        if (empty($studentId) || empty($schoolYearId)) {
-            throw new InvalidArgumentException('student_id and school_year_id are required for fingerprint generation');
+        foreach ($components as $key => $value) {
+            if (blank($value)) {
+                throw new InvalidArgumentException("Component [{$key}] is required for fingerprint.");
+            }
         }
 
-        return implode('/', [
-            $type instanceof InvoiceTypeEnum ? $type->value : $type,
-            $studentId,
-            $schoolYearId,
-            data_get($data, 'month') ?? 'annual',
-        ]);
+        return collect($components)
+            ->map(fn ($val) => $val instanceof InvoiceTypeEnum ? $val->value : $val)
+            ->join(':');
     }
 
     public static function generateReferenceNumber(): string
     {
-        // Menggunakan Str::random lebih clean, atau Str::ulid() untuk keamanan total
         return sprintf('INV/%s/%s',
             now()->format('Ymd'),
             Str::ulid()
