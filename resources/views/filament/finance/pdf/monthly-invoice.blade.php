@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Example 2</title>
+    <title>Invoice - {{ $student->name }}</title>
     <style>
         /* @font-face {
         font-family: SourceSansPro;
@@ -189,10 +189,9 @@
             <tr>
                 <td style="text-align:left">Print At</td>
                 <td style="text-align:left">:</td>
-                <td style="text-align:left">{{now()}}</td>
+                <td style="text-align:left">{{ now()->format('d-m-Y H:i') }}</td>
             </tr>
         </table>
-      </div>
       </div>
     </header>
     <main>
@@ -216,13 +215,13 @@
                 <td class="no">{{$loop->iteration}}</td>
                 <td class="desc">
                   <h3>
-                    SPP bln {{$invoice->month_id->name}} 
+                    SPP bln {{$invoice->month?->name}} 
                     TA {{$invoice->school_year_name}} ({{$invoice->classroom_name}})<br>
-                    Via {{$invoice->payment_method->name}}<br>
+                    Via {{$invoice->payment_method?->name ?? '-'}}<br>
                     Tgl Bayar {{$invoice->paid_at}}
                   </h3>
                 </td>
-                <td class="qty">{{$invoice->formattted_amount}}</td>
+                <td class="qty">{{$invoice->formatted_amount}}</td>
                 <td class="unit">{{$invoice->formatted_fine}}</td>
                 <td class="qty">{{$invoice->formatted_discount}}</td>
                 <td class="total">
@@ -265,7 +264,7 @@
         <br>
         <br>
         <br>
-        <p>{{explode(' ',auth()->user()->name)[0]}}</p>
+        <p>{{ Str::before(auth()->user()?->name ?? 'System', ' ') }}</p>
       </div>
       <div id="company">
         <ul style="font-size:12px;list-style-type: none;">

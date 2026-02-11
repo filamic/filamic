@@ -25,7 +25,7 @@ class MonthlyFeeInvoicesRelationManager extends RelationManager
             ->recordTitleAttribute('id')
             ->columns([
                 TextColumn::make('reference_number'),
-                TextColumn::make('month_id.name')
+                TextColumn::make('month.name')
                     ->label('Bulan'),
                 TextColumn::make('status')
                     ->badge(),

@@ -19,7 +19,7 @@ class GenerateMonthlyFeeInvoice
 
     public function handle(Branch $branch, array $data): int
     {
-        $monthId = $data['month_id'];
+        $month = $data['month'];
         $issuedAt = $data['issued_at'];
         $dueDate = $data['due_date'];
 
@@ -35,10 +35,10 @@ class GenerateMonthlyFeeInvoice
                 // @phpstan-ignore-next-line
                 $query->eligibleForMonthlyFee();
             })
-            ->whereDoesntHave('invoices', function ($query) use ($monthId) {
+            ->whereDoesntHave('invoices', function ($query) use ($month) {
                 /** @var Invoice $query */
                 // @phpstan-ignore-next-line
-                $query->monthlyFeeForThisSchoolYear(monthId: $monthId);
+                $query->monthlyFeeForThisSchoolYear(month: $month);
             })
             ->with([
                 'school',
@@ -53,7 +53,7 @@ class GenerateMonthlyFeeInvoice
             return 0;
         }
 
-        $newInvoices = $students->map(function (Student $student) use ($monthId, $issuedAt, $dueDate, $branch) {
+        $newInvoices = $students->map(function (Student $student) use ($month, $issuedAt, $dueDate, $branch) {
             $enrollment = $student->currentEnrollment;
             $paymentAccount = $student->currentPaymentAccount;
 
@@ -61,7 +61,7 @@ class GenerateMonthlyFeeInvoice
                 'type' => InvoiceTypeEnum::MONTHLY_FEE->value,
                 'student_id' => $student->getKey(),
                 'school_year_id' => $enrollment->school_year_id,
-                'month_id' => $monthId,
+                'month' => $month,
             ];
 
             $preparedData = [
@@ -83,7 +83,7 @@ class GenerateMonthlyFeeInvoice
                 'student_name' => $student->name,
 
                 'type' => InvoiceTypeEnum::MONTHLY_FEE,
-                'month_id' => $monthId,
+                'month' => $month,
 
                 'amount' => $paymentAccount->monthly_fee_amount,
                 'total_amount' => $paymentAccount->monthly_fee_amount,

@@ -17,8 +17,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $student_id
  * @property string|null $monthly_fee_virtual_account
  * @property string|null $book_fee_virtual_account
- * @property numeric $monthly_fee_amount
- * @property numeric $book_fee_amount
+ * @property int $monthly_fee_amount
+ * @property int $book_fee_amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read School $school

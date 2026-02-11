@@ -18,6 +18,7 @@ class CurriculumFactory extends Factory
     {
         return [
             'name' => fake()->words(2, true),
+            'is_active' => false,
         ];
     }
 

@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @property string|null $email
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Branch|null $branch
+ * @property-read Branch $branch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Classroom> $classrooms
  * @property-read int|null $classrooms_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SchoolEvent> $events

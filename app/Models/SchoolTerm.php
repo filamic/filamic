@@ -45,4 +45,9 @@ class SchoolTerm extends AcademicPeriod
             'name' => SchoolTermEnum::class,
         ];
     }
+
+    public function getAllowedMonths(): array
+    {
+        return $this->name->getAllowedMonths();
+    }
 }

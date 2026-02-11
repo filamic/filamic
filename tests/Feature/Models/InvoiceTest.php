@@ -455,20 +455,20 @@ use InvalidArgumentException;
 //             'type' => InvoiceTypeEnum::MONTHLY_FEE,
 //             'student_id' => 'student-123',
 //             'school_year_id' => 'year-456',
-//             'month_id' => 5,
+//             'month' => 5,
 //         ]);
 
 //         // Assert
 //         expect($fingerprint)->toBe('MONTHLY_FEE_student-123_year-456_5');
 //     });
 
-//     test('generate fingerprint uses annual when month_id is null', function () {
+//     test('generate fingerprint uses annual when month is null', function () {
 //         // Act
 //         $fingerprint = Invoice::generateFingerprint([
 //             'type' => InvoiceTypeEnum::BOOK_FEE,
 //             'student_id' => 'student-123',
 //             'school_year_id' => 'year-456',
-//             'month_id' => null,
+//             'month' => null,
 //         ]);
 
 //         // Assert
@@ -620,14 +620,14 @@ use InvalidArgumentException;
 //         expect($invoice->fine)->toBe(0);
 //     });
 
-//     test('can handle null month_id for annual fees', function () {
+//     test('can handle null month for annual fees', function () {
 //         // Act
 //         $invoice = Invoice::factory()->create([
 //             'type' => InvoiceTypeEnum::BOOK_FEE,
-//             'month_id' => null,
+//             'month' => null,
 //         ]);
 
 //         // Assert
-//         expect($invoice->month_id)->toBeNull();
+//         expect($invoice->month)->toBeNull();
 //     });
 // });

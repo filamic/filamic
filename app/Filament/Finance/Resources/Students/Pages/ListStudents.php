@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Finance\Resources\Students\Pages;
 
 use App\Actions\GenerateMonthlyFeeInvoice;
+use App\Enums\MonthEnum;
 use App\Filament\Finance\Resources\Students\StudentResource;
 use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
@@ -78,13 +79,15 @@ class ListStudents extends ListRecords
             })
             ->schema([
                 Group::make([
-                    Select::make('month_id')
-                        ->options(
-                            collect(Month::cases())
-                                ->only(SchoolTerm::getActive()->name->getAllowedMonths())
-                                ->mapWithKeys(fn ($month) => [$month->value => $month->name])
-                                ->toArray()
-                        )
+                    Select::make('month')
+                        ->options(function () {
+                            $currentTerm = SchoolTerm::getActive();
+                            $allowedMonths = $currentTerm->getAllowedMonths();
+                            
+                            return collect(MonthEnum::filterBySemester($allowedMonths))
+                                ->mapWithKeys(fn ($month) => [$month->value => $month->getLabel()])
+                                ->toArray();
+                        })
                         ->required()
                         ->label('Bulan')
                         ->selectablePlaceholder(false)
@@ -122,7 +125,7 @@ class ListStudents extends ListRecords
                         ->send();
 
                 } catch (\Illuminate\Database\QueryException $error) {
-                    if ($error->getCode() === 23000 && str_contains($error->getMessage(), 'fingerprint')) {
+                    if ($error->getCode() === '23000' && str_contains($error->getMessage(), 'fingerprint')) {
                         Notification::make()
                             ->title('Invoice sudah dibuat sebelumnya!')
                             ->warning()

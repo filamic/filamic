@@ -62,13 +62,9 @@ class StudentsTable
                 TextColumn::make('unpaidMonthlyFee.school_year_name')
                     ->label('TA')
                     ->listWithLineBreaks(),
-                TextColumn::make('unpaidMonthlyFee.month_id')
+                TextColumn::make('unpaidMonthlyFee.month')
                     ->label('Bulan')
-                    ->listWithLineBreaks()
-                    ->formatStateUsing(fn ($state) => Carbon::create()
-                        ->month($state)
-                        ->translatedFormat('F')
-                    ),
+                    ->listWithLineBreaks(),
                 TextColumn::make('unpaidMonthlyFee.total_amount')
                     ->label('Tagihan')
                     ->listWithLineBreaks()
@@ -119,7 +115,7 @@ class StudentsTable
                                         ->orderBy('due_date')
                                         ->get()
                                         ->mapWithKeys(fn (Invoice $invoice) => [
-                                            $invoice->getKey() => Carbon::create()->month($invoice->month_id)->translatedFormat('F'),
+                                            $invoice->getKey() => Carbon::create()->month($invoice->month->value)->translatedFormat('F'),
                                         ]);
                                 })
                                 ->columns(6)
@@ -228,11 +224,11 @@ class StudentsTable
                                 ->options(fn (Student $record, Get $get): array => $record
                                     ->paidMonthlyFee()
                                     ->where('school_year_id', $get('school_year_id'))
-                                    ->orderBy('month_id')
+                                    ->orderBy('month')
                                     ->get()
                                     ->mapWithKeys(fn ($invoice): array => [
                                         (string) $invoice->getKey() => Carbon::create()
-                                            ->month((int) data_get($invoice, 'month_id.value'))
+                                            ->month((int) data_get($invoice, 'month.value'))
                                             ->translatedFormat('F'),
                                     ])
                                     ->all()

@@ -22,9 +22,15 @@ abstract class AcademicPeriod extends Model
         static::saved(function ($model) {
             if ($model->wasChanged('is_active')) {
                 DB::transaction(function () use ($model) {
-                    Student::query()->update(['is_active' => false]);
+                    // Student::query()->update(['is_active' => false]);
 
                     if ($model->is_active === true) {
+                        Student::whereDoesntHave('enrollments', function ($query) {
+                            /** @var StudentEnrollment $query */
+                            // @phpstan-ignore-next-line
+                            $query->active();
+                        })->where('is_active', true)->update(['is_active' => false]);
+
                         Student::whereHas('enrollments', function ($query) {
                             /** @var StudentEnrollment $query */
                             // @phpstan-ignore-next-line

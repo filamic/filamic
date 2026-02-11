@@ -38,10 +38,10 @@ class PrintMonthlyFeeInvoice
             compact('invoices', 'student')
         )->setPaper([0, 0, 609.449, 935.433], 'portrait');
 
-        $filaneme = 'pdf/invoice-spp_' . $student->getKey() . '.pdf';
+        $filename = 'pdf/invoice-spp_' . $student->getKey() . '.pdf';
 
-        $pdf->save($filaneme, 'public');
+        $pdf->save($filename, 'public');
 
-        return $filaneme;
+        return $filename;
     }
 }

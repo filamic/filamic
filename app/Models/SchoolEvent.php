@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Traits\BelongsToSchool;
-use App\Models\Traits\BelongsToStudent;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,7 +22,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read School|null $school
- * @property-read Student|null $student
  *
  * @method static \Database\Factories\SchoolEventFactory factory($count = null, $state = [])
  * @method static Builder<static>|SchoolEvent newModelQuery()
@@ -48,7 +46,6 @@ use Illuminate\Database\Eloquent\Model;
 class SchoolEvent extends Model
 {
     use BelongsToSchool;
-    use BelongsToStudent;
 
     /** @use HasFactory<\Database\Factories\SchoolEventFactory> */
     use HasFactory;

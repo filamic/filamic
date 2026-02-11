@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('student_name');
 
             $table->unsignedTinyInteger('type');
-            $table->unsignedTinyInteger('month_id')->nullable();
+            $table->unsignedTinyInteger('month')->nullable();
 
             $table->decimal('amount', 10, 2);
             $table->decimal('fine', 10, 2)->default(0);

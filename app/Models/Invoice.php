@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\InvoiceStatusEnum;
 use App\Enums\InvoiceTypeEnum;
+use App\Enums\MonthEnum;
 use App\Enums\PaymentMethodEnum;
 use App\Models\Traits\BelongsToBranch;
 use App\Models\Traits\BelongsToClassroom;
@@ -13,7 +14,6 @@ use App\Models\Traits\BelongsToSchool;
 use App\Models\Traits\BelongsToSchoolTerm;
 use App\Models\Traits\BelongsToSchoolYear;
 use App\Models\Traits\BelongsToStudent;
-use Carbon\Month;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -40,7 +40,7 @@ use InvalidArgumentException;
  * @property string $school_term_name
  * @property string $student_name
  * @property InvoiceTypeEnum $type
- * @property Month|null $month_id
+ * @property MonthEnum|null $month
  * @property numeric $amount
  * @property numeric $fine
  * @property numeric $discount
@@ -50,6 +50,7 @@ use InvalidArgumentException;
  * @property InvoiceStatusEnum $status
  * @property PaymentMethodEnum|null $payment_method
  * @property \Illuminate\Support\Carbon|null $paid_at
+ * @property string|null $payment_reference
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -65,7 +66,7 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice activeYear()
  * @method static Builder<static>|Invoice bookFee()
  * @method static Builder<static>|Invoice monthlyFee()
- * @method static Builder<static>|Invoice monthlyFeeForThisSchoolYear(?int $monthId = null, $schoolYearId = null)
+ * @method static Builder<static>|Invoice monthlyFeeForThisSchoolYear(?int $month = null, $schoolYearId = null)
  * @method static Builder<static>|Invoice newModelQuery()
  * @method static Builder<static>|Invoice newQuery()
  * @method static Builder<static>|Invoice paid()
@@ -73,7 +74,7 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice query()
  * @method static Builder<static>|Invoice unpaid()
  * @method static Builder<static>|Invoice unpaidMonthlyFee()
- * @method static Builder<static>|Invoice unpaidMonthlyFeeForThisSchoolYear(?int $monthId = null, ?int $schoolYearId = null)
+ * @method static Builder<static>|Invoice unpaidMonthlyFeeForThisSchoolYear(?int $month = null, ?int $schoolYearId = null)
  * @method static Builder<static>|Invoice whereAmount($value)
  * @method static Builder<static>|Invoice whereBranchId($value)
  * @method static Builder<static>|Invoice whereBranchName($value)
@@ -87,9 +88,10 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice whereFingerprint($value)
  * @method static Builder<static>|Invoice whereId($value)
  * @method static Builder<static>|Invoice whereIssuedAt($value)
- * @method static Builder<static>|Invoice whereMonthId($value)
+ * @method static Builder<static>|Invoice whereMonth($value)
  * @method static Builder<static>|Invoice wherePaidAt($value)
  * @method static Builder<static>|Invoice wherePaymentMethod($value)
+ * @method static Builder<static>|Invoice wherePaymentReference($value)
  * @method static Builder<static>|Invoice whereReferenceNumber($value)
  * @method static Builder<static>|Invoice whereSchoolId($value)
  * @method static Builder<static>|Invoice whereSchoolName($value)
@@ -120,7 +122,7 @@ class Invoice extends Model
 
     protected $casts = [
         'type' => InvoiceTypeEnum::class,
-        'month_id' => Month::class,
+        'month' => MonthEnum::class,
         'status' => InvoiceStatusEnum::class,
         'payment_method' => PaymentMethodEnum::class,
         'paid_at' => 'datetime',
@@ -185,14 +187,14 @@ class Invoice extends Model
      * @return Builder<Invoice>
      */
     #[Scope]
-    protected function monthlyFeeForThisSchoolYear(Builder $query, ?int $monthId = null, $schoolYearId = null): Builder
+    protected function monthlyFeeForThisSchoolYear(Builder $query, ?int $month = null, $schoolYearId = null): Builder
     {
         $schoolYearId ??= SchoolYear::getActive()?->getKey();
 
         return $query
             ->monthlyFee()
             ->where('school_year_id', $schoolYearId)
-            ->when($monthId, fn ($q) => $q->where('month_id', $monthId));
+            ->when($month, fn ($q) => $q->where('month', $month));
     }
 
     /**
@@ -200,10 +202,10 @@ class Invoice extends Model
      * @return Builder<Invoice>
      */
     #[Scope]
-    protected function unpaidMonthlyFeeForThisSchoolYear(Builder $query, ?int $monthId = null, ?int $schoolYearId = null): Builder
+    protected function unpaidMonthlyFeeForThisSchoolYear(Builder $query, ?int $month = null, ?int $schoolYearId = null): Builder
     {
         return $query
-            ->monthlyFeeForThisSchoolYear($monthId, $schoolYearId)
+            ->monthlyFeeForThisSchoolYear($month, $schoolYearId)
             ->unpaid();
     }
 
@@ -231,7 +233,7 @@ class Invoice extends Model
             $type instanceof InvoiceTypeEnum ? $type->value : $type,
             $studentId,
             $schoolYearId,
-            data_get($data, 'month_id') ?? 'annual',
+            data_get($data, 'month') ?? 'annual',
         ]);
     }
 
