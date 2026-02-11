@@ -1,5 +1,5 @@
-- [ ] fix denda
-- [ ] feature bayar spp
+- [x] fix denda
+- [x] feature bayar spp
 - [ ] feature print tagihan
 
 - [ ] import siswa

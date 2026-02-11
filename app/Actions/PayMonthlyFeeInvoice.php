@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\Enums\InvoiceStatusEnum;
 use App\Models\Invoice;
 use App\Models\Student;
-use Illuminate\Database\Eloquent\Builder;
+use App\Enums\InvoiceStatusEnum;
+use App\Enums\PaymentMethodEnum;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rules\Enum;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Validator;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class PayMonthlyFeeInvoice
@@ -17,39 +20,63 @@ class PayMonthlyFeeInvoice
 
     public function handle(Student $student, array $data): bool
     {
-        $invoicesIds = data_get($data, 'invoice_ids');
-        $paidAt = data_get($data, 'paid_at');
-        $fine = data_get($data, 'fine');
-        $discount = data_get($data, 'discount');
-        $paymentMethod = data_get($data, 'payment_method');
-        $description = data_get($data, 'description');
+        $validated = Validator::make($data, [
+            'invoice_ids' => ['required', 'array'],
+            'invoice_ids.*' => ['required', 'exists:invoices,id'],
+            'paid_at' => ['required', 'date'],
+            'payment_method' => ['required', new Enum(PaymentMethodEnum::class)],
+            'fine' => ['required', 'numeric', 'min:0'],
+            'discount' => ['required', 'numeric', 'min:0'],
+            'description' => ['nullable', 'string'],
+        ])->validate();
 
-        if (
-            blank($invoicesIds) ||
-            blank($paidAt) ||
-            blank($paymentMethod) ||
-            blank($fine) ||
-            blank($discount)
-        ) {
-            return false;
-        }
-
-        return DB::transaction(function () use ($student, $invoicesIds, $paidAt, $paymentMethod, $description) {
-            /** @var Builder|Invoice $invoices */
-            // @phpstan-ignore-next-line
-            $invoices = $student->invoices();
-
-            $updatedCount = $invoices
-                ->whereIn('id', $invoicesIds)
+        return DB::transaction(function () use ($student, $validated) {
+            $fine = Invoice::calculateAccumulatedFine($student);
+            $invoicesToPay = $student->invoices()
+                ->whereIn('id', $validated['invoice_ids'])
                 ->unpaidMonthlyFee()
-                ->update([
+                ->orderBy('due_date', 'asc')
+                ->lockForUpdate() 
+                ->get();
+
+            if ($invoicesToPay->isEmpty()) {
+                return false;
+            }
+            
+            if ($invoicesToPay->count() !== count($validated['invoice_ids'])) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'invoice_ids' => 'Beberapa tagihan sudah diproses atau tidak ditemukan. Silakan refresh halaman.',
+                ]);
+            }
+
+            $paymentReference = Invoice::generatePaymentReference();
+
+            foreach ($invoicesToPay as $index => $invoice) {
+                $isOldest = ($index === 0);
+
+                $updated = $invoice->update([
                     'status' => InvoiceStatusEnum::PAID,
-                    'paid_at' => $paidAt,
-                    'payment_method' => $paymentMethod,
-                    'description' => $description,
+                    'paid_at' => $validated['paid_at'],
+                    'payment_method' => $validated['payment_method'],
+                    'payment_reference' => $paymentReference,
+                    'description' => $validated['description'],
+                    
+                    // Logic Denda Final kita:
+                    'fine' => $isOldest ? $fine : 0, 
+                    'discount' => $isOldest ? $validated['discount'] : 0,
+                    
+                    // Update total_amount karena ada denda/diskon baru
+                    'total_amount' => $isOldest 
+                        ? ($invoice->amount + $fine - $validated['discount'])
+                        : $invoice->amount,
                 ]);
 
-            return $updatedCount > 0;
+                if (! $updated) {
+                    throw new \Exception("Gagal mengupdate invoice ID: {$invoice->id}");
+                }
+            }
+
+            return true;
         });
     }
 }

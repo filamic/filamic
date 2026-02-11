@@ -31,14 +31,16 @@ class PrintMonthlyFeeInvoice
             return null;
         }
 
+        $totalAmount = $invoices->sum('total_amount');
+
         $view = 'filament.finance.pdf.monthly-invoice';
 
         $pdf = Pdf::loadView(
             $view,
-            compact('invoices', 'student')
+            compact('invoices', 'student', 'totalAmount')
         )->setPaper([0, 0, 609.449, 935.433], 'portrait');
 
-        $filename = 'pdf/invoice-spp_' . $student->getKey() . '.pdf';
+        $filename = 'pdf/invoice_spp_' . $student->getKey() . '.pdf';
 
         $pdf->save($filename, 'public');
 

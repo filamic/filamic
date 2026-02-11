@@ -38,7 +38,8 @@
         border-bottom: 1px solid #AAAAAA;
         }
 
-        #logo {
+        #logo,
+        #footer-left {
         float: left;
         /* margin-top: 8px; */
         }
@@ -47,9 +48,15 @@
         height: 60px;
         }
 
-        #company {
+        #company,
+        #footer-right {
         float: right;
         text-align: left;
+        }
+
+        #footer-left,
+        #footer-right {
+          width: 50%;
         }
 
 
@@ -124,8 +131,6 @@
         font-weight: bold;
         margin: 0 0 0.2em 0;
         }
-
-        
 
         table#det .desc {
         text-align: left;
@@ -224,13 +229,7 @@
                 <td class="qty">{{$invoice->formatted_amount}}</td>
                 <td class="unit">{{$invoice->formatted_fine}}</td>
                 <td class="qty">{{$invoice->formatted_discount}}</td>
-                <td class="total">
-                    @php 
-                        $total += $invoice->total_amount;
-                    @endphp
-
-                    {{$invoice->formatted_total_amount}}
-                </td>
+                <td class="total">{{$invoice->formatted_total_amount}}</td>
             </tr>
             @endforeach
         </tbody>
@@ -248,7 +247,7 @@
           <tr>
             <!-- <td colspan="2"></td> -->
             <td colspan="5">GRAND TOTAL</td>
-            <td>{{'Rp '.Number::format($total, locale: 'id')}}</td>
+            <td>{{'Rp '.Number::format($totalAmount, locale: 'id')}}</td>
           </tr>
         </tfoot>
       </table>
@@ -257,8 +256,8 @@
         <div>NOTICE:</div>
         <div class="notice">A finance charge of 1.5% will be made on unpaid balances after 30 days.</div>
       </div> -->
-      <div id="logo">
-        <p><i>Terbilang:<br> {{Number::spell($total,'id')}} rupiah</i></p>
+      <div id="footer-left">
+        <p><i>Terbilang:<br> {{Number::spell($totalAmount,'id')}} rupiah</i></p>
         <br><br>
         <p>Cashier</p>
         <br>
@@ -266,7 +265,7 @@
         <br>
         <p>{{ Str::before(auth()->user()?->name ?? 'System', ' ') }}</p>
       </div>
-      <div id="company">
+      <div id="footer-right">
         <ul style="font-size:12px;list-style-type: none;">
             <li>1. Uang yang telah dibayarkan tidak dapat ditarik kembali!</li>
             <li>2. Pembayaran SPP yang telat akan dikenakan denda Rp {{config('app.fine')}}/hari</li>

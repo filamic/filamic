@@ -71,7 +71,7 @@ class ListStudents extends ListRecords
                     return 'Tahun Ajaran/Semester belum aktif.';
                 }
 
-                return str("Tahun Ajaran: **{$schoolYear->name}** \n" .
+                return str("Tahun Ajaran: **{$schoolYear->name}**  \n" .
                     "Semester: **{$schoolTerm->name->getLabel()}**")
                     ->markdown()
                     ->toHtmlString();
@@ -80,6 +80,7 @@ class ListStudents extends ListRecords
                 Group::make([
                     Select::make('month')
                         ->options(function () {
+                            // TODO: we need to disabled this so user only see next month, this prevent user select another month
                             $currentTerm = SchoolTerm::getActive();
                             $allowedMonths = $currentTerm->getAllowedMonths();
 
@@ -134,6 +135,7 @@ class ListStudents extends ListRecords
                         return;
                     }
 
+                    // if its not duplicate error, send to throwable
                     throw $error;
                 } catch (Throwable $error) {
                     report($error);

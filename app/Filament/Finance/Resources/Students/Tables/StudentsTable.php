@@ -115,7 +115,7 @@ class StudentsTable
                                         ->orderBy('due_date')
                                         ->get()
                                         ->mapWithKeys(fn (Invoice $invoice) => [
-                                            $invoice->getKey() => Carbon::create()->month($invoice->month->value)->translatedFormat('F'),
+                                            $invoice->getKey() => $invoice->month->getLabel(),
                                         ]);
                                 })
                                 ->columns(6)
@@ -126,7 +126,7 @@ class StudentsTable
 
                                     return $query
                                         ->unpaidMonthlyFee()
-                                        ->orderBy('due_date')
+                                        ->orderBy('month')
                                         ->get()
                                         ->pluck('formatted_amount', 'id');
                                 })
@@ -142,7 +142,7 @@ class StudentsTable
                             Group::make([
                                 TextInput::make('fine')
                                     ->label('Denda')
-                                    ->default(self::calculateFine(...))
+                                    ->default(fn (Student $record) => Invoice::calculateAccumulatedFine($record))
                                     ->numeric()
                                     ->readOnly()
                                     ->mask(RawJs::make('$money($input)'))
@@ -168,10 +168,7 @@ class StudentsTable
                         ])
                         ->action(function (Student $record, array $data) {
                             try {
-                                $payMonthlyFeeInvoice = PayMonthlyFeeInvoice::run(
-                                    $record,
-                                    $data
-                                );
+                                $payMonthlyFeeInvoice = PayMonthlyFeeInvoice::run($record, $data);
 
                                 if ($payMonthlyFeeInvoice === false) {
                                     Notification::make()
@@ -220,6 +217,7 @@ class StudentsTable
                             CheckboxList::make('invoice_ids')
                                 ->label('Tagihan')
                                 ->live()
+                                ->bulkToggleable()
                                 ->required()
                                 ->options(fn (Student $record, Get $get): array => $record
                                     ->paidMonthlyFee()
@@ -227,9 +225,7 @@ class StudentsTable
                                     ->orderBy('month')
                                     ->get()
                                     ->mapWithKeys(fn ($invoice): array => [
-                                        (string) $invoice->getKey() => Carbon::create()
-                                            ->month((int) data_get($invoice, 'month.value'))
-                                            ->translatedFormat('F'),
+                                        (string) $invoice->getKey() => $invoice->month->getLabel(),
                                     ])
                                     ->all()
                                 )
@@ -289,25 +285,5 @@ class StudentsTable
                     // DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    private static function calculateFine(Student $record)
-    {
-        // TODO: fix this
-        // $defaultFine = (int) config('app.fine');
-
-        // /** @var Builder|Invoice $bill */
-        // $bill = $record->unpaidMonthlyFee()
-        //     ->orderBy('due_date')
-        //     ->firstOrFail();
-
-        // $issuedAt = Carbon::parse($bill->due_date)->addDay();
-        // $dueDate = now();
-
-        // if ($dueDate->lessThanOrEqualTo($issuedAt)) {
-        //     return 0;
-        // }
-
-        // return $issuedAt->diffInDays($dueDate) * $defaultFine;
     }
 }

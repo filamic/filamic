@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\InvoiceStatusEnum;
-use App\Enums\InvoiceTypeEnum;
 use App\Enums\MonthEnum;
-use App\Enums\PaymentMethodEnum;
-use App\Models\Traits\BelongsToBranch;
-use App\Models\Traits\BelongsToClassroom;
-use App\Models\Traits\BelongsToSchool;
-use App\Models\Traits\BelongsToSchoolTerm;
-use App\Models\Traits\BelongsToSchoolYear;
-use App\Models\Traits\BelongsToStudent;
-use Illuminate\Database\Eloquent\Attributes\Scope;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Number;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use App\Enums\InvoiceTypeEnum;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Number;
+use App\Enums\InvoiceStatusEnum;
+use App\Enums\PaymentMethodEnum;
+use App\Models\Traits\BelongsToBranch;
+use App\Models\Traits\BelongsToSchool;
+use App\Models\Traits\BelongsToStudent;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\Traits\BelongsToClassroom;
+use Illuminate\Database\Eloquent\Builder;
+use App\Models\Traits\BelongsToSchoolTerm;
+use App\Models\Traits\BelongsToSchoolYear;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 /**
  * @property string $id
@@ -126,6 +127,10 @@ class Invoice extends Model
         'status' => InvoiceStatusEnum::class,
         'payment_method' => PaymentMethodEnum::class,
         'paid_at' => 'datetime',
+        'amount' => 'integer',
+        'fine' => 'integer',
+        'discount' => 'integer',
+        'total_amount' => 'integer',
     ];
 
     protected static function booted()
@@ -139,6 +144,33 @@ class Invoice extends Model
     protected function formattedAmount(): Attribute
     {
         $amount = Number::format((float) $this->amount, locale: config('app.locale'));
+
+        return Attribute::make(
+            get: fn () => "Rp. {$amount}",
+        );
+    }
+
+    protected function formattedFine(): Attribute
+    {
+        $amount = Number::format((float) $this->fine, locale: config('app.locale'));
+
+        return Attribute::make(
+            get: fn () => "Rp. {$amount}",
+        );
+    }
+
+    protected function formattedDiscount(): Attribute
+    {
+        $amount = Number::format((float) $this->discount, locale: config('app.locale'));
+
+        return Attribute::make(
+            get: fn () => "Rp. {$amount}",
+        );
+    }
+
+    protected function formattedTotalAmount(): Attribute
+    {
+        $amount = Number::format((float) $this->total_amount, locale: config('app.locale'));
 
         return Attribute::make(
             get: fn () => "Rp. {$amount}",
@@ -254,4 +286,30 @@ class Invoice extends Model
             Str::ulid()
         );
     }
+
+    public static function calculateAccumulatedFine(Student $student): int
+    {
+        $ratePerDay = (int) config('app.fine', 0);
+
+        $oldestBill = $student->invoices()
+            ->unpaidMonthlyFee()
+            ->orderBy('due_date', 'asc')
+            ->first();
+
+        if (blank($oldestBill)) {
+            return 0;
+        }
+
+        $dueDate = Carbon::parse($oldestBill->due_date)->startOfDay();
+        $today = now()->startOfDay();
+
+        if ($today->lessThanOrEqualTo($dueDate)) {
+            return 0;
+        }
+
+        $daysLate = $dueDate->diffInDays($today);
+
+        return (int) ($daysLate * $ratePerDay);
+    }
+
 }
