@@ -11,6 +11,7 @@ use App\Models\Student;
 use App\Models\StudentPaymentAccount;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GenerateMonthlyFeeInvoice
@@ -19,9 +20,15 @@ class GenerateMonthlyFeeInvoice
 
     public function handle(Branch $branch, array $data): int
     {
-        $month = $data['month'];
-        $issuedAt = $data['issued_at'];
-        $dueDate = $data['due_date'];
+        $validated = Validator::make($data, [
+            'month' => ['required', 'integer', 'min:1', 'max:12'],
+            'issued_at' => ['required', 'date'],
+            'due_date' => ['required', 'date', 'after:issued_at'],
+        ])->validate();
+
+        $month = $validated['month'];
+        $issuedAt = $validated['issued_at'];
+        $dueDate = $validated['due_date'];
 
         /** @var Builder|Student $getStudentsQuery */
         // @phpstan-ignore-next-line

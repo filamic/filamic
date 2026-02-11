@@ -43,9 +43,7 @@ enum MonthEnum: int implements HasLabel
     {
         return collect(self::cases())
             ->filter(fn ($month) => in_array($month->value, $allowedMonths))
-            ->sortBy(function ($month) use ($allowedMonths) {
-                return array_search($month->value, $allowedMonths);
-            })
+            ->sortBy(fn ($month) => array_search($month->value, $allowedMonths))
             ->values()
             ->all();
     }

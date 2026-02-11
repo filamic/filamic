@@ -10,7 +10,6 @@ use App\Filament\Finance\Resources\Students\StudentResource;
 use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
 use App\Models\Student;
-use Carbon\Month;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
@@ -35,7 +34,7 @@ class ListStudents extends ListRecords
             return 'Tahun Ajaran/Semester belum aktif! Mohon setel di pengaturan.';
         }
 
-        $currentMonth = Month::from(now()->month)->name;
+        $currentMonth = MonthEnum::from(now()->month)->getLabel();
 
         return "Berdasarkan Tahun Ajaran Aktif: {$activeYear->name} — Bulan saat ini: {$currentMonth}";
     }
@@ -83,7 +82,7 @@ class ListStudents extends ListRecords
                         ->options(function () {
                             $currentTerm = SchoolTerm::getActive();
                             $allowedMonths = $currentTerm->getAllowedMonths();
-                            
+
                             return collect(MonthEnum::filterBySemester($allowedMonths))
                                 ->mapWithKeys(fn ($month) => [$month->value => $month->getLabel()])
                                 ->toArray();
@@ -98,6 +97,7 @@ class ListStudents extends ListRecords
                         ->default(now()->setDay(28)),
                     DatePicker::make('due_date')
                         ->label('Tagihan Berakhir')
+                        ->after('issued_at')
                         ->default(now()->addMonth()->day(20)),
                 ])->columns(2),
             ])
