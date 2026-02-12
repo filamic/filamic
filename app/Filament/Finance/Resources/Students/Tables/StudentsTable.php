@@ -38,9 +38,9 @@ class StudentsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                $query->with(['currentPaymentAccount', 'unpaidMonthlyFee']);
-            })
+            // ->modifyQueryUsing(function (Builder $query) {
+            //     $query->with(['currentPaymentAccount', 'unpaidMonthlyFee']);
+            // })
             ->paginationMode(PaginationMode::Simple)
             ->columns([
                 TextColumn::make('id')

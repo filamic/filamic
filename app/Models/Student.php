@@ -135,15 +135,7 @@ class Student extends Model
 
     public function currentPaymentAccount(): HasOne
     {
-        return $this->hasOne(StudentPaymentAccount::class)
-            ->latestOfMany()
-            // ->where('school_id', $this->school_id);
-            ->where('student_payment_accounts.school_id', function ($sub) {
-                $sub->select('school_id')
-                    ->from('students')
-                    ->whereColumn('students.id', 'student_payment_accounts.student_id')
-                    ->limit(1);
-            });
+        return $this->hasOne(StudentPaymentAccount::class);
     }
 
     /**
@@ -156,18 +148,16 @@ class Student extends Model
 
     public function hasUnpaidMonthlyFee(): bool
     {
-        // return $this->invoices()->unpaidMonthlyFee()->exists();
-        return Invoice::query()
-            ->where('student_id', $this->getKey())
+        return $this
+            ->invoices()
             ->unpaidMonthlyFee()
             ->exists();
     }
 
     public function hasPaidMonthlyFee(): bool
     {
-        // return $this->invoices()->paidMonthlyFee()->exists();
-        return Invoice::query()
-            ->where('student_id', $this->getKey())
+        return $this
+            ->invoices()
             ->paidMonthlyFee()
             ->exists();
     }
@@ -193,7 +183,6 @@ class Student extends Model
     public function currentEnrollment(): HasOne
     {
         return $this->hasOne(StudentEnrollment::class)
-            ->latestOfMany()
             ->active();
     }
 

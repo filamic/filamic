@@ -12,6 +12,7 @@
 - [ ] import pembayaran spp
 - [ ] fitur penjadwalan pembuatan tagihan
 - [ ] tampilkan siswa yang masih nunggak dan udh lulus/keluar
+- [ ] pakai qualifyColumn untuk semua scope, liaht contoh di eligibleForMonthlyFee
 
 - [ ] panel migrasi dari siswa dan semua tagihan
 - [ ] buat page/halaman pre use, jadi semisal blm ada tahun ajaran aktif/semester aktif, user akan di redirect kesini, spya memastikan tahun ajaran dan semester tetap ada sblm mulai menggunakan

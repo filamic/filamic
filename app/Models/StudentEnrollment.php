@@ -97,9 +97,9 @@ class StudentEnrollment extends Model
     #[Scope]
     protected function active(Builder $query): Builder
     {
-        return $query->where('school_year_id', SchoolYear::getActive()?->getKey())
-            ->where('school_term_id', SchoolTerm::getActive()?->getKey())
-            ->whereIn('status', StudentEnrollmentStatusEnum::getActiveStatuses());
+        return $query->where($query->qualifyColumn('school_year_id'), SchoolYear::getActive()?->getKey())
+            ->where($query->qualifyColumn('school_term_id'), SchoolTerm::getActive()?->getKey())
+            ->whereIn($query->qualifyColumn('status'), StudentEnrollmentStatusEnum::getActiveStatuses());
     }
 
     #[Scope]

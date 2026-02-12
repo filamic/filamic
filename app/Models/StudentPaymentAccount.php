@@ -52,14 +52,14 @@ class StudentPaymentAccount extends Model
     #[Scope]
     protected function eligibleForMonthlyFee(Builder $query): Builder
     {
-        return $query->whereNotNull('monthly_fee_virtual_account')
-            ->where('monthly_fee_amount', '>', 0);
+        return $query->whereNotNull($query->qualifyColumn('monthly_fee_virtual_account'))
+            ->where($query->qualifyColumn('monthly_fee_amount'), '>', 0);
     }
 
     #[Scope]
     protected function eligibleForBookFee(Builder $query): Builder
     {
-        return $query->whereNotNull('book_fee_virtual_account')
-            ->where('book_fee_amount', '>', 0);
+        return $query->whereNotNull($query->qualifyColumn('book_fee_virtual_account'))
+            ->where($query->qualifyColumn('book_fee_amount'), '>', 0);
     }
 }

@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('mantapjiwa00'),
             ]);
 
-            $user->branches()->syncWithoutDetaching(Branch::first());
+            $user->branches()->sync(Branch::all());
 
             $this->createClassrooms();
 
