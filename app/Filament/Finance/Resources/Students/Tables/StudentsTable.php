@@ -30,6 +30,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\PaginationMode;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Number;
 use Throwable;
 
@@ -38,9 +39,9 @@ class StudentsTable
     public static function configure(Table $table): Table
     {
         return $table
-            // ->modifyQueryUsing(function (Builder $query) {
-            //     $query->with(['currentPaymentAccount', 'unpaidMonthlyFee']);
-            // })
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->with(['currentPaymentAccount', 'unpaidMonthlyFee']);
+            })
             ->paginationMode(PaginationMode::Simple)
             ->columns([
                 TextColumn::make('id')
@@ -55,6 +56,10 @@ class StudentsTable
                     ->markdown()
                     ->formatStateUsing(function ($record) {
                         $account = $record->currentPaymentAccount;
+
+                        if ($account === null) {
+                            return '-';
+                        }
 
                         return "**SPP:** {$account->monthly_fee_virtual_account}  \n**Buku:** {$account->book_fee_virtual_account}";
                     }),
@@ -105,6 +110,7 @@ class StudentsTable
                                 ->required()
                                 ->bulkToggleable()
                                 ->options(function (Student $record) {
+                                    // TODO: extract this to method and cache since it also used in the description
                                     /** @var Builder|Invoice $query */
                                     // @phpstan-ignore-next-line
                                     $query = $record->invoices();
@@ -141,7 +147,7 @@ class StudentsTable
                             Group::make([
                                 TextInput::make('fine')
                                     ->label('Denda')
-                                    ->default(fn (Student $record) => Invoice::calculateAccumulatedFine($record))
+                                    ->default(fn (Student $record) => Invoice::calculateFineFromOldestUnpaidInvoice($record))
                                     ->numeric()
                                     ->readOnly()
                                     ->mask(RawJs::make('$money($input)'))
@@ -212,7 +218,7 @@ class StudentsTable
                                 ->label('Tahun Ajaran')
                                 ->live()
                                 ->options(fn () => SchoolYear::pluck('name', 'id'))
-                                ->default(fn () => SchoolYear::getActive()->getKey()),
+                                ->default(fn () => SchoolYear::getActive()?->getKey()),
                             CheckboxList::make('invoice_ids')
                                 ->label('Tagihan')
                                 ->live()
@@ -256,7 +262,7 @@ class StudentsTable
                                     ->actions([
                                         Action::make('view')
                                             ->label('Klik disini untuk lihat')
-                                            ->url(asset('storage/' . $printMonthlyFeeInvoice))
+                                            ->url(Storage::url($printMonthlyFeeInvoice))
                                             ->link()
                                             ->openUrlInNewTab(),
                                     ])

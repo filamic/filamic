@@ -47,8 +47,8 @@ use InvalidArgumentException;
  * @property int $fine
  * @property int $discount
  * @property int $total_amount
- * @property string $issued_at
- * @property string $due_date
+ * @property Carbon $issued_at
+ * @property Carbon $due_date
  * @property InvoiceStatusEnum $status
  * @property PaymentMethodEnum|null $payment_method
  * @property Carbon|null $paid_at
@@ -131,6 +131,8 @@ class Invoice extends Model
         'status' => InvoiceStatusEnum::class,
         'payment_method' => PaymentMethodEnum::class,
         'paid_at' => 'datetime',
+        'issued_at' => 'datetime',
+        'due_date' => 'datetime',
         'amount' => 'integer',
         'fine' => 'integer',
         'discount' => 'integer',
@@ -153,9 +155,7 @@ class Invoice extends Model
 
     protected function formatCurrency(int | float $value): string
     {
-        $formatted = Number::format((float) $value, locale: config('app.locale'));
-
-        return "Rp. {$formatted}";
+        return Number::currency((float) $value, in: 'IDR', locale: config('app.locale'), precision: 0);
     }
 
     protected function formattedAmount(): Attribute
@@ -231,10 +231,15 @@ class Invoice extends Model
     {
         $schoolYearId ??= SchoolYear::getActive()?->getKey();
 
+        if ($schoolYearId === null) {
+            // Return empty result set when no school year is active
+            return $query->whereRaw('1 = 0');
+        }
+
         return $query
             ->monthlyFee()
             ->where('school_year_id', $schoolYearId)
-            ->when($month, fn ($q) => $q->where('month', $month));
+            ->when($month, fn ($query) => $query->where('month', $month));
     }
 
     /**
@@ -295,7 +300,7 @@ class Invoice extends Model
         );
     }
 
-    public static function calculateAccumulatedFine(Student $student): int
+    public static function calculateFineFromOldestUnpaidInvoice(Student $student): int
     {
         $ratePerDay = (int) config('app.fine', 0);
 

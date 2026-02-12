@@ -133,11 +133,14 @@ class StudentForm
                                             ->minValue(0)
                                             ->required()
                                             ->suffixAction(
-                                                Action::make('cihuy')
-                                                    ->label('as')
+                                                Action::make('updateInvoiceAmounts')
+                                                    ->label('Update Tagihan')
                                                     ->icon('tabler-clock')
                                                     ->tooltip('Update semua tagihan menggunakan nominal ini')
                                                     ->requiresConfirmation()
+                                                    ->action(function (Get $get, $state) {
+                                                        // TODO: Implement invoice amount update logic
+                                                    }),
                                             ),
                                         TextInput::make('book_fee_amount')
                                             ->label('Nominal Biaya Buku')

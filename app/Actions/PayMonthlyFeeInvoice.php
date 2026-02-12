@@ -38,7 +38,7 @@ class PayMonthlyFeeInvoice
                 ->lockForUpdate()
                 ->get();
 
-            $fine = Invoice::calculateAccumulatedFine($student);
+            $fine = Invoice::calculateFineFromOldestUnpaidInvoice($student);
 
             if ($invoicesToPay->isEmpty()) {
                 throw ValidationException::withMessages([
