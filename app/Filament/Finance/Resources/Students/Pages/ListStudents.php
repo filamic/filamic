@@ -81,6 +81,9 @@ class ListStudents extends ListRecords
                         ->options(function () {
                             // TODO: Restrict options to only show the next month to prevent users from selecting other months
                             $currentTerm = SchoolTerm::getActive();
+                            if (blank($currentTerm)) {
+                                return [];
+                            }
                             $allowedMonths = $currentTerm->getAllowedMonths();
 
                             return collect(MonthEnum::filterByMonths($allowedMonths))
@@ -98,7 +101,7 @@ class ListStudents extends ListRecords
                     DatePicker::make('due_date')
                         ->label('Tagihan Berakhir')
                         ->after('issued_at')
-                        ->default(now()->addMonth()->day(20)),
+                        ->default(now()->addMonth()->setDay(20)),
                 ])->columns(2),
             ])
             ->action(function (array $data) {
