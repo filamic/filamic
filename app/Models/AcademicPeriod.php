@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Traits\HasActiveState;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -22,18 +23,14 @@ abstract class AcademicPeriod extends Model
         static::saved(function ($model) {
             if ($model->wasChanged('is_active')) {
                 DB::transaction(function () use ($model) {
-                    // Student::query()->update(['is_active' => false]);
-
                     if ($model->is_active === true) {
-                        Student::whereDoesntHave('enrollments', function ($query) {
-                            /** @var StudentEnrollment $query */
-                            // @phpstan-ignore-next-line
+                        Student::whereDoesntHave('enrollments', function (Builder $query) {
+                            /** @var Builder<StudentEnrollment> $query */
                             $query->active();
                         })->where('is_active', true)->update(['is_active' => false]);
 
-                        Student::whereHas('enrollments', function ($query) {
-                            /** @var StudentEnrollment $query */
-                            // @phpstan-ignore-next-line
+                        Student::whereHas('enrollments', function (Builder $query) {
+                            /** @var Builder<StudentEnrollment> $query */
                             $query->active();
                         })->update(['is_active' => true]);
                     }
@@ -46,7 +43,7 @@ abstract class AcademicPeriod extends Model
 
     public static function getActive(): ?static
     {
-        return cache()->rememberForever(static::getActiveCacheKey(), fn () => static::query()->active()->first());
+        return cache()->remember(static::getActiveCacheKey(), now()->addDay(), fn () => static::query()->active()->first());
     }
 
     public static function getActiveCacheKey(): string

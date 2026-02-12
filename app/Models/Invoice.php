@@ -71,7 +71,7 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice activeYear()
  * @method static Builder<static>|Invoice bookFee()
  * @method static Builder<static>|Invoice monthlyFee()
- * @method static Builder<static>|Invoice monthlyFeeForThisSchoolYear(?int $month = null, ?int $schoolYearId = null)
+ * @method static Builder<static>|Invoice monthlyFeeForThisSchoolYear(?int $month = null, ?string $schoolYearId = null)
  * @method static Builder<static>|Invoice newModelQuery()
  * @method static Builder<static>|Invoice newQuery()
  * @method static Builder<static>|Invoice paid()
@@ -79,7 +79,7 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice query()
  * @method static Builder<static>|Invoice unpaid()
  * @method static Builder<static>|Invoice unpaidMonthlyFee()
- * @method static Builder<static>|Invoice unpaidMonthlyFeeForThisSchoolYear(?int $month = null, ?int $schoolYearId = null)
+ * @method static Builder<static>|Invoice unpaidMonthlyFeeForThisSchoolYear(?int $month = null, ?string $schoolYearId = null)
  * @method static Builder<static>|Invoice whereAmount($value)
  * @method static Builder<static>|Invoice whereBranchId($value)
  * @method static Builder<static>|Invoice whereBranchName($value)
@@ -139,7 +139,7 @@ class Invoice extends Model
         'total_amount' => 'integer',
     ];
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::creating(function (Invoice $invoice) {
             $invoice->fingerprint = static::generateFingerprint([
@@ -227,7 +227,7 @@ class Invoice extends Model
      * @return Builder<Invoice>
      */
     #[Scope]
-    protected function monthlyFeeForThisSchoolYear(Builder $query, ?int $month = null, ?int $schoolYearId = null): Builder
+    protected function monthlyFeeForThisSchoolYear(Builder $query, ?int $month = null, ?string $schoolYearId = null): Builder
     {
         $schoolYearId ??= SchoolYear::getActive()?->getKey();
 
@@ -247,7 +247,7 @@ class Invoice extends Model
      * @return Builder<Invoice>
      */
     #[Scope]
-    protected function unpaidMonthlyFeeForThisSchoolYear(Builder $query, ?int $month = null, ?int $schoolYearId = null): Builder
+    protected function unpaidMonthlyFeeForThisSchoolYear(Builder $query, ?int $month = null, ?string $schoolYearId = null): Builder
     {
         return $query
             ->monthlyFeeForThisSchoolYear($month, $schoolYearId)
@@ -313,7 +313,7 @@ class Invoice extends Model
             return 0;
         }
 
-        $dueDate = Carbon::parse($oldestBill->due_date)->startOfDay();
+        $dueDate = $oldestBill->due_date->startOfDay();
         $today = now()->startOfDay();
 
         if ($today->lessThanOrEqualTo($dueDate)) {

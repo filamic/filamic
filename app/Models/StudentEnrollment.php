@@ -90,15 +90,25 @@ class StudentEnrollment extends Model
 
         // Sync student's active status whenever an enrollment is created or updated
         static::saved(function ($enrollment) {
-            $enrollment->student?->syncActiveStatus();
+            if ($enrollment->wasRecentlyCreated || $enrollment->wasChanged('status')) {
+                $enrollment->student?->syncActiveStatus();
+            }
         });
     }
 
     #[Scope]
     protected function active(Builder $query): Builder
     {
-        return $query->where($query->qualifyColumn('school_year_id'), SchoolYear::getActive()?->getKey())
-            ->where($query->qualifyColumn('school_term_id'), SchoolTerm::getActive()?->getKey())
+        $activeYearId = SchoolYear::getActive()?->getKey();
+        $activeTermId = SchoolTerm::getActive()?->getKey();
+
+        if ($activeYearId === null || $activeTermId === null) {
+            // No active year/term means no active enrollments
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where($query->qualifyColumn('school_year_id'), $activeYearId)
+            ->where($query->qualifyColumn('school_term_id'), $activeTermId)
             ->whereIn($query->qualifyColumn('status'), StudentEnrollmentStatusEnum::getActiveStatuses());
     }
 
@@ -109,9 +119,14 @@ class StudentEnrollment extends Model
         $activeTermId = SchoolTerm::getActive()?->getKey();
 
         return $query->where(function (Builder $q) use ($activeYearId, $activeTermId) {
-            $q->whereIn('status', StudentEnrollmentStatusEnum::getInactiveStatuses())
-                ->orWhere('school_year_id', '!=', $activeYearId)
-                ->orWhere('school_term_id', '!=', $activeTermId);
+            $q->whereIn($q->qualifyColumn('status'), StudentEnrollmentStatusEnum::getInactiveStatuses());
+
+            if ($activeYearId !== null) {
+                $q->orWhere($q->qualifyColumn('school_year_id'), '!=', $activeYearId);
+            }
+            if ($activeTermId !== null) {
+                $q->orWhere($q->qualifyColumn('school_term_id'), '!=', $activeTermId);
+            }
         });
     }
 }

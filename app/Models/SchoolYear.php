@@ -17,9 +17,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  *
- * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolYear active()
+ * @method static Builder<static>|SchoolYear active()
  * @method static \Database\Factories\SchoolYearFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolYear inactive()
+ * @method static Builder<static>|SchoolYear inactive()
  * @method static Builder<static>|SchoolYear newModelQuery()
  * @method static Builder<static>|SchoolYear newQuery()
  * @method static Builder<static>|SchoolYear query()

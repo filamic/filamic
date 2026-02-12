@@ -54,6 +54,9 @@ enum StudentEnrollmentStatusEnum: int implements HasColor, HasIcon, HasLabel
         };
     }
 
+    /**
+     * @return self[]
+     */
     public static function getActiveStatuses(): array
     {
         return [
@@ -61,15 +64,13 @@ enum StudentEnrollmentStatusEnum: int implements HasColor, HasIcon, HasLabel
         ];
     }
 
+    /**
+     * @return self[]
+     */
     public static function getInactiveStatuses(): array
     {
-        return [
-            self::PROMOTED,
-            self::STAYED,
-            self::GRADUATED,
-            self::MOVED_INTERNAL,
-            self::MOVED_EXTERNAL,
-            self::DROPPED_OUT,
-        ];
+        return collect(self::cases())
+            ->diff(self::getActiveStatuses())
+            ->all();
     }
 }

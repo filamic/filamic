@@ -10,3 +10,6 @@ parameters:
         - config
         - database/migrations
         - routes
+
+    ignoreErrors:
+        - '#PHPDoc tag @var#'

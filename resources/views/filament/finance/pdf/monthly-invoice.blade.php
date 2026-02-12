@@ -191,12 +191,12 @@
       <h2 class="name">Bukti Pembayaran</h2>
       <table style="border:none">
         <tr>
-          <td style="text-align:left">Name</td>
+          <td style="text-align:left">Nama</td>
           <td style="text-align:left">:</td>
           <td style="text-align:left">{{$student->name}}</td>
         </tr>
         <tr>
-          <td style="text-align:left">Print At</td>
+          <td style="text-align:left">Tanggal Cetak</td>
           <td style="text-align:left">:</td>
           <td style="text-align:left">{{ now()->format('d-m-Y H:i') }}</td>
         </tr>
@@ -248,7 +248,7 @@
         <tr>
           <!-- <td colspan="2"></td> -->
           <td colspan="5">GRAND TOTAL</td>
-          <td>{{'Rp ' . Number::format($totalAmount, locale: 'id')}}</td>
+          <td>{{Number::currency($totalAmount ?? 0, in: 'IDR', locale: 'id', precision: 0)}}</td>
         </tr>
       </tfoot>
     </table>
@@ -258,7 +258,7 @@
       <div class="notice">A finance charge of 1.5% will be made on unpaid balances after 30 days.</div>
     </div> -->
     <div id="footer-left">
-      <p><i>Terbilang:<br> {{Number::spell($totalAmount, 'id')}} rupiah</i></p>
+      <p><i>Terbilang:<br> {{Number::spell((int) ($totalAmount ?? 0), 'id')}} rupiah</i></p>
       <br><br>
       <p>Cashier</p>
       <br>

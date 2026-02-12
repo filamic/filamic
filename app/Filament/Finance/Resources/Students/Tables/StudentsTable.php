@@ -12,8 +12,6 @@ use App\Models\SchoolYear;
 use App\Models\Student;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
@@ -78,9 +76,6 @@ class StudentsTable
                     ->money('IDR')
                     ->label('Total')
                     ->sortable(),
-            ])
-            ->filters([
-
             ])
             ->recordActions([
                 EditAction::make()
@@ -272,7 +267,7 @@ class StudentsTable
                                 report($error);
 
                                 Notification::make()
-                                    ->title('Gagal membuat pdf invoice, tidak ada data!')
+                                    ->title('Gagal membuat pdf tagihan!')
                                     ->body('Terjadi Kesalahan Sistem. Silakan hubungi tim IT.')
                                     ->danger()
                                     ->persistent()
@@ -287,11 +282,6 @@ class StudentsTable
                     ->tooltip('Print')
                     ->icon('tabler-printer'),
 
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    // DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }

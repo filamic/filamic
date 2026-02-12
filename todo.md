@@ -14,6 +14,7 @@
 - [ ] tampilkan siswa yang masih nunggak dan udh lulus/keluar
 - [ ] pakai qualifyColumn untuk semua scope, liaht contoh di eligibleForMonthlyFee
 - [ ] SchoolYear dan SchoolTerm get all data mending di cache karna jarang bngt berubah kan, jadi mending ambil dari cache saja
+- [ ] add fitur saat ubah nominal tagihan spp, nanti ada checkbox atau tombol untuk uopdate semua unpaid invoice dengan nilai yg baru
 
 - [ ] panel migrasi dari siswa dan semua tagihan
 - [ ] buat page/halaman pre use, jadi semisal blm ada tahun ajaran aktif/semester aktif, user akan di redirect kesini, spya memastikan tahun ajaran dan semester tetap ada sblm mulai menggunakan

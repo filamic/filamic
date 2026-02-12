@@ -39,10 +39,10 @@ enum MonthEnum: int implements HasLabel
         };
     }
 
-    public static function filterBySemester(array $allowedMonths): array
+    public static function filterByMonths(array $allowedMonths): array
     {
         return collect(self::cases())
-            ->filter(fn ($month) => in_array($month->value, $allowedMonths))
+            ->filter(fn ($month) => in_array($month->value, $allowedMonths, true))
             ->sortBy(fn ($month) => array_search($month->value, $allowedMonths))
             ->values()
             ->all();
