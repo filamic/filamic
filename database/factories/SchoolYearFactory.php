@@ -19,7 +19,8 @@ class SchoolYearFactory extends Factory
         $startYear = (int) $startDate->format('Y');
 
         return [
-            'name' => $startYear . '/' . ($startYear + 1),
+            'start_year' => $startYear,
+            'end_year' => $startYear + 1,
             'start_date' => $startDate,
             'end_date' => $endDate,
             'is_active' => fake()->boolean(),
@@ -29,7 +30,8 @@ class SchoolYearFactory extends Factory
     public function active(): static
     {
         return $this->state([
-            'name' => now()->format('Y') . '/' . now()->addYear()->format('Y'),
+            'start_year' => now()->format('Y'),
+            'end_year' => now()->addYear()->format('Y'),
             'is_active' => true,
         ]);
     }

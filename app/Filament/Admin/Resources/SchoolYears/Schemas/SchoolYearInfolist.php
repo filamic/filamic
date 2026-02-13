@@ -18,13 +18,13 @@ class SchoolYearInfolist
                 Section::make()
                     ->schema([
                         TextEntry::make('name'),
+                        IconEntry::make('is_active')
+                            ->label('Active')
+                            ->boolean(),
                         TextEntry::make('start_date')
                             ->date(),
                         TextEntry::make('end_date')
                             ->date(),
-                        IconEntry::make('is_active')
-                            ->label('Active')
-                            ->boolean(),
                     ]),
             ]);
     }

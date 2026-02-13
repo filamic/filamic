@@ -9,6 +9,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class SchoolYearsTable
 {
@@ -16,8 +17,7 @@ class SchoolYearsTable
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->searchable(),
+                TextColumn::make('name'),
                 ToggleColumn::make('is_active')
                     ->beforeStateUpdated(function (SchoolYear $record, $state) {
                         if ($state) {
@@ -28,6 +28,6 @@ class SchoolYearsTable
             ->recordActions([
                 ViewAction::make(),
             ])
-            ->defaultSort('name', 'desc');
+            ->defaultSort('start_year', 'desc');
     }
 }

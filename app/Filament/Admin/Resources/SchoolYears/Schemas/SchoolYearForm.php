@@ -8,6 +8,7 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Operation;
 
@@ -19,10 +20,22 @@ class SchoolYearForm
             ->components([
                 Section::make()
                     ->schema([
-                        TextInput::make('name')
+                        TextInput::make('start_year')
+                            ->numeric()
                             ->required()
-                            ->placeholder('Example: 2024/2025')
-                            ->columnSpanFull(),
+                            ->unique(ignoreRecord: true)
+                            ->live(onBlur: true)
+                            ->disabledOn(Operation::Edit)
+                            ->afterStateUpdated(function (Set $set, $state) {
+                                $set('end_year', (int) $state + 1);
+                                $set('start_date', "{$state}-07-01");
+                                $set('end_date', ((int) $state + 1) . '-06-30');
+                            }),
+                        TextInput::make('end_year')
+                            ->numeric()
+                            ->disabled()
+                            ->dehydrated()
+                            ->hint('Auto generate based on the start year'),
                         DatePicker::make('start_date')
                             ->label('Start Date'),
                         DatePicker::make('end_date')

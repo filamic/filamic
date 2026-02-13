@@ -75,7 +75,8 @@ class DatabaseSeeder extends Seeder
     {
         $data = collect(range(2023, 2027))
             ->map(fn ($year) => [
-                'name' => $year . '/' . ($year + 1),
+                'start_year' => $year,
+                'end_year' => $year + 1,
             ])->toArray();
 
         SchoolYear::factory(count($data))
