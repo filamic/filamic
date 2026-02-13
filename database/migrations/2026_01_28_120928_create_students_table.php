@@ -13,6 +13,7 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->string('name')->index();
+            $table->foreignUlid('branch_id')->constrained();
             $table->foreignUlid('school_id')->constrained();
             $table->foreignUlid('user_id')->nullable()->constrained();
             $table->foreignUlid('father_id')->nullable()->constrained('users');

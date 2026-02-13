@@ -12,6 +12,7 @@ use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -41,7 +42,9 @@ class StudentForm
                                 Section::make([
                                     Select::make('school_id')
                                         ->label('Unit Sekolah')
-                                        ->relationship('school', 'name')
+                                        ->relationship('school', 'name', function ($query) {
+                                            $query->where('branch_id', Filament::getTenant()->getKey());
+                                        })
                                         ->required()
                                         ->columnSpanFull()
                                         ->disabledOn(Operation::Edit)

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\GenderEnum;
 use App\Enums\ReligionEnum;
 use App\Enums\StatusInFamilyEnum;
+use App\Models\Traits\BelongsToBranch;
 use App\Models\Traits\BelongsToSchool;
 use App\Models\Traits\BelongsToUser;
 use App\Models\Traits\HasActiveState;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * @property string $id
  * @property string $name
+ * @property string $branch_id
  * @property string $school_id
  * @property string|null $user_id
  * @property string|null $father_id
@@ -41,6 +43,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property array<array-key, mixed>|null $metadata
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Branch $branch
  * @property-read StudentEnrollment|null $currentEnrollment
  * @property-read StudentPaymentAccount|null $currentPaymentAccount
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StudentEnrollment> $enrollments
@@ -67,6 +70,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static Builder<static>|Student query()
  * @method static Builder<static>|Student whereBirthDate($value)
  * @method static Builder<static>|Student whereBirthPlace($value)
+ * @method static Builder<static>|Student whereBranchId($value)
  * @method static Builder<static>|Student whereCreatedAt($value)
  * @method static Builder<static>|Student whereFatherId($value)
  * @method static Builder<static>|Student whereGender($value)
@@ -92,6 +96,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class Student extends Model
 {
+    use BelongsToBranch;
     use BelongsToSchool;
     use BelongsToUser;
     use HasActiveState;
@@ -195,6 +200,8 @@ class Student extends Model
         $isActive = $this->enrollments()
             ->active()
             ->exists();
+
+        // TODO add check for payment account, active student should have their payment account for monthly fee, if their at 6SD or 3 SMP/SMA then the book fee can be nullable
 
         $this->updateQuietly([
             'is_active' => $isActive,

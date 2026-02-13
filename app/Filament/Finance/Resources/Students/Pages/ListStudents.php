@@ -19,6 +19,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Builder;
 use Throwable;
 
 class ListStudents extends ListRecords
@@ -160,10 +161,10 @@ class ListStudents extends ListRecords
     {
         return [
             'Aktif' => Tab::make()
-                ->modifyQueryUsing(fn (Student $query) => $query->active())
+                ->modifyQueryUsing(fn (Builder | Student $query) => $query->active())
                 ->icon('tabler-user-check'),
             'Tidak Aktif' => Tab::make()
-                ->modifyQueryUsing(fn (Student $query) => $query->inActive())
+                ->modifyQueryUsing(fn (Builder | Student $query) => $query->inActive())
                 ->icon('tabler-user-x'),
         ];
     }

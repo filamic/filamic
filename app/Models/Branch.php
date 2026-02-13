@@ -66,8 +66,8 @@ class Branch extends Model
         return $this->hasManyThrough(Classroom::class, School::class);
     }
 
-    public function students(): HasManyThrough
+    public function students(): HasMany
     {
-        return $this->hasManyThrough(Student::class, School::class);
+        return $this->hasMany(Student::class);
     }
 }
