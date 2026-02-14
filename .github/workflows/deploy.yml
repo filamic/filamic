@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           # ARAHKAN KE FOLDER PUBLIC_HTML KAMU
-          server-dir: server-dir: ${{ secrets.FTP_TARGET_DIR }}
+          server-dir: ${{ secrets.FTP_TARGET_DIR }}
           # File yang tidak perlu dikirim ke server (hemat bandwidth & security)
           exclude: |
             **/.git*
