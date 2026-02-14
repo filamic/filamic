@@ -1,0 +1,42 @@
+name: Build and Deploy Laravel Filament
+on:
+  push:
+    branches:
+      - main
+      - add-finance-module # Tambahkan branch lain di sini jika ingin auto-deploy
+
+jobs:
+  laravel-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Rekomendasi untuk Tailwind v4 / Filament v4
+
+      - name: 📦 Install NPM & Build Assets
+        run: |
+          npm install
+          npm run build # Ini akan memproses Vite & Filament Custom Theme
+
+      - name: 📂 Sync Files to Hostinger via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp://153.92.13.214
+          username: u456670084
+          password: +PoKvo[vjj1*ix4G
+          # ARAHKAN KE FOLDER PUBLIC_HTML KAMU
+          server-dir: domains/sekolahbasic.sch.id/public_html/app/
+          # File yang tidak perlu dikirim ke server (hemat bandwidth & security)
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+            .env.example
+            phpunit.xml
+            README.md
