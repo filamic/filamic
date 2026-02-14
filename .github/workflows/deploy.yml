@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - main
-      - add-finance-module # Tambahkan branch lain di sini jika ingin auto-deploy
-  workflow_dispatch: # <-- Tambahkan ini untuk tombol manual
+      - add-finance-module
+  workflow_dispatch:
 jobs:
   laravel-deploy:
     runs-on: ubuntu-latest
@@ -12,6 +12,14 @@ jobs:
     steps:
       - name: 🚚 Checkout Code
         uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: 📦 Install Composer Dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
@@ -29,9 +37,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          # ARAHKAN KE FOLDER PUBLIC_HTML KAMU
           server-dir: ${{ secrets.FTP_TARGET_DIR }}
-          # File yang tidak perlu dikirim ke server (hemat bandwidth & security)
           exclude: |
             **/.git*
             **/.git*/**
