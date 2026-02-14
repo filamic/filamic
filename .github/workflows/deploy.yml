@@ -39,10 +39,21 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_TARGET_DIR }}
           exclude: |
+            **/node_modules/**
+            **/vendor/**
             **/.git*
             **/.git*/**
-            **/node_modules/**
+            .env
+            .env.*
+            /storage/*.key
+            /storage/pail
+            /public/hot
+            /public/storage
+            /auth.json
+            /.phpunit.cache
+            /.vscode
+            /.idea
+            **/*.log
             **/tests/**
-            .env.example
             phpunit.xml
             README.md
