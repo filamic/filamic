@@ -4,7 +4,7 @@ on:
     branches:
       - main
       - add-finance-module # Tambahkan branch lain di sini jika ingin auto-deploy
-
+  workflow_dispatch: # <-- Tambahkan ini untuk tombol manual
 jobs:
   laravel-deploy:
     runs-on: ubuntu-latest
