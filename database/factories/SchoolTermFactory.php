@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use Database\Factories\Traits\HasActiveState;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -11,25 +12,27 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class SchoolTermFactory extends Factory
 {
+    use HasActiveState;
+
     public function definition(): array
     {
         return [
-            'name' => fake()->numberBetween(1, 2),
+            'name' => fake()->randomElement([1, 2]),
             'is_active' => fake()->boolean(),
         ];
     }
 
-    public function active(): static
+    public function odd(): static
     {
         return $this->state([
-            'is_active' => true,
+            'name' => 1,
         ]);
     }
 
-    public function inactive(): static
+    public function even(): static
     {
         return $this->state([
-            'is_active' => false,
+            'name' => 2,
         ]);
     }
 }

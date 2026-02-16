@@ -2,4 +2,178 @@
 
 declare(strict_types=1);
 
-test('can mass assign fillable attributes')->todo();
+use App\Enums\SchoolTermEnum;
+use App\Models\SchoolTerm;
+use App\Models\SchoolYear;
+use App\Models\Student;
+use App\Models\StudentEnrollment;
+
+test('it casts the columns')
+    ->expect(fn () => SchoolTerm::factory()->create())
+    ->name->toBeInstanceOf(SchoolTermEnum::class)
+    ->is_active->toBeBool();
+
+test('it returns allowed months from enum', function () {
+    // Arrange
+    $oddTerm = SchoolTerm::factory()->odd()->create();
+    $evenTerm = SchoolTerm::factory()->even()->create();
+
+    // Act
+    $oddMonths = $oddTerm->getAllowedMonths();
+    $evenMonths = $evenTerm->getAllowedMonths();
+
+    // Assert
+    expect($oddMonths)
+        ->toBe([7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6])
+        ->and($evenMonths)->toBe([1, 2, 3, 4, 5, 6]);
+});
+
+test('active scope only returns active records', function () {
+    // Arrange
+    $activeTerm = SchoolTerm::factory()->odd()->active()->create();
+    SchoolTerm::factory()->even()->inactive()->create();
+
+    // Act
+    $activeTerms = SchoolTerm::query()->active()->get();
+
+    // Assert
+    expect($activeTerms)
+        ->toHaveCount(1)
+        ->first()->getKey()->toBe($activeTerm->getKey());
+});
+
+test('inactive scope only returns inactive records', function () {
+    // Arrange
+    SchoolTerm::factory()->odd()->active()->create();
+    $inactiveTerm = SchoolTerm::factory()->even()->inactive()->create();
+
+    // Act
+    $inactiveTerms = SchoolTerm::query()->inactive()->get();
+
+    // Assert
+    expect($inactiveTerms)
+        ->toHaveCount(1)
+        ->first()->getKey()->toBe($inactiveTerm->getKey());
+});
+
+test('isActive and isInactive reflect current state', function () {
+    // Arrange
+    $activeTerm = SchoolTerm::factory()->odd()->active()->create();
+    $inactiveTerm = SchoolTerm::factory()->even()->inactive()->create();
+
+    // Act & Assert
+    expect($activeTerm->isActive())
+        ->toBeTrue()
+        ->and($activeTerm->isInactive())->toBeFalse()
+        ->and($inactiveTerm->isActive())->toBeFalse()
+        ->and($inactiveTerm->isInactive())->toBeTrue();
+});
+
+test('deactivateOthers turns active records inactive', function () {
+    // Arrange
+    $first = SchoolTerm::factory()->odd()->active()->create();
+    $second = SchoolTerm::factory()->even()->active()->create();
+
+    // Act
+    SchoolTerm::deactivateOthers();
+
+    // Assert
+    expect($first->refresh()->is_active)
+        ->toBeFalse()
+        ->and($second->refresh()->is_active)->toBeFalse()
+        ->and(SchoolTerm::query()->active()->count())->toBe(0);
+});
+
+test('activateExclusively activates current record and deactivates others', function () {
+    // Arrange
+    $first = SchoolTerm::factory()->odd()->active()->create();
+    $second = SchoolTerm::factory()->even()->inactive()->create();
+
+    // Act
+    $second->activateExclusively();
+
+    // Assert
+    expect($first->refresh()->is_active)
+        ->toBeFalse()
+        ->and($second->refresh()->is_active)->toBeTrue()
+        ->and(SchoolTerm::query()->active()->count())->toBe(1);
+});
+
+test('it does not sync students if is_active did not change', function () {
+    // Arrange
+    $schoolTerm = SchoolTerm::factory()->active()->create();
+    $student = Student::factory()->active()->create();
+
+    // Act: Update something OTHER than is_active
+    $schoolTerm->update(['updated_at' => now()->addMinute()]);
+
+    // Assert: Student should remain active
+    expect($student->fresh()->is_active)->toBeTrue();
+});
+
+test('it does not sync if is_active becomes false', function () {
+    // Arrange
+    $schoolTerm = SchoolTerm::factory()->active()->create();
+    $student = Student::factory()->active()->create();
+
+    // Act: Set to false (not true)
+    $schoolTerm->update(['is_active' => false]);
+
+    // Assert: Student should remain active (transaction didn't run)
+    expect($student->fresh()->is_active)->toBeTrue();
+});
+
+test('it syncs student active status when academic period becomes active', function () {
+    // Arrange: Create students in different states
+    $schoolYear = SchoolYear::factory()->active()->create();
+    $schoolTerm = SchoolTerm::factory()->inactive()->create();
+
+    $studentWithActiveEnrollment = Student::factory()
+        ->has(
+            StudentEnrollment::factory()
+                ->state([
+                    'school_year_id' => $schoolYear->getKey(),
+                    'school_term_id' => $schoolTerm->getKey(),
+                ])
+                ->enrolled(), 'enrollments')
+        ->inactive()
+        ->create();
+
+    // Act: Activate the school term
+    $schoolTerm->update(['is_active' => true]);
+
+    // Assert: Check students got synced correctly
+    expect($studentWithActiveEnrollment->fresh()->is_active)
+        ->toBeTrue();
+});
+
+test('it clears cache when academic period is_active changes', function () {
+    // Arrange
+    $schoolTerm = SchoolTerm::factory()->inactive()->create();
+    cache()->put('active_school_term_record', $schoolTerm);
+
+    // Act
+    $schoolTerm->update(['is_active' => true]);
+
+    // Assert
+    expect(cache()->get('active_school_term_record'))->toBeNull();
+});
+
+test('getActive returns currently active term', function () {
+    // Arrange
+    $inactive = SchoolTerm::factory()->odd()->inactive()->create();
+    $active = SchoolTerm::factory()->even()->active()->create();
+
+    // Act
+    $result = SchoolTerm::getActive();
+
+    // Assert
+    expect($result)
+        ->not->toBeNull()
+        ->getKey()->toBe($active->getKey())
+        ->and($result?->getKey())->not->toBe($inactive->getKey());
+});
+
+test('getActiveCacheKey returns cache key')
+    ->expect(SchoolTerm::getActiveCacheKey())
+    ->toBe('active_school_term_record');

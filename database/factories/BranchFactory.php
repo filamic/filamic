@@ -15,6 +15,9 @@ class BranchFactory extends Factory
     {
         return [
             'name' => fake()->unique()->company(),
+            'phone' => fake()->optional()->phoneNumber(),
+            'whatsapp' => fake()->optional()->e164PhoneNumber(),
+            'address' => fake()->optional()->address(),
         ];
     }
 }

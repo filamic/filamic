@@ -2,243 +2,235 @@
 
 declare(strict_types=1);
 
-use App\Enums\SchoolTermEnum;
+use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
-use Illuminate\Database\QueryException;
-use Illuminate\Support\Carbon;
+use App\Models\Student;
+use App\Models\StudentEnrollment;
 
-test('can mass assign fillable attributes', function () {
+test('it prevents mass assignment to guarded id', function () {
+    // ARRANGE
+    $customId = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
+
+    // ACT
+    $schoolYear = SchoolYear::create([
+        'id' => $customId,
+        'start_year' => 2025,
+        'end_year' => 2026,
+    ]);
+
+    // ASSERT
+    expect($schoolYear->getKey())
+        ->toBeString()
+        ->not->toBe($customId);
+});
+
+test('it casts the columns')
+    ->expect(fn () => SchoolYear::factory()->create())
+    ->start_year->toBeInt()
+    ->end_year->toBeInt()
+    ->is_active->toBeBool();
+
+test('it automatically sets end_year')
+    ->expect(fn () => SchoolYear::create(['start_year' => 2025]))
+    ->end_year->toBe(2026);
+
+test('it enforces start_date and end_date years correspond to start_year and end_year', function () {
+    // Arrange: Create with years that DON'T match (e.g. 2099)
+    $schoolYear = SchoolYear::create([
+        'start_year' => 2025,
+        'start_date' => '2099-07-01',
+        'end_date' => '2099-06-30',
+    ]);
+
+    // Assert: Model should have forced them back to 2025 and 2026
+    expect($schoolYear->start_date->format('Y-m-d'))->toBe('2025-07-01')
+        ->and($schoolYear->end_date->format('Y-m-d'))->toBe('2026-06-30');
+});
+
+test('it formats name accessor from start_year and end_year', function () {
     // Arrange
-    $attributes = [
-        'name' => '2024/2025',
-        'start_date' => '2024-09-01',
-        'end_date' => '2025-06-30',
-        'is_active' => true,
-    ];
+    $schoolYear = SchoolYear::factory()->make([
+        'start_year' => 2025,
+        'end_year' => 2026,
+    ]);
 
     // Act
-    $schoolYear = SchoolYear::create($attributes);
+    $name = $schoolYear->name;
 
     // Assert
-    expect($schoolYear)
-        ->name->toBe('2024/2025')
-        ->is_active->toBe(true);
+    expect($name)->toBe('2025/2026');
 });
 
-test('id is guarded from mass assignment 2', function () {
-    // Arrange & Act
-    $schoolYear = SchoolYear::create([
-        'id' => 999,
-        'name' => '2024/2025',
-    ]);
-
-    // Assert - id should be auto-generated, not 999 (guarded works)
-    expect($schoolYear->id)->not->toBe(999);
-});
-
-// test('semester is cast to SemesterEnum', function () {
-//     // Arrange & Act - Create with integer value
-//     $schoolYear = SchoolYear::factory()->create([
-//         'semester' => 1,
-//     ]);
-
-//     // Assert - Should be cast to enum
-//     expect($schoolYear->semester)
-//         ->toBeInstanceOf(SchoolTermEnum::class)
-//         ->toBe(SchoolTermEnum::ODD);
-
-//     // Arrange & Act - Create with enum value
-//     $schoolYear2 = SchoolYear::factory()->create([
-//         'semester' => SchoolTermEnum::EVEN,
-//     ]);
-
-//     // Assert
-//     expect($schoolYear2->semester)
-//         ->toBeInstanceOf(SchoolTermEnum::class)
-//         ->toBe(SchoolTermEnum::EVEN);
-// });
-
-test('start_date is cast to Carbon instance', function () {
-    // Arrange & Act
-    $schoolYear = SchoolYear::factory()->create([
-        'start_date' => '2024-09-01',
-    ]);
-
-    // Assert
-    expect($schoolYear->start_date)->toBeInstanceOf(Carbon::class);
-});
-
-test('end_date is cast to Carbon instance', function () {
-    // Arrange & Act
-    $schoolYear = SchoolYear::factory()->create([
-        'end_date' => '2025-06-30',
-    ]);
-
-    // Assert
-    expect($schoolYear->end_date)->toBeInstanceOf(Carbon::class);
-});
-
-test('is_active is cast to boolean', function () {
-    // Arrange & Act - Create with truthy value
-    $activeSchoolYear = SchoolYear::factory()->create([
-        'is_active' => 1,
-    ]);
-
-    // Assert
-    expect($activeSchoolYear->is_active)
-        ->toBeTrue()
-        ->toBeBool();
-
-    // Arrange & Act - Create with falsy value
-    $inactiveSchoolYear = SchoolYear::factory()->create([
-        'is_active' => 0,
-    ]);
-
-    // Assert
-    expect($inactiveSchoolYear->is_active)
-        ->toBeFalse()
-        ->toBeBool();
-
-    // Act - Update boolean value
-    $activeSchoolYear->is_active = false;
-    $activeSchoolYear->save();
-
-    // Assert - Value persists after save
-    expect($activeSchoolYear->refresh()->is_active)->toBeFalse();
-});
-
-test('timestamps are automatically cast to Carbon instances', function () {
-    // Arrange & Act
-    $schoolYear = SchoolYear::factory()->create();
-
-    // Assert
-    expect($schoolYear)
-        ->created_at->toBeInstanceOf(Carbon::class)
-        ->updated_at->toBeInstanceOf(Carbon::class);
-});
-
-test('name is required in database', function () {
+test('active scope only returns active records', function () {
     // Arrange
-    $schoolYear = new SchoolYear([
-        'is_active' => true,
-    ]);
+    $activeYear = SchoolYear::factory()->active()->create();
+    SchoolYear::factory()->inactive()->create();
+
+    // Act
+    $activeYears = SchoolYear::query()->active()->get();
+
+    // Assert
+    expect($activeYears)
+        ->toHaveCount(1)
+        ->first()->id->toBe($activeYear->getKey());
+});
+
+test('inactive scope only returns inactive records', function () {
+    // Arrange
+    SchoolYear::factory()->active()->create();
+    $inactiveYear = SchoolYear::factory()->inactive()->create();
+
+    // Act
+    $inactiveYears = SchoolYear::query()->inactive()->get();
+
+    // Assert
+    expect($inactiveYears)
+        ->toHaveCount(1)
+        ->first()->id->toBe($inactiveYear->getKey());
+});
+
+test('isActive and isInactive reflect current state', function () {
+    // Arrange
+    $activeYear = SchoolYear::factory()->active()->create();
+    $inactiveYear = SchoolYear::factory()->inactive()->create();
 
     // Act & Assert
-    expect(fn () => $schoolYear->save())
-        ->toThrow(QueryException::class);
+    expect($activeYear->isActive())
+        ->toBeTrue()
+        ->and($activeYear->isInactive())->toBeFalse()
+        ->and($inactiveYear->isActive())->toBeFalse()
+        ->and($inactiveYear->isInactive())->toBeTrue();
 });
 
-// test('semester is required in database', function () {
-//     // Arrange
-//     $schoolYear = new SchoolYear([
-//         'name' => '2024/2025',
-//         'is_active' => true,
-//     ]);
-
-//     // Act & Assert
-//     expect(fn () => $schoolYear->save())
-//         ->toThrow(QueryException::class);
-// });
-
-test('can scope active school years', function () {
+test('deactivateOthers turns active records inactive', function () {
     // Arrange
-    SchoolYear::factory()->count(3)->inactive()->create();
-    SchoolYear::factory()->active()->create();
-
-    // Act
-    $activeSchoolYears = SchoolYear::active()->get();
-
-    // Assert
-    expect($activeSchoolYears)->toHaveCount(1);
-
-    $activeSchoolYears->each(function ($schoolYear) {
-        expect($schoolYear->is_active)->toBeTrue();
-    });
-});
-
-test('can scope inactive school years', function () {
-    // Arrange - Create inactive and one active
-    SchoolYear::factory()->count(3)->inactive()->create();
-    SchoolYear::factory()->active()->create();
-
-    // Act
-    $inactiveSchoolYears = SchoolYear::inactive()->get();
-
-    // Assert
-    expect($inactiveSchoolYears)->toHaveCount(3);
-
-    $inactiveSchoolYears->each(function ($schoolYear) {
-        expect($schoolYear->is_active)->toBeFalse();
-    });
-});
-
-test('can check if active using isActive method', function () {
-    // Arrange & Act
-    $activeSchoolYear = SchoolYear::factory()->active()->create();
-    $inactiveSchoolYear = SchoolYear::factory()->inactive()->create();
-
-    // Assert
-    expect($activeSchoolYear->isActive())->toBeTrue()
-        ->and($inactiveSchoolYear->isActive())->toBeFalse();
-});
-
-test('can check if inactive using isInactive method', function () {
-    // Arrange & Act
-    $activeSchoolYear = SchoolYear::factory()->active()->create();
-    $inactiveSchoolYear = SchoolYear::factory()->inactive()->create();
-
-    // Assert
-    expect($activeSchoolYear->isInactive())->toBeFalse()
-        ->and($inactiveSchoolYear->isInactive())->toBeTrue();
-});
-
-test('deactivateOthers deactivates all active school years', function () {
-    // Arrange - Create multiple active years
-    SchoolYear::factory()->count(3)->active()->create();
+    [$first, $second] = SchoolYear::factory(2)->active()->create();
 
     // Act
     SchoolYear::deactivateOthers();
 
-    // Assert - All should be inactive
-    expect(SchoolYear::active()->count())->toBe(0)
-        ->and(SchoolYear::inactive()->count())->toBe(3);
-});
-
-test('deactivateOthers does nothing when no active years exist', function () {
-    // Arrange
-    SchoolYear::factory()->count(3)->inactive()->create();
-
-    // Act
-    SchoolYear::deactivateOthers();
-
-    // Assert - All still inactive
-    expect(SchoolYear::inactive()->count())->toBe(3);
-});
-
-test('activateExclusively deactivates all others and activates itself', function () {
-    // Arrange - Create multiple active years
-    $first = SchoolYear::factory()->active()->create(['name' => '2022/2023']);
-    $second = SchoolYear::factory()->active()->create(['name' => '2023/2024']);
-    $third = SchoolYear::factory()->inactive()->create(['name' => '2024/2025']);
-
-    // Act - Activate the third one exclusively
-    $third->activateExclusively();
-
-    // Assert - Only third one is active
-    expect($first->refresh()->is_active)->toBeFalse()
+    // Assert
+    expect($first->refresh()->is_active)
+        ->toBeFalse()
         ->and($second->refresh()->is_active)->toBeFalse()
-        ->and($third->refresh()->is_active)->toBeTrue()
-        ->and(SchoolYear::active()->count())->toBe(1);
+        ->and(SchoolYear::query()->active()->count())->toBe(0);
 });
 
-test('activateExclusively works when no others are active', function () {
+test('activateExclusively activates current record and deactivates others', function () {
+    // Arrange
+    $first = SchoolYear::factory()->active()->create();
+    $second = SchoolYear::factory()->inactive()->create();
+
+    // Act
+    $second->activateExclusively();
+
+    // Assert
+    expect($first->refresh()->is_active)
+        ->toBeFalse()
+        ->and($second->refresh()->is_active)->toBeTrue()
+        ->and(SchoolYear::query()->active()->count())->toBe(1);
+});
+
+test('it enforces start_date and end_date years correspond to start_year and end_year on update', function () {
+    // Arrange
+    $schoolYear = SchoolYear::create([
+        'start_year' => 2025,
+        'start_date' => '2025-07-01',
+        'end_date' => '2026-06-30',
+    ]);
+
+    // Act: Update start_year to 2026
+    $schoolYear->update(['start_year' => 2026]);
+
+    // Assert: Model should have forced they follow 2026/2027
+    expect($schoolYear->start_year)->toBe(2026)
+        ->and($schoolYear->end_year)->toBe(2027)
+        ->and($schoolYear->start_date->format('Y-m-d'))->toBe('2026-07-01')
+        ->and($schoolYear->end_date->format('Y-m-d'))->toBe('2027-06-30');
+});
+
+test('it does not sync students if is_active did not change', function () {
+    // Arrange
+    $schoolYear = SchoolYear::factory()->active()->create();
+    $student = Student::factory()->active()->create();
+
+    // Act: Update something OTHER than is_active
+    $schoolYear->update(['start_year' => $schoolYear->start_year]);
+
+    // Assert: Student should remain active
+    expect($student->fresh()->is_active)->toBeTrue();
+});
+
+test('it does not sync if is_active becomes false', function () {
+    // Arrange
+    $schoolYear = SchoolYear::factory()->active()->create();
+    $student = Student::factory()->active()->create();
+
+    // Act: Set to false (not true)
+    $schoolYear->update(['is_active' => false]);
+
+    // Assert: Student should remain active (transaction didn't run)
+    expect($student->fresh()->is_active)->toBeTrue();
+});
+
+test('it syncs student active status when academic period becomes active', function () {
+    // Arrange: Create students in different states
+    $schoolYear = SchoolYear::factory()
+        ->state([
+            'start_year' => 2025,
+            'end_year' => 2026,
+        ])
+        ->inactive()
+        ->create();
+
+    $schoolTerm = SchoolTerm::factory()->active()->create();
+
+    $studentWithActiveEnrollment = Student::factory()
+        ->has(
+            StudentEnrollment::factory()
+                ->state([
+                    'school_year_id' => $schoolYear->getKey(),
+                    'school_term_id' => $schoolTerm->getKey(),
+                ])
+                ->enrolled(), 'enrollments')
+        ->inactive()
+        ->create();
+
+    // Act: Activate the school year
+    $schoolYear->update(['is_active' => true]);
+
+    // Assert: Check students got synced correctly
+    expect($studentWithActiveEnrollment->fresh()->is_active)
+        ->toBeTrue();
+});
+
+test('it clears cache when academic period is_active changes', function () {
     // Arrange
     $schoolYear = SchoolYear::factory()->inactive()->create();
+    cache()->put('active_school_year_record', $schoolYear);
 
     // Act
-    $schoolYear->activateExclusively();
+    $schoolYear->update(['is_active' => true]);
 
     // Assert
-    expect($schoolYear->refresh()->is_active)->toBeTrue()
-        ->and(SchoolYear::active()->count())->toBe(1);
+    expect(cache()->get('active_school_year_record'))->toBeNull();
 });
+
+test('getActive returns currently active school year', function () {
+    // Arrange
+    $inactive = SchoolYear::factory()->inactive()->create();
+    $active = SchoolYear::factory()->active()->create();
+
+    // Act
+    $result = SchoolYear::getActive();
+
+    // Assert
+    expect($result)
+        ->not->toBeNull()
+        ->id->toBe($active->getKey())
+        ->and($result->getKey())->not->toBe($inactive->getKey());
+});
+
+test('getActiveCacheKey returns cache key')
+    ->expect(SchoolYear::getActiveCacheKey())
+    ->toBe('active_school_year_record');

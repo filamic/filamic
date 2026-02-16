@@ -28,14 +28,14 @@ class SchoolYearResource extends Resource
 
     protected static string | BackedEnum | null $navigationIcon = 'tabler-calendar';
 
-    public static function form(Schema $schema): Schema
-    {
-        return SchoolYearForm::configure($schema);
-    }
-
     public static function table(Table $table): Table
     {
         return SchoolYearsTable::configure($table);
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return SchoolYearForm::configure($schema);
     }
 
     public static function infolist(Schema $schema): Schema

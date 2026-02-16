@@ -6,3 +6,7 @@ pest()
     ->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
+
+afterEach(function () {
+    Illuminate\Support\Facades\Context::forget('school');
+});

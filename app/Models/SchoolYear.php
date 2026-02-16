@@ -8,16 +8,17 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $id
  * @property int $start_year
  * @property int $end_year
- * @property string|null $start_date
- * @property string|null $end_date
+ * @property Carbon|null $start_date
+ * @property Carbon|null $end_date
  * @property bool $is_active
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read mixed $name
  *
  * @method static Builder<static>|SchoolYear active()
@@ -51,7 +52,44 @@ class SchoolYear extends AcademicPeriod
         return [
             'start_year' => 'integer',
             'end_year' => 'integer',
+            'start_date' => 'date',
+            'end_date' => 'date',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        parent::booted();
+
+        static::creating(function (self $model): void {
+            $model->end_year = $model->start_year + 1;
+
+            if ($model->start_date) {
+                $model->start_date = Carbon::parse($model->start_date)
+                    ->year((int) $model->start_year);
+            }
+
+            if ($model->end_date) {
+                $model->end_date = Carbon::parse($model->end_date)
+                    ->year((int) $model->end_year);
+            }
+        });
+
+        static::updating(function (self $model): void {
+            if ($model->isDirty('start_year')) {
+                $model->end_year = $model->start_year + 1;
+            }
+
+            if ($model->isDirty(['start_year', 'start_date']) && $model->start_date) {
+                $model->start_date = Carbon::parse($model->start_date)
+                    ->year((int) $model->start_year);
+            }
+
+            if ($model->isDirty(['start_year', 'end_date']) && $model->end_date) {
+                $model->end_date = Carbon::parse($model->end_date)
+                    ->year((int) ($model->start_year + 1));
+            }
+        });
     }
 
     protected function name(): Attribute
