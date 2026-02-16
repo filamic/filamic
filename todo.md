@@ -1,70 +1,73 @@
-- [x] fix denda
-- [x] feature bayar spp
-- [ ] feature print tagihan
-- [ ] fix scope saat buka data siswa di finance
-- [ ] import siswa
-- [ ] export siswa
-- [ ] create invoice buku
-- [x] create invoice spp
-- [ ] export invoice buku
-- [ ] export invoice spp
-- [ ] import pembayaran buku
-- [ ] import pembayaran spp
-- [ ] fitur penjadwalan pembuatan tagihan
-- [ ] tampilkan siswa yang masih nunggak dan udh lulus/keluar
-- [ ] pakai qualifyColumn untuk semua scope, liaht contoh di eligibleForMonthlyFee
-- [ ] SchoolYear dan SchoolTerm get all data mending di cache karna jarang bngt berubah kan, jadi mending ambil dari cache saja
-- [ ] add fitur saat ubah nominal tagihan spp, nanti ada checkbox atau tombol untuk uopdate semua unpaid invoice dengan nilai yg baru
+# Project Roadmap & TODO
 
-- [ ] panel migrasi dari siswa dan semua tagihan
-- [ ] buat page/halaman pre use, jadi semisal blm ada tahun ajaran aktif/semester aktif, user akan di redirect kesini, spya memastikan tahun ajaran dan semester tetap ada sblm mulai menggunakan
-- [ ] admin hanya bisa edit 1 data student terakhir, yang lain harus menjadi history
-- [ ] saat gagal membuat invoice, anak yang gagal beserta keterangan gagal masukkan ke database notifikasi, buat pages dan tampilkan sebagai tabel
-- [ ] g bisa delete first payment method di student form
-- [ ] buat middleware untiuk ngecek apakah aplikasi sudah siap digunakan,. semisal tahun ajaran/semester atau apapun blm siap diguanakn maka dia akan masuk ke halaman tertentu.
-- [ ] bug di denda saat menghitung denda, ada validaasi yang g lewat max value gtu yg string 255.
-- [ ] Potential performance impact on bulk operations.
-      syncActiveStatus() is called on every save, which could cause N+1 query issues during bulk imports or batch updates. Consider using a deferred or batched approach for bulk operations, or documenting that bulk operations should bypass this hook using Model::withoutEvents().
+## 🚀 Priority: High (Core Systems & Readiness)
 
-- definisikan arti siswa aktif
-    - school_id tidak null berakrti masih aktif
-    - jika school_id
-    - status = active
-- menjaga siswa aktif tetap konsisten pakai tabel student_enrollment
-    - tahun ajaran aktif
-    - semester aktif
-    - status -> ENROLLED
+- [ ] **Middleware Readiness Check**: Implement middleware to ensure application is ready (SchoolYear and SchoolTerm must be active) before allowing access to core features. <!-- id: 1 -->
+- [ ] **Pre-use Setup Page**: Create a landing page for when no active academic period exists to guide admins through initial setup. <!-- id: 2 -->
+- [ ] **Student Active Status Consisitency**: Ensure `$student->is_active` remains perfectly in sync with `student_enrollment` (Source of Truth) using database transactions. <!-- id: 3 -->
+- [ ] **Scope Hardening**: Use `qualifyColumn()` for all custom scopes to prevent ambiguity in joins (see `eligibleForMonthlyFee` for reference). <!-- id: 4 -->
 
-- definisi student g aktif
-    - statusnya non aktif
-    - school_id di tabel student null
+## 💰 Finance & Invoicing
 
-- cra menonaktifkan siswa
-    - saat naik kelas
-    - pakai tombol siswa pindah ke luar
-    - pakai tombol siswa drop out
+- [x] SPP Invoice Creation Flow <!-- id: 5 -->
+- [x] Penalty (Denda) logic fix <!-- id: 6 -->
+- [ ] **Invoice Scheduling**: Feature for automated scheduled invoice generation. <!-- id: 7 -->
+- [ ] **Bulk Fee Updates**: Feature to update all unpaid invoices when a fee nominal is changed (with user confirmation). <!-- id: 8 -->
+- [ ] **Print Invoices**: Implement document printing/PDF for invoices. <!-- id: 9 -->
+- [ ] **Book Fees Logic**: Implement logic for class-specific book fees (e.g., class 6/3-SMP/3-SMA might have 0 book fees). <!-- id: 10 -->
+- [ ] **Import/Export**:
+    - [ ] Import students (with enrollment & payment accounts) <!-- id: 11 -->
+    - [ ] Export students <!-- id: 12 -->
+    - [ ] Export invoices (SPP & Books) <!-- id: 13 -->
+    - [ ] Import payments (SPP & Books) <!-- id: 14 -->
 
-Semua history akan tersimpan di student enrollment sebagai source of truth, yg ada di tabel student itu hasil dari enrollment, nah jadi kedua proses ini harus lakukan di dalam db transactional
+## 🧪 Testing & Quality Assurance
 
-- definisikan arti payment account aktif dari student
-    - ambil school_id kmudian ambil semua classroomid dari relasi chool ke classroom, kmdian stlah mendapatkan classroom id nya
-    - ambil student enrollment yg aktif, ambil classroom_id nya kmduian cocokkan semua classrooms id dari school dan classroom_id yg aktif dari student enrollment
+- [x] **Hardened Multi-tenancy**: Global `afterEach` and `tearDown` context cleaning. <!-- id: 15 -->
+- [x] **AAA Pattern**: All tests must follow Arrange, Act, Assert. <!-- id: 16 -->
+- [x] **Master Data Progress**:
+    - [x] Branch (Model & Resource) <!-- id: 17 -->
+    - [x] School Year (Model & Resource) <!-- id: 18 -->
+    - [x] School Term (Model & Resource) <!-- id: 19 -->
+    - [x] Position (Model & Resource) <!-- id: 20 -->
+- [ ] **Backlog**:
+    - [ ] Test `HasActiveStateTrait` exclusively (standalone trait test). <!-- id: 21 -->
+    - [ ] Subject & SubjectCategory (Deep dive resource tests). <!-- id: 22 -->
+    - [ ] Classroom (Deep dive resource tests). <!-- id: 23 -->
+    - [ ] Implement & Test future master models: `Religion`, `Extracurricular`, `ViolationType`, `Spp`. <!-- id: 24 -->
 
-- definisikan arti buat tagihan spp hanya untuk siswa aktif
-    - ambil semua school id berdasarkan classrom yg masuk kategori aktif di tabel enrollment,
-    - hasil dari school id ambil semua payment account berdasarkan schoolid, kmudian baru ambil siswanya
+## 🛠️ Refactoring & Performance
 
-- siapa aja yang bisa dibuatkan invoice?
-    - siswa aktif tahun ajaran ini
+- [ ] **Academic Period Caching**: Cache `SchoolYear` and `SchoolTerm` "active" records as they rarely change. <!-- id: 25 -->
+- [ ] **Fix Denda Bug**: Resolve validation error (max:255 string on numeric value) in penalty calculation. <!-- id: 26 -->
+- [ ] **Bulk Optimization**: Refactor `syncActiveStatus()` to avoid N+1 queries during bulk operations (consider `Model::withoutEvents()`). <!-- id: 27 -->
+- [ ] **History Logs**: Admin only allowed to edit last student record; others must be history records. <!-- id: 28 -->
 
-setiap siswa yang dibuatkan invoice nomor virtual account invoice itu harus di update juga seperti taggal
+---
 
-pas export tagihan baru user admin bisa milih yg nunggak mau bayar berapa bulan dulu klo emng minta keringanan
+## 📖 Definition of Done & Rules
 
-flow kenaikan kelas
+### Student Active Status
 
-1. admin finance buat data di student enrollment edngan status draft buat siapa aja yg tahun ajaran selnajutnya ada di kelas mana aja
-2. nanti setelah sudah final, jadi dia bisa klik finalisasi agar semua yg draft di tahun ajaran itu di update menjadi Enrolled
-   catatan: masih dipikirkan apakah perlu status draft atau tidak, atau lngsung enrolled aja, klo g jadi tinggl di hapus
+- A student is **Active** if:
+    - Enrollment status is `ENROLLED` for the current active `SchoolYear` AND `SchoolTerm`.
+    - `school_id` is NOT null.
+- A student is **Inactive** if:
+    - Status is manually set to inactive.
+    - `school_id` is NULL.
 
-Harus selalu pastikan student yg active ada value saat query $student->currentEnrollment -> bagaimana kita pastikan hal ini?
+### Active Payment Account
+
+- Derived from the student's active enrollment class.
+- Matches `classroom_id` from the active enrollment.
+
+### Promotion Flow (Kenaikan Kelas)
+
+1. Admin creates a `DRAFT` enrollment for the next year.
+2. Finalization updates `DRAFT` to `ENROLLED` in a transaction.
+
+### Invoicing Rules
+
+- Invoices are generated ONLY for students active in the current year.
+- Virtual Account (VA) numbers must be updated whenever specific invoice dates change.
+- Book fees are optional and may be null for graduating classes.
