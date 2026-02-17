@@ -28,13 +28,16 @@ class SchoolYearForm
                             ->disabledOn(Operation::Edit)
                             ->dehydrated(fn ($operation) => $operation === Operation::Create->value)
                             ->afterStateUpdated(function (Set $set, $state, string $operation) {
-                                if ($operation === Operation::Edit->value) {
+                                if ($operation === Operation::Edit->value || blank($state)) {
                                     return;
                                 }
 
-                                $set('end_year', (int) $state + 1);
-                                $set('start_date', "{$state}-07-01");
-                                $set('end_date', ((int) $state + 1) . '-06-30');
+                                $startYear = (int) $state;
+                                $endYear = $startYear + 1;
+
+                                $set('end_year', $endYear);
+                                $set('start_date', "{$startYear}-07-01");
+                                $set('end_date', "{$endYear}-06-30");
                             }),
                         TextInput::make('end_year')
                             ->disabled()
@@ -42,11 +45,11 @@ class SchoolYearForm
                         DatePicker::make('start_date')
                             ->label('Start Date')
                             ->minDate(fn ($get) => $get('start_year')
-                                ? now()->year($get('start_year'))->month(7)->startOfMonth()
+                                ? now()->year((int) $get('start_year'))->month(7)->startOfMonth()
                                 : null
                             )
                             ->maxDate(fn ($get) => $get('start_year')
-                                ? now()->year($get('start_year'))->month(7)->endOfMonth()
+                                ? now()->year((int) $get('start_year'))->month(7)->endOfMonth()
                                 : null
                             ),
                         DatePicker::make('end_date')
