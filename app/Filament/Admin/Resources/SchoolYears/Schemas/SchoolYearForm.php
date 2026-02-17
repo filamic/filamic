@@ -21,26 +21,45 @@ class SchoolYearForm
                 Section::make()
                     ->schema([
                         TextInput::make('start_year')
-                            ->numeric()
                             ->required()
+                            ->numeric()
                             ->unique(ignoreRecord: true)
                             ->live(onBlur: true)
                             ->disabledOn(Operation::Edit)
-                            ->afterStateUpdated(function (Set $set, $state) {
+                            ->dehydrated(fn ($operation) => $operation === Operation::Create->value)
+                            ->afterStateUpdated(function (Set $set, $state, string $operation) {
+                                if ($operation === Operation::Edit->value) {
+                                    return;
+                                }
+
                                 $set('end_year', (int) $state + 1);
                                 $set('start_date', "{$state}-07-01");
                                 $set('end_date', ((int) $state + 1) . '-06-30');
                             }),
                         TextInput::make('end_year')
-                            ->numeric()
                             ->disabled()
-                            ->dehydrated()
                             ->hint('Auto generate based on the start year'),
                         DatePicker::make('start_date')
-                            ->label('Start Date'),
+                            ->label('Start Date')
+                            ->minDate(fn ($get) => $get('start_year')
+                                ? now()->year($get('start_year'))->month(7)->startOfMonth()
+                                : null
+                            )
+                            ->maxDate(fn ($get) => $get('start_year')
+                                ? now()->year($get('start_year'))->month(7)->endOfMonth()
+                                : null
+                            ),
                         DatePicker::make('end_date')
                             ->label('End Date')
-                            ->after('start_date'),
+                            ->after('start_date')
+                            ->minDate(fn ($get) => $get('start_year')
+                                ? now()->year((int) $get('start_year') + 1)->month(6)->startOfMonth()
+                                : null
+                            )
+                            ->maxDate(fn ($get) => $get('start_year')
+                                ? now()->year((int) $get('start_year') + 1)->month(6)->endOfMonth()
+                                : null
+                            ),
                         Checkbox::make('is_active')
                             ->label('Active')
                             ->helperText('Only one school year should be active at a time')

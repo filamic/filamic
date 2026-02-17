@@ -16,14 +16,17 @@ use Livewire\Livewire;
 beforeEach(fn () => $this->loginAdmin());
 
 test('list page is accessible', function () {
+    // Act & Assert
     $this->get(SubjectResource::getUrl())->assertOk();
 });
 
 test('list page renders columns', function (string $column) {
+    // Arrange
     $school = School::factory()->create();
     $category = SubjectCategory::factory()->for($school)->create();
     Subject::factory()->create(['subject_category_id' => $category->id]);
 
+    // Act & Assert
     Livewire::test(ListSubjects::class)
         ->assertCanRenderTableColumn($column);
 })->with([
@@ -33,26 +36,32 @@ test('list page renders columns', function (string $column) {
 ]);
 
 test('list page shows rows', function () {
+    // Arrange
     $category = SubjectCategory::factory()->for(School::factory())->create();
     $records = Subject::factory(3)->create(['subject_category_id' => $category->id]);
 
+    // Act & Assert
     Livewire::test(ListSubjects::class)
         ->assertCanSeeTableRecords($records);
 });
 
 test('list page rows have view action', function () {
+    // Arrange
     $category = SubjectCategory::factory()->for(School::factory())->create();
     $record = Subject::factory()->create(['subject_category_id' => $category->id]);
 
+    // Act & Assert
     Livewire::test(ListSubjects::class)
         ->assertActionVisible(TestAction::make('view')->table($record));
 });
 
 test('can search for records on list page', function (string $attribute) {
+    // Arrange
     $school = School::factory()->create();
     $category = SubjectCategory::factory()->for($school)->create();
     $record = Subject::factory()->create(['subject_category_id' => $category->id]);
 
+    // Act & Assert
     Livewire::test(ListSubjects::class)
         ->searchTable(data_get($record, $attribute))
         ->assertCanSeeTableRecords([$record]);

@@ -70,7 +70,7 @@ enum StudentEnrollmentStatusEnum: int implements HasColor, HasIcon, HasLabel
     public static function getInactiveStatuses(): array
     {
         return collect(self::cases())
-            ->diff(self::getActiveStatuses())
+            ->reject(fn (self $case) => in_array($case, self::getActiveStatuses(), true))
             ->all();
     }
 }

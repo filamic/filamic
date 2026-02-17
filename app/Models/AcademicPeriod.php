@@ -18,26 +18,28 @@ abstract class AcademicPeriod extends Model
 
     protected static function booted(): void
     {
-        parent::booted();
-
         static::saved(function ($model) {
-            if ($model->wasChanged('is_active')) {
-                DB::transaction(function () use ($model) {
-                    if ($model->is_active === true) {
-                        Student::whereDoesntHave('enrollments', function (Builder $query) {
-                            /** @var Builder<StudentEnrollment> $query */
-                            $query->active();
-                        })->where('is_active', true)->update(['is_active' => false]);
-
-                        Student::whereHas('enrollments', function (Builder $query) {
-                            /** @var Builder<StudentEnrollment> $query */
-                            $query->active();
-                        })->update(['is_active' => true]);
-                    }
-                });
-
-                cache()->deleteMultiple(['academic_period_ready', static::getActiveCacheKey()]);
+            if (! $model->wasChanged('is_active')) {
+                return;
             }
+
+            if ($model->is_active) {
+                DB::transaction(function () {
+                    Student::whereDoesntHave('enrollments', function (Builder $query) {
+                        /** @var Builder<StudentEnrollment> $query */
+                        // @phpstan-ignore-next-line
+                        $query->active();
+                    })->where('is_active', true)->update(['is_active' => false]);
+
+                    Student::whereHas('enrollments', function (Builder $query) {
+                        /** @var Builder<StudentEnrollment> $query */
+                        // @phpstan-ignore-next-line
+                        $query->active();
+                    })->update(['is_active' => true]);
+                });
+            }
+
+            cache()->deleteMultiple(['academic_period_ready', static::getActiveCacheKey()]);
         });
     }
 

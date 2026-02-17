@@ -2,6 +2,9 @@
 
 ## 🚀 Priority: High (Core Systems & Readiness)
 
+- [x] **SchoolYear Test Issues**: Fix `cannot be updated in edit mode` and date validation conflicts.
+- [x] **PDF Invoice Refactor**: Update to use `Number::currency` standard.
+- [x] **Payment Account Logic**: Update `Student::currentPaymentAccount` to use `latestOfMany()`.
 - [ ] **Middleware Readiness Check**: Implement middleware to ensure application is ready (SchoolYear and SchoolTerm must be active) before allowing access to core features. <!-- id: 1 -->
 - [ ] **Pre-use Setup Page**: Create a landing page for when no active academic period exists to guide admins through initial setup. <!-- id: 2 -->
 - [ ] **Student Active Status Consisitency**: Ensure `$student->is_active` remains perfectly in sync with `student_enrollment` (Source of Truth) using database transactions. <!-- id: 3 -->
@@ -46,6 +49,13 @@
 ---
 
 ## 📖 Definition of Done & Rules
+
+### Project Guidelines
+
+- **Tool Conflicts**: Use explicit PHP type hints in methods/accessors to make the code the "Source of Truth" for IDE helpers and CodeRabbit.
+- **Test Integrity**: Every code change must be accompanied by an update or verification of the related test suite.
+- **Code Quality**: Always strive for **Production-Grade** code: simple, clean, following best practices, and avoiding overengineering.
+- **Standard Pattern**: Stick to PSR-12, the AAA (Arrange-Act-Assert) pattern in tests, and strict type safety.
 
 ### Student Active Status
 

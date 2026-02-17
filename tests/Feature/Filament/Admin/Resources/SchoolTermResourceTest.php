@@ -36,7 +36,8 @@ it('can toggle is_active column exclusively', function () {
 
     // Act
     Livewire::test(ManageSchoolTerms::class)
-        ->call('updateTableColumnState', 'is_active', $even->getKey(), true);
+        ->call('updateTableColumnState', 'is_active', $even->getKey(), true)
+        ->assertHasNoErrors();
 
     // Assert
     expect(SchoolTerm::query()->active()->count())->toBe(1)

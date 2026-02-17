@@ -140,7 +140,11 @@ class Student extends Model
 
     public function currentPaymentAccount(): HasOne
     {
-        return $this->hasOne(StudentPaymentAccount::class);
+        return $this->hasOne(StudentPaymentAccount::class)->ofMany([
+            'id' => 'max',
+        ], function (Builder $query) {
+            $query->whereColumn('student_payment_accounts.school_id', 'students.school_id');
+        });
     }
 
     /**

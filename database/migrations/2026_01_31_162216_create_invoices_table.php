@@ -47,7 +47,7 @@ return new class extends Migration
 
             $table->string('payment_reference')->nullable()->index();
 
-            $table->longText('description')->nullable();
+            $table->text('description')->nullable();
 
             $table->timestamps();
         });

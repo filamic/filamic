@@ -227,10 +227,10 @@
                 Tgl Bayar {{$invoice->paid_at?->format('d-m-Y') ?? '-'}}
               </h3>
             </td>
-            <td class="qty">{{$invoice->formatted_amount}}</td>
-            <td class="unit">{{$invoice->formatted_fine}}</td>
-            <td class="qty">{{$invoice->formatted_discount}}</td>
-            <td class="total">{{$invoice->formatted_total_amount}}</td>
+            <td class="qty">{{ Number::currency($invoice->amount, 'IDR', 'id') }}</td>
+            <td class="unit">{{ Number::currency($invoice->fine, 'IDR', 'id') }}</td>
+            <td class="qty">{{ Number::currency($invoice->discount, 'IDR', 'id') }}</td>
+            <td class="total">{{ Number::currency($invoice->total_amount, 'IDR', 'id') }}</td>
           </tr>
         @endforeach
       </tbody>
@@ -271,7 +271,7 @@
 
         <li>1. Uang yang telah dibayarkan tidak dapat ditarik kembali!</li>
         <li>2. Pembayaran SPP yang telat akan dikenakan denda Rp
-          {{Number::format(config('app.fine', 0), locale: 'id')}}/hari
+          {{Number::format(config('setting.fine', 0), locale: 'id')}}/hari
         </li>
       </ul>
     </div>

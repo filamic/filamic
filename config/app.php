@@ -67,7 +67,7 @@ return [
     |
     */
 
-    'timezone' => env('APP_TIMEZONE', 'Asia/Jakarta'),
+    'timezone' => env('APP_TIMEZONE', 'UTC'),
 
     /*
     |--------------------------------------------------------------------------
@@ -124,15 +124,4 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Late Return Fine Amount
-    |--------------------------------------------------------------------------
-    |
-    | The fine amount (in IDR) charged for late payment of monthly fees.
-    |
-    */
-
-    'fine' => env('APP_FINE_AMOUNT', 5000),
 ];

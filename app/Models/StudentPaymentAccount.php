@@ -9,6 +9,7 @@ use App\Models\Traits\BelongsToStudent;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @method static Builder<static>|StudentPaymentAccount eligibleForBookFee()
  * @method static Builder<static>|StudentPaymentAccount eligibleForMonthlyFee()
+ * @method static \Database\Factories\StudentPaymentAccountFactory factory($count = null, $state = [])
  * @method static Builder<static>|StudentPaymentAccount newModelQuery()
  * @method static Builder<static>|StudentPaymentAccount newQuery()
  * @method static Builder<static>|StudentPaymentAccount query()
@@ -45,6 +47,7 @@ class StudentPaymentAccount extends Model
 {
     use BelongsToSchool;
     use BelongsToStudent;
+    use HasFactory;
     use HasUlids;
 
     protected $guarded = ['id'];

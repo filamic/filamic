@@ -118,15 +118,16 @@ class StudentEnrollment extends Model
         $activeYearId = SchoolYear::getActive()?->getKey();
         $activeTermId = SchoolTerm::getActive()?->getKey();
 
+        // If no active year or term, all enrollments are inactive
+        if ($activeYearId === null || $activeTermId === null) {
+            return $query;
+        }
+
         return $query->where(function (Builder $q) use ($activeYearId, $activeTermId) {
             $q->whereIn($q->qualifyColumn('status'), StudentEnrollmentStatusEnum::getInactiveStatuses());
 
-            if ($activeYearId !== null) {
-                $q->orWhere($q->qualifyColumn('school_year_id'), '!=', $activeYearId);
-            }
-            if ($activeTermId !== null) {
-                $q->orWhere($q->qualifyColumn('school_term_id'), '!=', $activeTermId);
-            }
+            $q->orWhere($q->qualifyColumn('school_year_id'), '!=', $activeYearId);
+            $q->orWhere($q->qualifyColumn('school_term_id'), '!=', $activeTermId);
         });
     }
 }

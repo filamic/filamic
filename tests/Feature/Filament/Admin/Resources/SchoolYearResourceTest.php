@@ -328,10 +328,10 @@ test('start_year cannot be updated in edit mode', function () {
 
     // Act
     Livewire::test(EditSchoolYear::class, ['record' => $record->getRouteKey()])
+        ->assertFormFieldDisabled('start_year')
         ->fillForm([
-            'start_year' => 2030,
-            'start_date' => '2030-07-10', // Valid for injected 2030
-            'end_date' => '2031-06-10',   // Valid for injected 2030 + 1
+            'start_date' => '2025-07-10', // Valid for actual start_year 2025
+            'end_date' => '2026-06-10',   // Valid for actual end_year 2026
         ])
         ->call('save')
         ->assertHasNoFormErrors();

@@ -1,0 +1,129 @@
+{
+  "name": "model-test-generator",
+  "version": "1.0.0",
+  "description": "Senior QA Automation Engineer for creating production-grade Model Tests for Laravel Master Data models using latest Pest and AAA pattern",
+  "author": "QA Automation Team",
+  "tags": [
+    "laravel",
+    "pest",
+    "testing",
+    "model-tests",
+    "automation",
+    "qa"
+  ],
+  "requirements": {
+    "frameworks": ["Laravel 10+"],
+    "testing_library": ["Pest v3.x"],
+    "php_version": "8.1+"
+  },
+  "inputs": {
+    "laravel_project_path": {
+      "type": "string",
+      "description": "Path to the Laravel project root (contains app/Models, database/migrations, database/factories)",
+      "required": true
+    },
+    "models_to_test": {
+      "type": "array",
+      "description": "Optional array of specific model names to test (if not provided, auto-discover)",
+      "required": false,
+      "items": "string"
+    },
+    "output_path": {
+      "type": "string",
+      "description": "Where to save generated test files (default: tests/Feature/Models/)",
+      "required": false,
+      "default": "tests/Feature/Models/"
+    }
+  },
+  "outputs": {
+    "test_files": {
+      "type": "array",
+      "description": "List of generated test file paths",
+      "items": "string"
+    },
+    "factory_files": {
+      "type": "array",
+      "description": "List of created/updated factory file paths",
+      "items": "string"
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Execution metrics",
+      "properties": {
+        "models_scanned": "number",
+        "master_data_models": "number",
+        "factories_created": "number",
+        "factories_updated": "number",
+        "test_files_generated": "number",
+        "total_tests": "number",
+        "composer_analyse_time": "number",
+        "composer_test_time": "number"
+      }
+    },
+    "validation_status": {
+      "type": "object",
+      "description": "Validation results",
+      "properties": {
+        "composer_analyse": "PASSED|FAILED",
+        "composer_test": "PASSED|FAILED"
+      }
+    }
+  },
+  "workflow_steps": [
+    {
+      "step": 1,
+      "name": "Discovery & Identification",
+      "description": "Scan app/Models/ and identify Master Data models"
+    },
+    {
+      "step": 2,
+      "name": "Factory Audit",
+      "description": "Audit and fix factories to match migrations"
+    },
+    {
+      "step": 3,
+      "name": "Generate Tests",
+      "description": "Generate comprehensive Pest tests for custom logic"
+    },
+    {
+      "step": 4,
+      "name": "Validate",
+      "description": "Run composer analyse and composer test"
+    },
+    {
+      "step": 5,
+      "name": "Report",
+      "description": "Report results with file paths and metrics"
+    }
+  ],
+  "best_practices": [
+    "Test only custom logic (scopes, methods, accessors, mutators, relationships)",
+    "Do NOT test Laravel's built-in functionality",
+    "Each test must be independent",
+    "Use make() for in-memory tests, create() for DB-dependent tests",
+    "Test edge cases FIRST, then happy paths",
+    "Use fake() instead of $this->faker",
+    "Use test() syntax",
+    "Use expect() instead of $this->assert*",
+    "Follow AAA pattern (Arrange, Act, Assert)",
+    "Organize tests with describe() blocks",
+    "Trust Pest's RefreshDatabase for auto-rollback"
+  ],
+  "common_mistakes": [
+    "Testing Laravel's built-in functionality",
+    "Creating test pollution by sharing state between tests",
+    "Using make() for scope tests (should use create())",
+    "Using $this->faker instead of fake()",
+    "Not organizing tests with describe blocks",
+    "Testing happy paths without edge cases",
+    "Over-engineering with unnecessary assertions",
+    "Hardcoding data instead of using Faker"
+  ],
+  "troubleshooting": {
+    "No models found": "Check that app/Models/ directory exists and has model files",
+    "Factory syntax error": "Verify factory definition matches factory format",
+    "Test generation failed": "Check model structure and custom logic",
+    "composer analyse failed": "Review static analysis errors and fix code",
+    "composer test failed": "Review test failures and fix assertions"
+  }
+}

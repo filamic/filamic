@@ -11,5 +11,5 @@ parameters:
         - database/migrations
         - routes
 
-    ignoreErrors:
-        - '#PHPDoc tag @var#'
+    #ignoreErrors:
+    #   - '#PHPDoc tag @var#'

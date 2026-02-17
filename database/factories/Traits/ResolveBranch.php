@@ -17,7 +17,9 @@ trait ResolveBranch
 
     public function forBranch(?Branch $branch = null): self
     {
-        $branch ??= Context::get('branch') ?? Branch::factory();
+        $contextBranch = Context::get('branch');
+        $branch ??= $contextBranch instanceof Branch ? $contextBranch : null;
+        $branch ??= Branch::factory();
 
         return $this->for($branch);
     }

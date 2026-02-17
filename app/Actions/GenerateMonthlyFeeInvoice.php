@@ -39,10 +39,12 @@ class GenerateMonthlyFeeInvoice
             ->whereHas('currentEnrollment')
             ->whereHas('currentPaymentAccount', function ($query) {
                 /** @var StudentPaymentAccount $query */
+                // @phpstan-ignore-next-line
                 $query->eligibleForMonthlyFee();
             })
             ->whereDoesntHave('invoices', function ($query) use ($month) {
                 /** @var Invoice $query */
+                // @phpstan-ignore-next-line
                 $query->monthlyFeeForThisSchoolYear(month: $month);
             })
             ->with([

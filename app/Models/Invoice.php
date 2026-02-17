@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Number;
@@ -70,6 +71,7 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice activeTerm()
  * @method static Builder<static>|Invoice activeYear()
  * @method static Builder<static>|Invoice bookFee()
+ * @method static \Database\Factories\InvoiceFactory factory($count = null, $state = [])
  * @method static Builder<static>|Invoice monthlyFee()
  * @method static Builder<static>|Invoice monthlyFeeForThisSchoolYear(?int $month = null, ?string $schoolYearId = null)
  * @method static Builder<static>|Invoice newModelQuery()
@@ -121,6 +123,7 @@ class Invoice extends Model
     use BelongsToSchoolTerm;
     use BelongsToSchoolYear;
     use BelongsToStudent;
+    use HasFactory;
     use HasUlids;
 
     protected $guarded = ['id'];
@@ -270,7 +273,7 @@ class Invoice extends Model
             'type' => data_get($data, 'type'),
             'student_id' => data_get($data, 'student_id'),
             'school_year_id' => data_get($data, 'school_year_id'),
-            'month' => data_get($data, 'month', 'annual'),
+            'month' => data_get($data, 'month'),
         ];
 
         foreach ($components as $key => $value) {
@@ -302,7 +305,7 @@ class Invoice extends Model
 
     public static function calculateFineFromOldestUnpaidInvoice(Student $student): int
     {
-        $ratePerDay = (int) config('app.fine', 0);
+        $ratePerDay = (int) config('setting.fine', 0);
 
         $oldestBill = $student->invoices()
             ->unpaidMonthlyFee()

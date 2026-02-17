@@ -29,35 +29,4 @@ abstract class TestCase extends BaseTestCase
 
         $this->login($user);
     }
-
-    public function loginTeacher(?User $user = null, ?School $school = null): void
-    {
-        $school ??= School::factory()->create();
-        Context::add('school', $school);
-
-        $user ??= User::factory()->create();
-        // Assuming there's a specific role or logic for teachers
-        // $user->assignRole('teacher');
-
-        $this->login($user);
-    }
-
-    public function loginStudent(?User $user = null, ?School $school = null): void
-    {
-        $school ??= School::factory()->create();
-        Context::add('school', $school);
-
-        $user ??= User::factory()->create();
-        // Assuming there's a specific role or logic for students
-        // $user->assignRole('student');
-
-        $this->login($user);
-    }
-
-    protected function tearDown(): void
-    {
-        Context::forget('school');
-
-        parent::tearDown();
-    }
 }

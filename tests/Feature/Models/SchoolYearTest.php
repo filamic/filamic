@@ -149,10 +149,37 @@ test('it enforces start_date and end_date years correspond to start_year and end
         ->and($schoolYear->end_date->format('Y-m-d'))->toBe('2027-06-30');
 });
 
+test('it syncs end_date when end_year is updated manually', function () {
+    // Arrange
+    $schoolYear = SchoolYear::create([
+        'start_year' => 2025,
+        'end_year' => 2026,
+        'end_date' => '2026-06-30',
+    ]);
+
+    // Act: Manually update end_year (bypassing the automatic +1 just for testing the dirty check)
+    $schoolYear->update(['end_year' => 2028]);
+
+    // Assert: end_date should have moved to 2028 in the database
+    $schoolYear->refresh();
+    expect($schoolYear->end_year)->toBe(2028)
+        ->and($schoolYear->end_date->format('Y-m-d'))->toBe('2028-06-30');
+});
+
 test('it does not sync students if is_active did not change', function () {
     // Arrange
     $schoolYear = SchoolYear::factory()->active()->create();
-    $student = Student::factory()->active()->create();
+    $schoolTerm = SchoolTerm::factory()->active()->create();
+    $student = Student::factory()
+        ->has(
+            StudentEnrollment::factory()
+                ->state([
+                    'school_year_id' => $schoolYear->getKey(),
+                    'school_term_id' => $schoolTerm->getKey(),
+                ])
+                ->enrolled(), 'enrollments')
+        ->active()
+        ->create();
 
     // Act: Update something OTHER than is_active
     $schoolYear->update(['start_year' => $schoolYear->start_year]);
@@ -207,13 +234,13 @@ test('it syncs student active status when academic period becomes active', funct
 test('it clears cache when academic period is_active changes', function () {
     // Arrange
     $schoolYear = SchoolYear::factory()->inactive()->create();
-    cache()->put('active_school_year_record', $schoolYear);
+    cache()->put(SchoolYear::getActiveCacheKey(), $schoolYear);
 
     // Act
     $schoolYear->update(['is_active' => true]);
 
     // Assert
-    expect(cache()->get('active_school_year_record'))->toBeNull();
+    expect(cache()->get(SchoolYear::getActiveCacheKey()))->toBeNull();
 });
 
 test('getActive returns currently active school year', function () {

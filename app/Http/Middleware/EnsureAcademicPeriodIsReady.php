@@ -27,7 +27,7 @@ class EnsureAcademicPeriodIsReady
         });
 
         if (! $isReady) {
-            return redirect()->route('setup_warning');
+            return redirect()->route('setup_warning', ['return_to' => $request->getRequestUri()]);
         }
 
         return $next($request);

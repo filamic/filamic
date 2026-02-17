@@ -15,12 +15,15 @@ use Livewire\Livewire;
 beforeEach(fn () => $this->loginAdmin());
 
 test('list page is accessible', function () {
+    // Act & Assert
     $this->get(SubjectCategoryResource::getUrl())->assertOk();
 });
 
 test('list page renders columns', function (string $column) {
+    // Arrange
     SubjectCategory::factory()->create();
 
+    // Act & Assert
     Livewire::test(ListSubjectCategories::class)
         ->assertCanRenderTableColumn($column);
 })->with([
@@ -30,22 +33,28 @@ test('list page renders columns', function (string $column) {
 ]);
 
 test('list page shows rows', function () {
+    // Arrange
     $records = SubjectCategory::factory(3)->create();
 
+    // Act & Assert
     Livewire::test(ListSubjectCategories::class)
         ->assertCanSeeTableRecords($records);
 });
 
 test('list page rows have view action', function () {
+    // Arrange
     $record = SubjectCategory::factory()->create();
 
+    // Act & Assert
     Livewire::test(ListSubjectCategories::class)
         ->assertActionVisible(TestAction::make('view')->table($record));
 });
 
 test('can search for records on list page', function (string $attribute) {
+    // Arrange
     $record = SubjectCategory::factory()->create();
 
+    // Act & Assert
     Livewire::test(ListSubjectCategories::class)
         ->searchTable(data_get($record, $attribute))
         ->assertCanSeeTableRecords([$record]);

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Carbon;
+use InvalidArgumentException;
 
 /**
  * @property string $id
@@ -19,7 +20,7 @@ use Illuminate\Support\Carbon;
  * @property bool $is_active
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read mixed $name
+ * @property-read string $name
  *
  * @method static Builder<static>|SchoolYear active()
  * @method static \Database\Factories\SchoolYearFactory factory($count = null, $state = [])
@@ -62,16 +63,18 @@ class SchoolYear extends AcademicPeriod
         parent::booted();
 
         static::creating(function (self $model): void {
+            if (blank($model->start_year)) {
+                throw new InvalidArgumentException('start_year is required');
+            }
+
             $model->end_year = $model->start_year + 1;
 
             if ($model->start_date) {
-                $model->start_date = Carbon::parse($model->start_date)
-                    ->year((int) $model->start_year);
+                $model->start_date = Carbon::parse($model->start_date)->year($model->start_year);
             }
 
             if ($model->end_date) {
-                $model->end_date = Carbon::parse($model->end_date)
-                    ->year((int) $model->end_year);
+                $model->end_date = Carbon::parse($model->end_date)->year($model->end_year);
             }
         });
 
@@ -81,13 +84,11 @@ class SchoolYear extends AcademicPeriod
             }
 
             if ($model->isDirty(['start_year', 'start_date']) && $model->start_date) {
-                $model->start_date = Carbon::parse($model->start_date)
-                    ->year((int) $model->start_year);
+                $model->start_date = Carbon::parse($model->start_date)->year($model->start_year);
             }
 
-            if ($model->isDirty(['start_year', 'end_date']) && $model->end_date) {
-                $model->end_date = Carbon::parse($model->end_date)
-                    ->year((int) ($model->start_year + 1));
+            if ($model->isDirty(['start_year', 'end_year', 'end_date']) && $model->end_date) {
+                $model->end_date = Carbon::parse($model->end_date)->year($model->end_year);
             }
         });
     }
@@ -95,7 +96,7 @@ class SchoolYear extends AcademicPeriod
     protected function name(): Attribute
     {
         return Attribute::make(
-            get: fn () => "{$this->start_year}/{$this->end_year}",
+            get: fn (): string => "{$this->start_year}/{$this->end_year}",
         );
     }
 }

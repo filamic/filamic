@@ -64,7 +64,7 @@ class SchoolEvent extends Model
     protected function upcoming(Builder $query): Builder
     {
         return $query
-            ->where('start_date', '>', now()->toDateString())
+            ->whereDate('start_date', '>', now())
             ->orderBy('start_date');
     }
 
@@ -72,15 +72,15 @@ class SchoolEvent extends Model
     protected function ongoing(Builder $query): Builder
     {
         return $query
-            ->where('start_date', '<=', now()->toDateString())
-            ->where('end_date', '>=', now()->toDateString());
+            ->whereDate('start_date', '<=', now())
+            ->whereDate('end_date', '>=', now());
     }
 
     #[Scope]
     protected function past(Builder $query): Builder
     {
         return $query
-            ->where('end_date', '<', now()->toDateString())
+            ->whereDate('end_date', '<', now())
             ->orderByDesc('end_date');
     }
 }
