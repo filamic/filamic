@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Models\SchoolYear;
 use App\Models\Student;
+use App\Models\SchoolYear;
+use Illuminate\Support\Carbon;
 use App\Models\StudentEnrollment;
 
 test('it prevents mass assignment to guarded id', function () {
@@ -27,6 +28,8 @@ test('it casts the columns')
     ->expect(fn () => SchoolYear::factory()->create())
     ->start_year->toBeInt()
     ->end_year->toBeInt()
+    ->start_date->toBeInstanceOf(Carbon::class)
+    ->end_date->toBeInstanceOf(Carbon::class)
     ->is_active->toBeBool();
 
 test('it automatically sets end_year')
