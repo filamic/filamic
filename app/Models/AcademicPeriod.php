@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Traits\HasActiveState;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -23,23 +22,20 @@ abstract class AcademicPeriod extends Model
                 return;
             }
 
-            if ($model->is_active) {
-                DB::transaction(function () {
-                    Student::whereDoesntHave('enrollments', function (Builder $query) {
-                        /** @var Builder<StudentEnrollment> $query */
-                        // @phpstan-ignore-next-line
-                        $query->active();
-                    })->where('is_active', true)->update(['is_active' => false]);
-
-                    Student::whereHas('enrollments', function (Builder $query) {
-                        /** @var Builder<StudentEnrollment> $query */
-                        // @phpstan-ignore-next-line
-                        $query->active();
-                    })->update(['is_active' => true]);
-                });
-            }
-
             cache()->deleteMultiple(['academic_period_ready', static::getActiveCacheKey()]);
+
+            DB::transaction(function () {
+                Student::query()
+                    ->active()
+                    ->orWhereHas('enrollments', fn ($enrollments) => $enrollments->active()) // @phpstan-ignore-line
+                    ->with(['currentEnrollment', 'paymentAccounts'])
+                    ->chunkById(200, function ($students) {
+                        foreach ($students as $student) {
+                            /** @var Student $student */
+                            $student->syncActiveStatus();
+                        }
+                    });
+            });
         });
     }
 

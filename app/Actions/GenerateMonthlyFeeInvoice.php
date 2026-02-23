@@ -52,7 +52,6 @@ class GenerateMonthlyFeeInvoice
                 'currentPaymentAccount',
                 'currentEnrollment.classroom',
                 'currentEnrollment.schoolYear',
-                'currentEnrollment.schoolTerm',
             ])
             ->get();
 
@@ -80,13 +79,11 @@ class GenerateMonthlyFeeInvoice
                 'student_id' => $student->getKey(),
                 'classroom_id' => $enrollment->classroom_id,
                 'school_year_id' => $enrollment->school_year_id,
-                'school_term_id' => $enrollment->school_term_id,
 
                 'branch_name' => $branch->name,
                 'school_name' => $student->school->name,
                 'classroom_name' => $enrollment->classroom->name,
                 'school_year_name' => $enrollment->schoolYear->name,
-                'school_term_name' => $enrollment->schoolTerm->name,
                 'student_name' => $student->name,
 
                 'type' => InvoiceTypeEnum::MONTHLY_FEE,

@@ -133,7 +133,6 @@ test('it syncs student active status when academic period becomes active', funct
             StudentEnrollment::factory()
                 ->state([
                     'school_year_id' => $schoolYear->getKey(),
-                    'school_term_id' => $schoolTerm->getKey(),
                 ])
                 ->enrolled(), 'enrollments')
         ->inactive()

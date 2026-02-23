@@ -13,6 +13,7 @@ use InvalidArgumentException;
 
 /**
  * @property string $id
+ * @property int|null $legacy_old_id
  * @property int $start_year
  * @property int $end_year
  * @property Carbon|null $start_date
@@ -22,9 +23,9 @@ use InvalidArgumentException;
  * @property Carbon|null $updated_at
  * @property-read string $name
  *
- * @method static Builder<static>|SchoolYear active()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolYear active()
  * @method static \Database\Factories\SchoolYearFactory factory($count = null, $state = [])
- * @method static Builder<static>|SchoolYear inactive()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolYear inactive()
  * @method static Builder<static>|SchoolYear newModelQuery()
  * @method static Builder<static>|SchoolYear newQuery()
  * @method static Builder<static>|SchoolYear query()
@@ -33,6 +34,7 @@ use InvalidArgumentException;
  * @method static Builder<static>|SchoolYear whereEndYear($value)
  * @method static Builder<static>|SchoolYear whereId($value)
  * @method static Builder<static>|SchoolYear whereIsActive($value)
+ * @method static Builder<static>|SchoolYear whereLegacyOldId($value)
  * @method static Builder<static>|SchoolYear whereStartDate($value)
  * @method static Builder<static>|SchoolYear whereStartYear($value)
  * @method static Builder<static>|SchoolYear whereUpdatedAt($value)

@@ -11,15 +11,13 @@ enum InvoiceStatusEnum: int implements HasColor, HasLabel
 {
     case UNPAID = 1;
     case PAID = 2;
-    case PROCESSING = 3;
-    case VOID = 4;
+    case VOID = 3;
 
     public function getLabel(): string
     {
         return match ($this) {
             self::UNPAID => 'Belum Bayar',
             self::PAID => 'Lunas',
-            self::PROCESSING => 'Proses Bank',
             self::VOID => 'Dibatalkan',
         };
     }
@@ -29,7 +27,6 @@ enum InvoiceStatusEnum: int implements HasColor, HasLabel
         return match ($this) {
             self::UNPAID => 'warning',
             self::PAID => 'success',
-            self::PROCESSING => 'info',
             self::VOID => 'gray',
         };
     }

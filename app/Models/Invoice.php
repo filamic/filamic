@@ -28,11 +28,11 @@ use InvalidArgumentException;
 
 /**
  * @property string $id
+ * @property int|null $legacy_old_id
  * @property string $branch_id
  * @property string $school_id
  * @property string $classroom_id
  * @property string $school_year_id
- * @property string $school_term_id
  * @property string $student_id
  * @property string $reference_number
  * @property string $fingerprint
@@ -40,7 +40,6 @@ use InvalidArgumentException;
  * @property string $school_name
  * @property string $classroom_name
  * @property string $school_year_name
- * @property string $school_term_name
  * @property string $student_name
  * @property InvoiceTypeEnum $type
  * @property MonthEnum|null $month
@@ -64,7 +63,7 @@ use InvalidArgumentException;
  * @property-read mixed $formatted_fine
  * @property-read mixed $formatted_total_amount
  * @property-read School $school
- * @property-read SchoolTerm $schoolTerm
+ * @property-read SchoolTerm|null $schoolTerm
  * @property-read SchoolYear $schoolYear
  * @property-read Student $student
  *
@@ -80,6 +79,7 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice paidMonthlyFee()
  * @method static Builder<static>|Invoice query()
  * @method static Builder<static>|Invoice unpaid()
+ * @method static Builder<static>|Invoice unpaidBookFee()
  * @method static Builder<static>|Invoice unpaidMonthlyFee()
  * @method static Builder<static>|Invoice unpaidMonthlyFeeForThisSchoolYear(?int $month = null, ?string $schoolYearId = null)
  * @method static Builder<static>|Invoice whereAmount($value)
@@ -95,6 +95,7 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice whereFingerprint($value)
  * @method static Builder<static>|Invoice whereId($value)
  * @method static Builder<static>|Invoice whereIssuedAt($value)
+ * @method static Builder<static>|Invoice whereLegacyOldId($value)
  * @method static Builder<static>|Invoice whereMonth($value)
  * @method static Builder<static>|Invoice wherePaidAt($value)
  * @method static Builder<static>|Invoice wherePaymentMethod($value)
@@ -102,8 +103,6 @@ use InvalidArgumentException;
  * @method static Builder<static>|Invoice whereReferenceNumber($value)
  * @method static Builder<static>|Invoice whereSchoolId($value)
  * @method static Builder<static>|Invoice whereSchoolName($value)
- * @method static Builder<static>|Invoice whereSchoolTermId($value)
- * @method static Builder<static>|Invoice whereSchoolTermName($value)
  * @method static Builder<static>|Invoice whereSchoolYearId($value)
  * @method static Builder<static>|Invoice whereSchoolYearName($value)
  * @method static Builder<static>|Invoice whereStatus($value)
@@ -230,6 +229,16 @@ class Invoice extends Model
      * @return Builder<Invoice>
      */
     #[Scope]
+    protected function unpaidBookFee(Builder $query): Builder
+    {
+        return $query->unpaid()->bookFee();
+    }
+
+    /**
+     * @param  Builder<Invoice>  $query
+     * @return Builder<Invoice>
+     */
+    #[Scope]
     protected function monthlyFeeForThisSchoolYear(Builder $query, ?int $month = null, ?string $schoolYearId = null): Builder
     {
         $schoolYearId ??= SchoolYear::getActive()?->getKey();
@@ -269,16 +278,34 @@ class Invoice extends Model
 
     public static function generateFingerprint(array $data): string
     {
+        $type = data_get($data, 'type');
+        $type = $type instanceof BackedEnum ? $type->value : $type;
+
         $components = [
-            'type' => data_get($data, 'type'),
+            'type' => $type,
             'student_id' => data_get($data, 'student_id'),
             'school_year_id' => data_get($data, 'school_year_id'),
-            'month' => data_get($data, 'month'),
         ];
 
+        // Validasi field wajib
         foreach ($components as $key => $value) {
             if (blank($value)) {
                 throw new InvalidArgumentException("Component [{$key}] is required for fingerprint.");
+            }
+        }
+
+        // SPP wajib punya month
+        if ($type === InvoiceTypeEnum::MONTHLY_FEE->value) {
+            $month = data_get($data, 'month');
+            if (blank($month)) {
+                throw new InvalidArgumentException('Component [month] is required for monthly fee fingerprint.');
+            }
+            $components['month'] = $month;
+        } else {
+            // Untuk tipe lain (seperti BOOK_FEE), month opsional
+            $month = data_get($data, 'month');
+            if (! blank($month)) {
+                $components['month'] = $month;
             }
         }
 

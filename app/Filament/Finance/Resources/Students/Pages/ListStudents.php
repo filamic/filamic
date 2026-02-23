@@ -160,12 +160,25 @@ class ListStudents extends ListRecords
     public function getTabs(): array
     {
         return [
-            'Aktif' => Tab::make()
+            'all' => Tab::make()
+                ->label('Semua')
+                ->icon('tabler-user')
+                ->badge(fn () => Student::count()),
+            'active' => Tab::make()
+                ->label('Aktif')
                 ->modifyQueryUsing(fn (Builder | Student $query) => $query->active())
-                ->icon('tabler-user-check'),
-            'Tidak Aktif' => Tab::make()
+                ->icon('tabler-user-check')
+                ->badge(fn () => Student::active()->count()),
+            'inactive' => Tab::make()
+                ->label('Tidak Aktif')
                 ->modifyQueryUsing(fn (Builder | Student $query) => $query->inActive())
-                ->icon('tabler-user-x'),
+                ->icon('tabler-user-x')
+                ->badge(fn () => Student::inActive()->count()),
         ];
+    }
+
+    public function getDefaultActiveTab(): string | int | null
+    {
+        return 'active';
     }
 }

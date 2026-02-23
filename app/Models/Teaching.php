@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $user_id
  * @property string $subject_id
  * @property string $school_year_id
- * @property string $school_term_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Classroom $classroom
@@ -34,7 +33,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder<static>|Teaching whereClassroomId($value)
  * @method static Builder<static>|Teaching whereCreatedAt($value)
  * @method static Builder<static>|Teaching whereId($value)
- * @method static Builder<static>|Teaching whereSchoolTermId($value)
  * @method static Builder<static>|Teaching whereSchoolYearId($value)
  * @method static Builder<static>|Teaching whereSubjectId($value)
  * @method static Builder<static>|Teaching whereUpdatedAt($value)

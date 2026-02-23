@@ -7,7 +7,6 @@ use App\Enums\InvoiceTypeEnum;
 use App\Enums\MonthEnum;
 use App\Enums\PaymentMethodEnum;
 use App\Models\Invoice;
-use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use Illuminate\Support\Carbon;
@@ -264,25 +263,6 @@ it('activeYear scope returns invoices for active school year', function () {
 
     foreach ($result as $inv) {
         expect($inv->school_year_id)->toBe($activeYear->id);
-    }
-});
-
-it('activeTerm scope returns invoices for active school term', function () {
-    // Arrange
-    $activeTerm = SchoolTerm::first() ?? SchoolTerm::factory()->odd()->active()->create();
-    $inactiveTerm = SchoolTerm::factory()->even()->inactive()->create(); // Ensure this is distinct from activeTerm
-
-    Invoice::factory(2)->for($activeTerm)->create();
-    Invoice::factory(2)->for($inactiveTerm)->create();
-
-    // Act
-    $result = Invoice::activeTerm()->get();
-
-    // Assert
-    expect($result)->toHaveCount(2);
-
-    foreach ($result as $inv) {
-        expect($inv->school_term_id)->toBe($activeTerm->id);
     }
 });
 

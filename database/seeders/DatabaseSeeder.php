@@ -30,24 +30,24 @@ class DatabaseSeeder extends Seeder
     {
         if (app()->environment('local')) {
 
-            $this->createBranches();
-            $this->createSchoolYear();
-            $this->createSchoolTerm();
-            $this->createPosition();
-            $this->createSchools();
-            $this->createCurriculum();
-            $this->createSubjectCategories();
+            // $this->createBranches();
+            // $this->createSchoolYear();
+            // $this->createSchoolTerm();
+            // $this->createPosition();
+            // $this->createSchools();
+            // $this->createCurriculum();
+            // $this->createSubjectCategories();
 
-            $user = User::factory()->create([
-                'name' => 'Super Admin',
-                'email' => 'super@admin.com',
-                'user_type' => UserTypeEnum::EMPLOYEE,
-                'password' => bcrypt('mantapjiwa00'),
-            ]);
+            // $user = User::factory()->create([
+            //     'name' => 'Super Admin',
+            //     'email' => 'super@admin.com',
+            //     'user_type' => UserTypeEnum::EMPLOYEE,
+            //     'password' => bcrypt('mantapjiwa00'),
+            // ]);
 
-            $user->branches()->sync(Branch::all());
+            // $user->branches()->sync(Branch::all());
 
-            $this->createClassrooms();
+            // $this->createClassrooms();
 
             // $this->createSubjects();
             // $this->createTeachers();

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property string $id
+ * @property int|null $legacy_old_id
  * @property string $school_id
  * @property string $student_id
  * @property string|null $monthly_fee_virtual_account
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static Builder<static>|StudentPaymentAccount whereBookFeeVirtualAccount($value)
  * @method static Builder<static>|StudentPaymentAccount whereCreatedAt($value)
  * @method static Builder<static>|StudentPaymentAccount whereId($value)
+ * @method static Builder<static>|StudentPaymentAccount whereLegacyOldId($value)
  * @method static Builder<static>|StudentPaymentAccount whereMonthlyFeeAmount($value)
  * @method static Builder<static>|StudentPaymentAccount whereMonthlyFeeVirtualAccount($value)
  * @method static Builder<static>|StudentPaymentAccount whereSchoolId($value)

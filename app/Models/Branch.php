@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * @property string $id
+ * @property int|null $legacy_old_id
  * @property string $name
  * @property string|null $phone
  * @property string|null $whatsapp
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Branch whereAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Branch whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Branch whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Branch whereLegacyOldId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Branch whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Branch wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Branch whereUpdatedAt($value)

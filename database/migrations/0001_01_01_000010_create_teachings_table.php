@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignUlid('user_id')->constrained();
             $table->foreignUlid('subject_id')->constrained();
             $table->foreignUlid('school_year_id')->constrained();
-            $table->foreignUlid('school_term_id')->constrained();
             $table->timestamps();
         });
 

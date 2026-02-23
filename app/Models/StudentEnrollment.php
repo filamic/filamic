@@ -19,11 +19,11 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property string $id
+ * @property int|null $legacy_old_id
  * @property string $branch_id
  * @property string $school_id
  * @property string $classroom_id
  * @property string $school_year_id
- * @property string $school_term_id
  * @property string $student_id
  * @property StudentEnrollmentStatusEnum $status
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read Branch $branch
  * @property-read Classroom $classroom
  * @property-read School $school
- * @property-read SchoolTerm $schoolTerm
+ * @property-read SchoolTerm|null $schoolTerm
  * @property-read SchoolYear $schoolYear
  * @property-read Student $student
  *
@@ -47,8 +47,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static Builder<static>|StudentEnrollment whereClassroomId($value)
  * @method static Builder<static>|StudentEnrollment whereCreatedAt($value)
  * @method static Builder<static>|StudentEnrollment whereId($value)
+ * @method static Builder<static>|StudentEnrollment whereLegacyOldId($value)
  * @method static Builder<static>|StudentEnrollment whereSchoolId($value)
- * @method static Builder<static>|StudentEnrollment whereSchoolTermId($value)
  * @method static Builder<static>|StudentEnrollment whereSchoolYearId($value)
  * @method static Builder<static>|StudentEnrollment whereStatus($value)
  * @method static Builder<static>|StudentEnrollment whereStudentId($value)
@@ -79,36 +79,17 @@ class StudentEnrollment extends Model
         ];
     }
 
-    protected static function booted(): void
-    {
-        static::creating(function ($enrollment) {
-            if ($enrollment->student?->school) {
-                $enrollment->branch_id = $enrollment->student->school->branch_id;
-                $enrollment->school_id = $enrollment->student->school_id;
-            }
-        });
-
-        // Sync student's active status whenever an enrollment is created or updated
-        static::saved(function ($enrollment) {
-            if ($enrollment->wasRecentlyCreated || $enrollment->wasChanged('status')) {
-                $enrollment->student?->syncActiveStatus();
-            }
-        });
-    }
-
     #[Scope]
     protected function active(Builder $query): Builder
     {
         $activeYearId = SchoolYear::getActive()?->getKey();
-        $activeTermId = SchoolTerm::getActive()?->getKey();
 
-        if ($activeYearId === null || $activeTermId === null) {
+        if ($activeYearId === null) {
             // No active year/term means no active enrollments
             return $query->whereRaw('1 = 0');
         }
 
         return $query->where($query->qualifyColumn('school_year_id'), $activeYearId)
-            ->where($query->qualifyColumn('school_term_id'), $activeTermId)
             ->whereIn($query->qualifyColumn('status'), StudentEnrollmentStatusEnum::getActiveStatuses());
     }
 
@@ -116,18 +97,24 @@ class StudentEnrollment extends Model
     protected function inactive(Builder $query): Builder
     {
         $activeYearId = SchoolYear::getActive()?->getKey();
-        $activeTermId = SchoolTerm::getActive()?->getKey();
 
         // If no active year or term, all enrollments are inactive
-        if ($activeYearId === null || $activeTermId === null) {
+        if ($activeYearId === null) {
             return $query;
         }
 
-        return $query->where(function (Builder $q) use ($activeYearId, $activeTermId) {
+        return $query->where(function (Builder $q) use ($activeYearId) {
             $q->whereIn($q->qualifyColumn('status'), StudentEnrollmentStatusEnum::getInactiveStatuses());
 
             $q->orWhere($q->qualifyColumn('school_year_id'), '!=', $activeYearId);
-            $q->orWhere($q->qualifyColumn('school_term_id'), '!=', $activeTermId);
         });
+    }
+
+    public function isActive(): bool
+    {
+        $activeYearId = SchoolYear::getActive()?->getKey();
+
+        return $this->school_year_id === $activeYearId
+            && in_array($this->status, StudentEnrollmentStatusEnum::getActiveStatuses());
     }
 }

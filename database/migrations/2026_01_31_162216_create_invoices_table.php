@@ -12,12 +12,12 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->ulid('id')->primary();
+            $table->unsignedBigInteger('legacy_old_id')->nullable();
 
             $table->foreignUlid('branch_id')->constrained();
             $table->foreignUlid('school_id')->constrained();
             $table->foreignUlid('classroom_id')->constrained();
             $table->foreignUlid('school_year_id')->constrained();
-            $table->foreignUlid('school_term_id')->constrained();
             $table->foreignUlid('student_id')->constrained();
 
             $table->string('reference_number')->unique();
@@ -27,7 +27,6 @@ return new class extends Migration
             $table->string('school_name');
             $table->string('classroom_name');
             $table->string('school_year_name');
-            $table->string('school_term_name');
             $table->string('student_name');
 
             $table->unsignedTinyInteger('type');

@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\Finance\Resources\Students\RelationManagers;
 
+use App\Enums\InvoiceStatusEnum;
+use App\Enums\MonthEnum;
 use App\Models\Invoice;
+use App\Models\SchoolYear;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\PaginationMode;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -22,11 +27,14 @@ class MonthlyFeeInvoicesRelationManager extends RelationManager
                 $query->monthlyFee();
             })
             ->heading('Uang Sekolah')
+            ->paginationMode(PaginationMode::Simple)
             ->recordTitleAttribute('id')
             ->columns([
                 TextColumn::make('reference_number'),
-                TextColumn::make('month.name')
-                    ->label('Bulan'),
+                TextColumn::make('schoolYear.name'),
+                TextColumn::make('month')
+                    ->label('Bulan')
+                    ->formatStateUsing(fn (MonthEnum $state) => $state->getLabel()),
                 TextColumn::make('status')
                     ->badge(),
                 TextColumn::make('total_amount')
@@ -41,17 +49,15 @@ class MonthlyFeeInvoicesRelationManager extends RelationManager
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('payment_method'),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-
+                SelectFilter::make('school_year_id')
+                    ->label('Tahun Ajaran')
+                    ->options(SchoolYear::all()->pluck('name', 'id'))
+                    ->default(SchoolYear::getActive()->getKey()),
+                SelectFilter::make('status')
+                    ->options(InvoiceStatusEnum::class)
+                    ->default(InvoiceStatusEnum::UNPAID->value),
             ]);
     }
 }

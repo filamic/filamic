@@ -11,7 +11,6 @@ use App\Models\Branch;
 use App\Models\Classroom;
 use App\Models\Invoice;
 use App\Models\School;
-use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -30,14 +29,12 @@ class InvoiceFactory extends Factory
             'school_id' => School::factory(),
             'classroom_id' => Classroom::factory(),
             'school_year_id' => SchoolYear::factory()->inactive(),
-            'school_term_id' => fn () => SchoolTerm::first() ?? SchoolTerm::factory()->create(),
             'student_id' => Student::factory(),
 
             'branch_name' => fn (array $attributes) => Branch::find($attributes['branch_id'])?->name ?? fake()->company(),
             'school_name' => fn (array $attributes) => School::find($attributes['school_id'])?->name ?? fake()->company(),
             'classroom_name' => fn (array $attributes) => Classroom::find($attributes['classroom_id'])?->name ?? fake()->word(),
             'school_year_name' => fn (array $attributes) => SchoolYear::find($attributes['school_year_id'])?->name ?? '2024/2025',
-            'school_term_name' => fn (array $attributes) => SchoolTerm::find($attributes['school_term_id'])?->name?->getLabel() ?? 'Ganjil',
             'student_name' => fn (array $attributes) => Student::find($attributes['student_id'])?->name ?? fake()->name(),
 
             'type' => fake()->randomElement(InvoiceTypeEnum::cases()),

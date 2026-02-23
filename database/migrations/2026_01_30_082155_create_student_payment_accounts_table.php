@@ -12,6 +12,7 @@ return new class extends Migration
     {
         Schema::create('student_payment_accounts', function (Blueprint $table) {
             $table->ulid('id')->primary();
+            $table->unsignedBigInteger('legacy_old_id')->nullable();
             $table->foreignUlid('school_id')->constrained();
             $table->foreignUlid('student_id')->constrained();
             $table->string('monthly_fee_virtual_account')->nullable()->unique();

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property string $id
+ * @property int|null $legacy_old_id
  * @property string $school_id
  * @property string $name
  * @property GradeEnum $grade
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Classroom whereGrade($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Classroom whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Classroom whereIsMovingClass($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Classroom whereLegacyOldId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Classroom whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Classroom wherePhase($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Classroom whereSchoolId($value)

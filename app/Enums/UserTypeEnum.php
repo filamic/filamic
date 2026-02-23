@@ -13,6 +13,7 @@ enum UserTypeEnum: int implements HasColor, HasLabel
     case EMPLOYEE = 1;
     case STUDENT = 2;
     case PARENT = 3;
+    case GUARDIAN = 4;
 
     public function getLabel(): string
     {
@@ -21,6 +22,7 @@ enum UserTypeEnum: int implements HasColor, HasLabel
             self::EMPLOYEE => 'Employee',
             self::STUDENT => 'Student',
             self::PARENT => 'Parent',
+            self::GUARDIAN => 'Guardian',
         };
     }
 
@@ -31,6 +33,7 @@ enum UserTypeEnum: int implements HasColor, HasLabel
             self::EMPLOYEE => 'success',
             self::STUDENT => 'info',
             self::PARENT => 'warning',
+            self::GUARDIAN => 'danger',
         };
     }
 }

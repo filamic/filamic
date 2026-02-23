@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * @property string $id
+ * @property int|null $legacy_old_id
  * @property string $branch_id
  * @property string $name
  * @property LevelEnum $level
@@ -52,6 +53,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereLegacyOldId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereLevel($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|School whereNisNssNds($value)

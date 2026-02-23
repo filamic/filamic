@@ -12,6 +12,7 @@ return new class extends Migration
     {
         Schema::create('schools', function (Blueprint $table) {
             $table->ulid('id')->primary();
+            $table->unsignedBigInteger('legacy_old_id')->nullable();
             $table->foreignUlid('branch_id')->constrained();
             $table->string('name');
             $table->unsignedTinyInteger('level');

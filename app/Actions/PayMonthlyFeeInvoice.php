@@ -23,7 +23,7 @@ class PayMonthlyFeeInvoice
         $validated = Validator::make($data, [
             'invoice_ids' => ['required', 'array'],
             'invoice_ids.*' => ['required', 'exists:invoices,id,student_id,' . $student->getKey()],
-            'paid_at' => ['required', 'date', 'before_or_equal:today'],
+            'paid_at' => ['required', 'date', 'before_or_equal:now'],
             'payment_method' => ['required', new Enum(PaymentMethodEnum::class)],
 
             'discount' => ['required', 'numeric', 'min:0'],

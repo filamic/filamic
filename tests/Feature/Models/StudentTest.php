@@ -31,7 +31,6 @@ it('syncActiveStatus activates student when active enrollment exists', function 
     StudentEnrollment::factory()->create([
         'classroom_id' => $classroom->id,
         'school_year_id' => $activeYear->id,
-        'school_term_id' => $activeTerm->id,
         'student_id' => $student->id,
         'status' => StudentEnrollmentStatusEnum::ENROLLED,
     ]);
@@ -129,7 +128,6 @@ it('currentEnrollment returns only active enrollment', function () {
     $activeEnrollment = StudentEnrollment::factory()->create([
         'classroom_id' => $classroom->id,
         'school_year_id' => $activeYear->id,
-        'school_term_id' => $activeTerm->id,
         'student_id' => $student->id,
         'status' => StudentEnrollmentStatusEnum::ENROLLED,
     ]);

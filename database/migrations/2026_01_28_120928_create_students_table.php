@@ -12,13 +12,15 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->ulid('id')->primary();
+            $table->unsignedBigInteger('legacy_old_id')->nullable();
             $table->string('name')->index();
-            $table->foreignUlid('branch_id')->constrained();
-            $table->foreignUlid('school_id')->constrained();
+            $table->foreignUlid('branch_id')->nullable()->constrained();
+            $table->foreignUlid('school_id')->nullable()->constrained();
+            $table->foreignUlid('classroom_id')->nullable()->constrained();
             $table->foreignUlid('user_id')->nullable()->constrained();
-            $table->foreignUlid('father_id')->nullable()->constrained('users');
-            $table->foreignUlid('mother_id')->nullable()->constrained('users');
-            $table->foreignUlid('guardian_id')->nullable()->constrained('users');
+            // $table->foreignUlid('father_id')->nullable()->constrained('users');
+            // $table->foreignUlid('mother_id')->nullable()->constrained('users');
+            // $table->foreignUlid('guardian_id')->nullable()->constrained('users');
             $table->string('nisn')->unique()->nullable();
             $table->string('nis')->nullable()->index();
             $table->unsignedTinyInteger('gender');
@@ -32,6 +34,16 @@ return new class extends Migration
             $table->boolean('is_active')->default(false);
             $table->longText('notes')->nullable();
             $table->json('metadata')->nullable();
+            $table->string('father_name')->nullable();
+            $table->string('mother_name')->nullable();
+            $table->string('parent_address')->nullable();
+            $table->string('parent_phone')->nullable();
+            $table->string('father_job')->nullable();
+            $table->string('mother_job')->nullable();
+            $table->string('guardian_name')->nullable();
+            $table->string('guardian_phone')->nullable();
+            $table->string('guardian_address')->nullable();
+            $table->string('guardian_job')->nullable();
             $table->timestamps();
         });
     }

@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use App\Models\StudentEnrollment;
@@ -169,13 +168,11 @@ test('it syncs end_date when end_year is updated manually', function () {
 test('it does not sync students if is_active did not change', function () {
     // Arrange
     $schoolYear = SchoolYear::factory()->active()->create();
-    $schoolTerm = SchoolTerm::factory()->active()->create();
     $student = Student::factory()
         ->has(
             StudentEnrollment::factory()
                 ->state([
                     'school_year_id' => $schoolYear->getKey(),
-                    'school_term_id' => $schoolTerm->getKey(),
                 ])
                 ->enrolled(), 'enrollments')
         ->active()
@@ -210,14 +207,11 @@ test('it syncs student active status when academic period becomes active', funct
         ->inactive()
         ->create();
 
-    $schoolTerm = SchoolTerm::factory()->active()->create();
-
     $studentWithActiveEnrollment = Student::factory()
         ->has(
             StudentEnrollment::factory()
                 ->state([
                     'school_year_id' => $schoolYear->getKey(),
-                    'school_term_id' => $schoolTerm->getKey(),
                 ])
                 ->enrolled(), 'enrollments')
         ->inactive()

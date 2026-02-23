@@ -2,6 +2,7 @@
 
 @source '../../../../app/Filament/Admin/**/*';
 @source '../../../../resources/views/filament/admin/**/*';
+@source '../../../../resources/views/filament/finance/**/*';
 
 /* Login Panel */
 .fi-simple-main {

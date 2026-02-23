@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Filament\Finance\Resources\Students\RelationManagers;
 
+use App\Enums\InvoiceStatusEnum;
 use App\Models\Invoice;
+use App\Models\SchoolYear;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -41,6 +44,15 @@ class BookFeeInvoicesRelationManager extends RelationManager
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('payment_method'),
+            ])
+            ->filters([
+                SelectFilter::make('school_year_id')
+                    ->label('Tahun Ajaran')
+                    ->options(SchoolYear::all()->pluck('name', 'id'))
+                    ->default(SchoolYear::getActive()->getKey()),
+                SelectFilter::make('status')
+                    ->options(InvoiceStatusEnum::class)
+                    ->default(InvoiceStatusEnum::UNPAID->value),
             ]);
     }
 }

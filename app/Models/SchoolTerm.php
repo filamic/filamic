@@ -11,20 +11,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property string $id
+ * @property int|null $legacy_old_id
  * @property SchoolTermEnum $name
  * @property bool $is_active
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  *
- * @method static Builder<static>|SchoolTerm active()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm active()
  * @method static \Database\Factories\SchoolTermFactory factory($count = null, $state = [])
- * @method static Builder<static>|SchoolTerm inactive()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm inactive()
  * @method static Builder<static>|SchoolTerm newModelQuery()
  * @method static Builder<static>|SchoolTerm newQuery()
  * @method static Builder<static>|SchoolTerm query()
  * @method static Builder<static>|SchoolTerm whereCreatedAt($value)
  * @method static Builder<static>|SchoolTerm whereId($value)
  * @method static Builder<static>|SchoolTerm whereIsActive($value)
+ * @method static Builder<static>|SchoolTerm whereLegacyOldId($value)
  * @method static Builder<static>|SchoolTerm whereName($value)
  * @method static Builder<static>|SchoolTerm whereUpdatedAt($value)
  *

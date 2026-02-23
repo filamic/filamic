@@ -1,5 +1,13 @@
 # Project Roadmap & TODO
 
+## Today
+
+- [x] ganti table jadi card mode untuk menu student di panel finance
+- [x] buat getMissingSetup supaya admin bisa lihat apa yang kurang dari seorang anak/ada kendala apa dengan anak, informasi gtu sifatnya
+- [ ] update test schoolyear and schoolterm, krna academicperiod dh berubah
+- [ ] update test student dan student enrollemtn
+- [ ] tambah kolom status di students, contoh dia udh lulus, kasih aja ajadi alumni, klo aktif kasih apa gtu, trus klo pindah jg, spya lbih gampang, nnti kita pkirkan is_activenya lgi
+
 ## 🚀 Priority: High (Core Systems & Readiness)
 
 - [x] **SchoolYear Test Issues**: Fix `cannot be updated in edit mode` and date validation conflicts.

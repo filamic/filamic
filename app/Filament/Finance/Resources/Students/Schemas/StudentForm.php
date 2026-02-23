@@ -6,15 +6,10 @@ namespace App\Filament\Finance\Resources\Students\Schemas;
 
 use App\Enums\GenderEnum;
 use App\Filament\Finance\Resources\Students\RelationManagers\BookFeeInvoicesRelationManager;
+use App\Filament\Finance\Resources\Students\RelationManagers\EnrollmentsRelationManager;
 use App\Filament\Finance\Resources\Students\RelationManagers\MonthlyFeeInvoicesRelationManager;
-use App\Models\Classroom;
-use App\Models\SchoolTerm;
-use App\Models\SchoolYear;
+use App\Filament\Finance\Resources\Students\RelationManagers\PaymentAccountsRelationManager;
 use App\Models\Student;
-use Filament\Actions\Action;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
@@ -23,11 +18,8 @@ use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Operation;
-use Filament\Support\RawJs;
 
 class StudentForm
 {
@@ -36,34 +28,11 @@ class StudentForm
         return $schema
             ->components([
                 Tabs::make('Tabs')
+                    ->persistTab()
                     ->tabs([
                         Tab::make('Detail Siswa')
                             ->schema([
                                 Section::make([
-                                    Select::make('school_id')
-                                        ->label('Unit Sekolah')
-                                        ->relationship('school', 'name', function ($query) {
-                                            $query->where('branch_id', Filament::getTenant()->getKey());
-                                        })
-                                        ->required()
-                                        ->columnSpanFull()
-                                        ->disabledOn(Operation::Edit)
-                                        ->live()
-                                        ->afterStateUpdated(function (Set $set, $state, Get $get) {
-                                            $items = $get('paymentAccounts') ?? [];
-
-                                            $firstItemKey = array_key_first($items);
-
-                                            if ($firstItemKey !== null) {
-                                                $set("paymentAccounts.{$firstItemKey}.school_id", $state);
-                                            }
-
-                                            $enrollments = $get('enrollments') ?? [];
-
-                                            foreach (array_keys($enrollments) as $key) {
-                                                $set("enrollments.{$key}.classroom_id", null);
-                                            }
-                                        }),
                                     TextInput::make('name')
                                         ->label('Nama Lengkap')
                                         ->required()
@@ -85,148 +54,22 @@ class StudentForm
                                 ]),
                             ])
                             ->icon('tabler-list-details'),
-
-                        Tab::make('Detail Pembayaran')
+                        Tab::make('Akun Pembayaran')
+                            ->visibleOn(Operation::Edit)
                             ->schema([
-                                Section::make()
-                                    ->columnSpanFull()
-                                    ->description(
-                                        str('Klik **Tambah Jenjang Lanjutan** jika siswa memiliki rencana pendaftaran untuk jenjang berikutnya (misal: saat ini TK, namun sudah daftar SD/SMP). Setiap unit wajib memiliki konfigurasi biaya dan VA masing-masing.')
-                                            ->markdown()
-                                            ->toHtmlString()
-                                    )
-                                    ->icon('tabler-info-circle')
-                                    ->iconColor('info')
-                                    ->visibleOn(Operation::Create),
-                                Repeater::make('paymentAccounts')
-                                    ->label('Akun Pembayaran Unit')
-                                    ->addActionLabel('Tambah Jenjang Lanjutan')
-                                    ->hiddenLabel()
-                                    ->columnSpanFull()
-                                    ->required()
-                                    ->addable(fn (string $operation) => $operation === Operation::Create->value)
-                                    ->deletable(fn (string $operation) => $operation === Operation::Create->value)
-                                    ->relationship('paymentAccounts')
-                                    ->columns(2)
-                                    ->minItems(1)
-                                    ->schema([
-                                        Select::make('school_id')
-                                            ->label('Unit Sekolah')
-                                            ->relationship('school', 'name')
-                                            ->required()
-                                            ->distinct()
-                                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                            ->columnSpanFull()
-                                            ->disabled(function (Get $get, $state) {
-                                                $allPaymentAccounts = $get('../../paymentAccounts') ?? [];
-
-                                                $firstItem = reset($allPaymentAccounts);
-
-                                                return $firstItem && isset($firstItem['school_id']) && $state === $get('../../school_id');
-                                            })
-                                            ->dehydrated(true),
-                                        TextInput::make('monthly_fee_amount')
-                                            ->label('Nominal SPP Bulanan')
-                                            ->numeric()
-                                            ->prefix('Rp')
-                                            ->placeholder('0')
-                                            ->mask(RawJs::make('$money($input)'))
-                                            ->stripCharacters(',')
-                                            ->minValue(0)
-                                            ->required()
-                                            ->suffixAction(
-                                                Action::make('updateInvoiceAmounts')
-                                                    ->label('Update Tagihan')
-                                                    ->icon('tabler-clock')
-                                                    ->tooltip('Update semua tagihan menggunakan nominal ini')
-                                                    ->requiresConfirmation()
-                                                    ->visible(false) // TODO: Enable when implemented
-                                                    ->action(function (Get $get, $state) {
-                                                        // TODO: Implement invoice amount update logic
-                                                    }),
-                                            ),
-                                        TextInput::make('book_fee_amount')
-                                            ->label('Nominal Biaya Buku')
-                                            ->numeric()
-                                            ->prefix('Rp')
-                                            ->placeholder('0')
-                                            ->mask(RawJs::make('$money($input)'))
-                                            ->stripCharacters(',')
-                                            ->minValue(0)
-                                            ->default(0)
-                                            ->required(),
-                                        TextInput::make('monthly_fee_virtual_account')
-                                            ->label('VA SPP Bulanan')
-                                            ->placeholder('Contoh: 103023001')
-                                            ->prefixIcon('tabler-credit-card')
-                                            ->numeric()
-                                            ->minLength(5)
-                                            ->maxLength(20)
-                                            ->unique(ignoreRecord: true)
-                                            ->different('book_fee_virtual_account'),
-                                        TextInput::make('book_fee_virtual_account')
-                                            ->label('VA Biaya Buku')
-                                            ->placeholder('Contoh: 103023001')
-                                            ->prefixIcon('tabler-book')
-                                            ->numeric()
-                                            ->minLength(5)
-                                            ->maxLength(20)
-                                            ->unique(ignoreRecord: true)
-                                            ->different('monthly_fee_virtual_account'),
-                                    ]),
+                                Livewire::make(PaymentAccountsRelationManager::class, fn (Page $livewire, Student $record) => [
+                                    'ownerRecord' => $record,
+                                    'pageClass' => $livewire::class,
+                                ])->columnSpanFull(),
                             ])
                             ->icon('tabler-wallet'),
-
                         Tab::make('Data Kelas')
+                            ->visibleOn(Operation::Edit)
                             ->schema([
-                                Section::make()
-                                    ->columnSpanFull()
-                                    ->description(
-                                        str('**Opsional** — Silakan lengkapi bagian ini jika siswa sudah memiliki penempatan kelas untuk tahun ajaran terkait.')
-                                            ->markdown()
-                                            ->toHtmlString()
-                                    )
-                                    ->icon('tabler-info-circle')
-                                    ->iconColor('info')
-                                    ->visibleOn(Operation::Create),
-                                Repeater::make('enrollments')
-                                    ->label('Riwayat Pendaftaran Kelas')
-                                    ->maxItems(1)
-                                    ->defaultItems(0)
-                                    ->addActionLabel('Tambah Data Kelas')
-                                    ->hiddenLabel()
-                                    ->columnSpanFull()
-                                    ->deletable(fn (?Student $record) => blank($record) ? true : $record->enrollments()->doesntExist())
-                                    ->relationship('enrollments')
-                                    ->columns(2)
-                                    ->schema([
-                                        Select::make('school_year_id')
-                                            ->label('Tahun Ajaran')
-                                            ->relationship('schoolYear', 'name')
-                                            ->default(fn () => SchoolYear::getActive()?->getKey())
-                                            ->required()
-                                            ->hint(fn () => ($active = SchoolYear::getActive()) ? "Tahun ajaran aktif: {$active->name}" : 'Tahun ajaran belum aktif!'),
-                                        ToggleButtons::make('school_term_id')
-                                            ->label('Semester')
-                                            ->options(fn () => SchoolTerm::all()->pluck('name.name', 'id'))
-                                            ->default(fn () => SchoolTerm::getActive()?->getKey())
-                                            ->inline()
-                                            ->required()
-                                            ->hint(fn () => ($active = SchoolTerm::getActive()) ? "Semester aktif: {$active->name->getLabel()}" : 'Semester belum aktif!'),
-                                        Select::make('classroom_id')
-                                            ->label('Pilih Kelas')
-                                            ->options(fn (Get $get) => Classroom::with('school')
-                                                ->where('school_id', $get('../../school_id'))
-                                                ->get()
-                                                ->groupBy('school.name')
-                                                ->map(fn ($classroom) => $classroom->pluck('name', 'id'))
-                                            )
-                                            ->preload()
-                                            ->optionsLimit(20)
-                                            ->searchable()
-                                            ->columnSpanFull()
-                                            ->required(),
-                                    ]),
+                                Livewire::make(EnrollmentsRelationManager::class, fn (Page $livewire, Student $record) => [
+                                    'ownerRecord' => $record,
+                                    'pageClass' => $livewire::class,
+                                ])->columnSpanFull(),
                             ])
                             ->icon('tabler-door'),
                         Tab::make('Tagihan')

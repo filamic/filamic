@@ -12,6 +12,7 @@ use App\Models\SchoolYear;
 use App\Models\Student;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
@@ -22,8 +23,8 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Support\Enums\Size;
 use Filament\Support\RawJs;
+use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\PaginationMode;
 use Filament\Tables\Table;
@@ -38,54 +39,40 @@ class StudentsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $query->with(['currentPaymentAccount', 'unpaidMonthlyFee']);
+                $query->with(['currentPaymentAccount', 'unpaidMonthlyFee', 'paidMonthlyFee', 'unpaidInvoices']);
             })
             ->paginationMode(PaginationMode::Simple)
+            ->contentGrid([
+                'sm' => 1,
+                'md' => 2,
+                'lg' => 4,
+            ])
+            ->paginated([8, 16, 32, 64])
+            ->recordUrl(null)
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('name')
-                    ->label('Nama')
-                    ->searchable(),
-                TextColumn::make('currentPaymentAccount')
-                    ->label('Nomor VA')
-                    ->markdown()
-                    ->formatStateUsing(function ($record) {
-                        $account = $record->currentPaymentAccount;
-
-                        if ($account === null) {
-                            return '-';
-                        }
-
-                        return "**SPP:** {$account->monthly_fee_virtual_account}  \n**Buku:** {$account->book_fee_virtual_account}";
-                    }),
-                TextColumn::make('unpaidMonthlyFee.school_year_name')
-                    ->label('TA')
-                    ->listWithLineBreaks(),
-                TextColumn::make('unpaidMonthlyFee.month')
-                    ->label('Bulan')
-                    ->listWithLineBreaks(),
-                TextColumn::make('unpaidMonthlyFee.total_amount')
-                    ->label('Tagihan')
-                    ->listWithLineBreaks()
-                    ->money('IDR'),
-                TextColumn::make('unpaid_monthly_fee_sum_total_amount')
-                    ->sum('unpaidMonthlyFee', 'total_amount')
-                    ->money('IDR')
-                    ->label('Total')
-                    ->sortable(),
+                View::make('filament.finance.resources.students.tables.column')
+                    ->components([
+                        TextColumn::make('name')
+                            ->label('Nama')
+                            ->searchable()
+                            ->sortable(),
+                        TextColumn::make('currentPaymentAccount')
+                            ->label('Nomor Virtual Account'),
+                        // ->searchable(query: function (Builder $query, string $search): Builder {
+                        //     return $query->whereHas('currentPaymentAccount', function ($query) use ($search) {
+                        //         $query->where('monthly_fee_virtual_account', 'like', "%{$search}%")
+                        //             ->orWhere('other_fee_virtual_account', 'like', "%{$search}%");
+                        //     });
+                        // }, isIndividual: false, isGlobal: true),
+                    ]),
             ])
             ->recordActions([
-                EditAction::make()
-                    ->iconButton()
-                    ->size(Size::ExtraSmall)
-                    ->tooltip('Ubah'),
+                DeleteAction::make()->visible(fn (Student $record) => $record->canBeDelete()),
+                // EditAction::make(),
                 ActionGroup::make([
                     Action::make('payMonthlyFeeAction')
                         ->label('Uang Sekolah')
-                        ->visible(fn (Student $record) => $record->hasUnpaidMonthlyFee())
+                        ->visible(fn (Student $record) => $record->unpaidMonthlyFee->isNotEmpty())
                         ->modalHeading('Bayar Tagihan Uang Sekolah')
                         ->schema([
                             TextInput::make('total_invoice')
@@ -115,10 +102,10 @@ class StudentsTable
                                         ->orderBy('due_date')
                                         ->get()
                                         ->mapWithKeys(fn (Invoice $invoice) => [
-                                            $invoice->getKey() => $invoice->month->getLabel(),
+                                            $invoice->getKey() => sprintf('%s (%s)', $invoice->month->getLabel(), $invoice->school_year_name),
                                         ]);
                                 })
-                                ->columns(6)
+                                ->columns(3)
                                 ->descriptions(function (Student $record) {
                                     /** @var Builder|Invoice $query */
                                     // @phpstan-ignore-next-line
@@ -133,9 +120,11 @@ class StudentsTable
                                 ->gridDirection('row')
                                 ->live()
                                 ->afterStateUpdated(function (Set $set, ?array $state, Student $record) {
-                                    $totalAmount = Number::format($record->invoices()
+                                    $totalAmount = $record->invoices()
                                         ->whereIn('id', $state ?? [])
-                                        ->sum('amount'), locale: config('app.locale'));
+                                        ->sum('amount');
+
+                                    $totalAmount = Number::format((int) $totalAmount, locale: config('app.locale'));
 
                                     $set('total_invoice', $totalAmount);
                                 }),
@@ -198,21 +187,20 @@ class StudentsTable
                             }
                         }),
                 ])
-                    ->iconButton()
-                    ->size(Size::ExtraSmall)
-                    ->tooltip('Bayar')
-                    ->color('success')
-                    ->icon('tabler-invoice'),
+                    ->icon('tabler-invoice')
+                    ->label('Bayar')
+                    ->link()
+                    ->color('success'),
                 ActionGroup::make([
                     Action::make('printInvoice')
-                        ->visible(fn (Student $record) => $record->hasPaidMonthlyFee())
+                        ->visible(fn (Student $record) => $record->paidMonthlyFee->isNotEmpty())
                         ->requiresConfirmation()
                         ->label('Uang Sekolah')
                         ->schema([
                             Select::make('school_year_id')
                                 ->label('Tahun Ajaran')
                                 ->live()
-                                ->options(fn () => SchoolYear::pluck('name', 'id'))
+                                ->options(fn () => SchoolYear::get()->pluck('name', 'id'))
                                 ->default(fn () => SchoolYear::getActive()?->getKey()),
                             CheckboxList::make('invoice_ids')
                                 ->label('Tagihan')
@@ -277,10 +265,11 @@ class StudentsTable
                             }
                         }),
                 ])
-                    ->iconButton()
-                    ->size(Size::ExtraSmall)
-                    ->tooltip('Print')
-                    ->icon('tabler-printer'),
+                    ->icon('tabler-printer')
+                    ->label('Cetak')
+                    ->link()
+                    ->color('gray')
+                    ->dropdownPlacement('bottom-right'),
 
             ]);
     }
