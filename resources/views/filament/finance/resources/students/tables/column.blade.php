@@ -3,17 +3,20 @@
 <div>
     <!-- Header -->
     <div class="flex items-start justify-between">
-        <a href="{{ EditStudent::getUrl(['record' => $getRecord()->getKey()]) }}" class="flex items-center gap-3 group">
+        <a href="{{ EditStudent::getUrl(['record' => $getRecord()->getKey()]) }}" class="flex items-center gap-3 group"
+            x-tooltip="{
+                    content: '{{ $getRecord()->name }}',
+                    theme: $store.theme,
+                }">
             <div
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-indigo-50 to-purple-50 text-indigo-600 dark:from-indigo-900/20 dark:to-purple-900/20 dark:text-indigo-400 group-hover:outline-orange-500 group-hover:outline">
                 <span class="text-sm font-medium">{{ $getRecord()->initials }}</span>
             </div>
             <div>
-                <div class="text-base font-medium text-gray-900 dark:text-white group-hover:underline transition-all duration-300"
-                    x-tooltip="{
-                    content: '{{ $getRecord()->name }}',
-                    theme: $store.theme,
-                }">{{ $getRecord()->displayName }}</div>
+                <div
+                    class="text-base font-medium text-gray-900 dark:text-white group-hover:underline transition-all duration-300">
+                    {{ $getRecord()->displayName }}
+                </div>
                 {{-- TODO: Please implement the right current classroom name --}}
                 <p
                     class="text-xs text-gray-500 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-all duration-300">
