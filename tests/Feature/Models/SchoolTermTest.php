@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Models\Student;
+use App\Enums\SchoolTermEnum;
 use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
-use App\Enums\SchoolTermEnum;
+use App\Models\Student;
 use App\Models\StudentEnrollment;
 
 test('it prevents mass assignment to guarded id', function () {

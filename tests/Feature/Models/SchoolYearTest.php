@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Models\Student;
 use App\Models\SchoolYear;
-use Illuminate\Support\Carbon;
+use App\Models\Student;
 use App\Models\StudentEnrollment;
+use Illuminate\Support\Carbon;
 
 test('it prevents mass assignment to guarded id', function () {
     // ARRANGE
