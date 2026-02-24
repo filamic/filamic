@@ -278,7 +278,7 @@ class Student extends Model
 
         if ($this->currentEnrollment()->doesntExist()) {
             // TODO; show peserta didik sudah lulus, kalau status trakhir graduated
-            $missing->push('Peserta Didik Belum Memiliki Data Di Pendaftaran');
+            $missing->push('Peserta Didik Belum Memiliki Data Di Tahun Ajaran Aktif');
         }
 
         if ($this->currentPaymentAccount()->doesntExist()) {
