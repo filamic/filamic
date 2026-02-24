@@ -6,9 +6,10 @@ namespace App\Enums;
 
 use Filament\Support\Colors\Color;
 use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum InvoiceTypeEnum: int implements HasColor, HasLabel
+enum InvoiceTypeEnum: int implements HasColor, HasIcon, HasLabel
 {
     case MONTHLY_FEE = 1;
     case BOOK_FEE = 2;
@@ -34,6 +35,14 @@ enum InvoiceTypeEnum: int implements HasColor, HasLabel
         return match ($this) {
             self::MONTHLY_FEE => Color::Blue,
             self::BOOK_FEE => Color::Orange,
+        };
+    }
+
+    public function getIcon(): string
+    {
+        return match ($this) {
+            self::MONTHLY_FEE => 'tabler-credit-card',
+            self::BOOK_FEE => 'tabler-book',
         };
     }
 }

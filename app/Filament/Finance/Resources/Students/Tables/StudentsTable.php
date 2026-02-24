@@ -6,7 +6,10 @@ namespace App\Filament\Finance\Resources\Students\Tables;
 
 use App\Actions\PayMonthlyFeeInvoice;
 use App\Actions\PrintMonthlyFeeInvoice;
+use App\Enums\MonthEnum;
 use App\Enums\PaymentMethodEnum;
+use App\Models\Branch;
+use App\Models\Classroom;
 use App\Models\Invoice;
 use App\Models\SchoolYear;
 use App\Models\Student;
@@ -26,13 +29,19 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\RawJs;
 use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Enums\PaginationMode;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Number;
 use Throwable;
 
+/**
+ * @method Branch filament()->getTenant()
+ */
 class StudentsTable
 {
     public static function configure(Table $table): Table
@@ -49,6 +58,7 @@ class StudentsTable
             ])
             ->paginated([8, 16, 32, 64])
             ->recordUrl(null)
+            ->searchPlaceholder('Cari Nama Peserta Didik | Nomor VA')
             ->columns([
                 View::make('filament.finance.resources.students.tables.column')
                     ->components([
@@ -57,15 +67,63 @@ class StudentsTable
                             ->searchable()
                             ->sortable(),
                         TextColumn::make('currentPaymentAccount')
-                            ->label('Nomor Virtual Account'),
-                        // ->searchable(query: function (Builder $query, string $search): Builder {
-                        //     return $query->whereHas('currentPaymentAccount', function ($query) use ($search) {
-                        //         $query->where('monthly_fee_virtual_account', 'like', "%{$search}%")
-                        //             ->orWhere('other_fee_virtual_account', 'like', "%{$search}%");
-                        //     });
-                        // }, isIndividual: false, isGlobal: true),
+                            ->label('Nomor Virtual Account')
+                            ->searchable(query: function (Builder $query, string $search): Builder {
+                                return $query->whereHas('currentPaymentAccount', function ($query) use ($search) {
+                                    $query->where('monthly_fee_virtual_account', 'like', "%{$search}%")
+                                        ->orWhere('book_fee_virtual_account', 'like', "%{$search}%");
+                                });
+                            }),
                     ]),
             ])
+            ->filters([
+                SelectFilter::make('classroom_id')
+                    ->label('Kelas')
+                    ->options(function () {
+                        /** @var Branch $tenant */
+                        $tenant = filament()->getTenant();
+
+                        return Classroom::with('school')
+                            ->whereIn('school_id', $tenant->schools->pluck('id'))
+                            ->get()
+                            ->groupBy('school.name')
+                            ->map(fn ($classroom) => $classroom->pluck('name', 'id'));
+                    })
+                    ->preload()
+                    ->optionsLimit(20)
+                    ->searchable()
+                    ->multiple(),
+                Filter::make('invoices')
+                    ->schema([
+                        Select::make('month')
+                            ->options(MonthEnum::class)
+                            ->label('Bulan Nunggak')
+                            ->searchable()
+                            ->multiple()
+                            ->preload(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when($data['month'], function (Builder $query) use ($data) {
+
+                            $query->whereHas('invoices', function ($query) use ($data) {
+                                /** @var Invoice $query */
+                                // @phpstan-ignore-next-line
+                                $query->whereIn('month', $data['month'])->unpaidMonthlyFee();
+                            });
+
+                        });
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        $indicator = null;
+
+                        if (filled($data['month'])) {
+                            $indicator .= 'Bulan Nunggak: ' . collect($data['month'])->map(fn ($month) => MonthEnum::from((int) $month)->getLabel())->implode(' & ');
+                        }
+
+                        return $indicator;
+                    }),
+
+            ], FiltersLayout::Modal)
             ->recordActions([
                 DeleteAction::make()->visible(fn (Student $record) => $record->canBeDelete()),
                 // EditAction::make(),
