@@ -40,10 +40,10 @@ class InvoiceFactory extends Factory
             'type' => fake()->randomElement(InvoiceTypeEnum::cases()),
             'month' => fake()->randomElement(MonthEnum::cases()),
 
-            'amount' => $amount = fake()->numberBetween(50_000, 500_000),
+            'amount' => fake()->numberBetween(50_000, 500_000),
             'fine' => 0,
             'discount' => 0,
-            'total_amount' => $amount,
+            'total_amount' => fn (array $attributes) => $attributes['amount'],
 
             'issued_at' => now(),
             'due_date' => now()->addDays(30),

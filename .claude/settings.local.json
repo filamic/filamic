@@ -11,7 +11,9 @@
       "Bash(php -d memory_limit=512M vendor/bin/pest:*)",
       "Bash(gh pr list:*)",
       "Bash(gh pr view:*)",
-      "Bash(gh pr diff:*)"
+      "Bash(gh pr diff:*)",
+      "Bash(grep:*)",
+      "Bash(php:*)"
     ]
   }
 }

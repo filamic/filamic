@@ -133,8 +133,8 @@ class Invoice extends Model
         'status' => InvoiceStatusEnum::class,
         'payment_method' => PaymentMethodEnum::class,
         'paid_at' => 'datetime',
-        'issued_at' => 'datetime',
-        'due_date' => 'datetime',
+        'issued_at' => 'date',
+        'due_date' => 'date',
         'amount' => 'integer',
         'fine' => 'integer',
         'discount' => 'integer',
@@ -345,7 +345,7 @@ class Invoice extends Model
             return 0;
         }
 
-        $dueDate = $oldestBill->due_date->startOfDay();
+        $dueDate = $oldestBill->due_date->copy()->startOfDay();
         $today = now()->startOfDay();
 
         if ($today->lessThanOrEqualTo($dueDate)) {

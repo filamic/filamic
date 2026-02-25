@@ -10,7 +10,8 @@ use App\Models\Invoice;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use Illuminate\Support\Carbon;
-use InvalidArgumentException;
+
+afterEach(fn () => Carbon::setTestNow());
 
 // --- Attribute Casting ---
 
@@ -454,5 +455,149 @@ it('calculateFineFromOldestUnpaidInvoice returns zero when fine rate is zero', f
     $fine = Invoice::calculateFineFromOldestUnpaidInvoice($student);
 
     // Assert
+    expect($fine)->toBe(0);
+});
+
+// --- Missing Scope Tests ---
+
+it('unpaidBookFee scope combines unpaid and bookFee', function () {
+    // Arrange
+    $student = Student::factory()->create();
+    $target = Invoice::factory()->for($student)->bookFee()->unpaid()->create();
+    Invoice::factory()->for($student)->bookFee()->paid()->create();
+    Invoice::factory()->for($student)->monthlyFee()->unpaid()->create();
+
+    // Act
+    $result = Invoice::unpaidBookFee()->get();
+
+    // Assert
+    expect($result)->toHaveCount(1)
+        ->first()->id->toBe($target->id);
+});
+
+it('unpaidMonthlyFeeForThisSchoolYear scope combines unpaid and monthlyFeeForThisSchoolYear', function () {
+    // Arrange
+    $activeYear = SchoolYear::first() ?? SchoolYear::factory()->active()->create();
+    $inactiveYear = SchoolYear::factory()->inactive()->create();
+    $student = Student::factory()->create();
+
+    $target = Invoice::factory()->for($student)->for($activeYear)->monthlyFee()->unpaid()->create([
+        'month' => MonthEnum::January,
+    ]);
+    Invoice::factory()->for($student)->for($activeYear)->monthlyFee()->paid()->create([
+        'month' => MonthEnum::February,
+    ]);
+    Invoice::factory()->for($student)->for($inactiveYear)->monthlyFee()->unpaid()->create([
+        'month' => MonthEnum::January,
+    ]);
+
+    // Act
+    $result = Invoice::unpaidMonthlyFeeForThisSchoolYear()->get();
+
+    // Assert
+    expect($result)->toHaveCount(1)
+        ->first()->id->toBe($target->id);
+});
+
+it('unpaidMonthlyFeeForThisSchoolYear scope filters by month when provided', function () {
+    // Arrange
+    $activeYear = SchoolYear::first() ?? SchoolYear::factory()->active()->create();
+    $student = Student::factory()->create();
+
+    $target = Invoice::factory()->for($student)->for($activeYear)->monthlyFee()->unpaid()->create([
+        'month' => MonthEnum::March,
+    ]);
+    Invoice::factory()->for($student)->for($activeYear)->monthlyFee()->unpaid()->create([
+        'month' => MonthEnum::April,
+    ]);
+
+    // Act
+    $result = Invoice::unpaidMonthlyFeeForThisSchoolYear(month: MonthEnum::March->value)->get();
+
+    // Assert
+    expect($result)->toHaveCount(1)
+        ->first()->id->toBe($target->id);
+});
+
+// --- Additional Cast Tests ---
+
+it('casts issued_at to date', function () {
+    // Arrange & Act
+    $invoice = Invoice::factory()->create(['issued_at' => '2024-06-15']);
+
+    // Assert
+    expect($invoice->issued_at)
+        ->toBeInstanceOf(Carbon::class)
+        ->and($invoice->issued_at->toDateString())->toBe('2024-06-15');
+});
+
+it('casts due_date to date', function () {
+    // Arrange & Act
+    $invoice = Invoice::factory()->create(['due_date' => '2024-07-15']);
+
+    // Assert
+    expect($invoice->due_date)
+        ->toBeInstanceOf(Carbon::class)
+        ->and($invoice->due_date->toDateString())->toBe('2024-07-15');
+});
+
+// --- Additional Fingerprint Tests ---
+
+it('generateFingerprint for BOOK_FEE excludes month when not provided', function () {
+    // Arrange & Act
+    $fingerprint = Invoice::generateFingerprint([
+        'type' => InvoiceTypeEnum::BOOK_FEE,
+        'student_id' => 'student-123',
+        'school_year_id' => 'year-456',
+    ]);
+
+    // Assert — no month segment
+    expect($fingerprint)->toBe('2:student-123:year-456');
+});
+
+it('generateFingerprint for BOOK_FEE includes month when provided', function () {
+    // Arrange & Act
+    $fingerprint = Invoice::generateFingerprint([
+        'type' => InvoiceTypeEnum::BOOK_FEE,
+        'student_id' => 'student-123',
+        'school_year_id' => 'year-456',
+        'month' => 3,
+    ]);
+
+    // Assert — includes month
+    expect($fingerprint)->toBe('2:student-123:year-456:3');
+});
+
+it('rejects duplicate fingerprint on create', function () {
+    // Arrange
+    $student = Student::factory()->create();
+    $schoolYear = SchoolYear::factory()->inactive()->create();
+
+    Invoice::factory()->for($student)->for($schoolYear)->monthlyFee()->create([
+        'month' => MonthEnum::January,
+    ]);
+
+    // Act & Assert — same student + school year + type + month = duplicate fingerprint
+    expect(fn () => Invoice::factory()->for($student)->for($schoolYear)->monthlyFee()->create([
+        'month' => MonthEnum::January,
+    ]))->toThrow(\Illuminate\Database\UniqueConstraintViolationException::class);
+});
+
+// --- Additional Fine Calculation Edge Case ---
+
+it('calculateFineFromOldestUnpaidInvoice returns zero when due date is exactly today', function () {
+    // Arrange
+    config(['setting.fine' => 1000]);
+    Carbon::setTestNow('2026-03-10');
+
+    $student = Student::factory()->create();
+    Invoice::factory()->for($student)->monthlyFee()->unpaid()->create([
+        'due_date' => '2026-03-10',
+    ]);
+
+    // Act
+    $fine = Invoice::calculateFineFromOldestUnpaidInvoice($student);
+
+    // Assert — due date equals today, not late yet
     expect($fine)->toBe(0);
 });
