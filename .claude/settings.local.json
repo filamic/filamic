@@ -8,7 +8,10 @@
       "Bash(composer analyse:*)",
       "Bash(composer test)",
       "Bash(php -d memory_limit=512M artisan test:*)",
-      "Bash(php -d memory_limit=512M vendor/bin/pest:*)"
+      "Bash(php -d memory_limit=512M vendor/bin/pest:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)"
     ]
   }
 }

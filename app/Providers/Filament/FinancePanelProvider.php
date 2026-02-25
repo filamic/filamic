@@ -65,6 +65,7 @@ class FinancePanelProvider extends PanelProvider
             ])
             ->tenant(Branch::class)
             ->topNavigation()
-            ->databaseTransactions();
+            ->databaseTransactions()
+            ->spa();
     }
 }
