@@ -3,7 +3,8 @@
 You are writing a Pest test for the Filamic Laravel project. Before writing anything, you MUST read the target model/resource/action file and at least two existing test files that are similar to understand the established pattern.
 
 ## Stack
-- PHP 8.2, Laravel 12, Filament 4, Pest 4 + pest-plugin-laravel 4
+
+- PHP 8.4, Laravel 12, Filament 4, Pest 4 + pest-plugin-laravel 4
 - All tests live in `tests/Feature/`
 - `Pest.php` extends `Tests\TestCase`, uses `RefreshDatabase`, scoped to `Feature/`
 - `TestCase` provides `loginAdmin()` (sets school context + acts as user) and `login()`
@@ -34,6 +35,7 @@ For every model test file, cover (in this order):
 ```
 
 ### Mass Assignment Guard Pattern
+
 ```php
 test('it prevents mass assignment to guarded id', function () {
     // ARRANGE
@@ -53,6 +55,7 @@ test('it prevents mass assignment to guarded id', function () {
 ```
 
 ### Cast Test Pattern (chained shorthand)
+
 ```php
 test('it casts the columns')
     ->expect(fn () => ModelName::factory()->create())
@@ -62,6 +65,7 @@ test('it casts the columns')
 ```
 
 ### Scope Test Pattern
+
 ```php
 test('active scope only returns active records', function () {
     // Arrange
@@ -79,6 +83,7 @@ test('active scope only returns active records', function () {
 ```
 
 ### Relationship Isolation Pattern
+
 ```php
 test('it isolates [children] by [parent]', function () {
     // Arrange
@@ -124,6 +129,7 @@ For every resource test file, cover (in this order):
 ```
 
 ### Resource Test Setup
+
 ```php
 <?php
 
@@ -142,6 +148,7 @@ beforeEach(fn () => $this->loginAdmin());
 ```
 
 ### List Columns Pattern
+
 ```php
 test('list page renders columns', function (string $column) {
     // Arrange
@@ -157,6 +164,7 @@ test('list page renders columns', function (string $column) {
 ```
 
 ### Create Validation Pattern
+
 ```php
 test('cannot create a record without required fields', function () {
     Livewire::test(CreateSomeModel::class)
@@ -168,6 +176,7 @@ test('cannot create a record without required fields', function () {
 ```
 
 ### Can Create Pattern
+
 ```php
 test('can create a record', function () {
     // Arrange
@@ -197,6 +206,7 @@ test('can create a record', function () {
 ```
 
 ### Action Test Setup
+
 ```php
 <?php
 
@@ -218,8 +228,10 @@ test('cannot [do thing] when [condition]', function () {
 ## After Writing Tests
 
 Always remind the user to run:
+
 ```
 composer analyse
 composer test
 ```
+
 Both must pass with zero errors before committing.
