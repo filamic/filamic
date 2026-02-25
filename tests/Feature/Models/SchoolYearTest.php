@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Enums\StudentEnrollmentStatusEnum;
+use App\Models\Classroom;
+use App\Models\School;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use App\Models\StudentEnrollment;
+use App\Models\StudentPaymentAccount;
 use Illuminate\Support\Carbon;
 
 test('it prevents mass assignment to guarded id', function () {
@@ -188,56 +192,71 @@ test('it does not sync students if is_active did not change', function () {
     expect($student->fresh()->is_active)->toBeTrue();
 });
 
-test('it does not sync if is_active becomes false', function () {
+test('it deactivates students when academic period becomes inactive', function () {
     // Arrange
     $schoolYear = SchoolYear::factory()->active()->create();
-    $student = Student::factory()->active()->create();
+    $school = School::factory()->create();
+    $classroom = Classroom::factory()->for($school)->create();
 
-    // Act: Set to false (not true)
+    $student = Student::factory()->for($school)->active()->create();
+    StudentEnrollment::factory()->create([
+        'classroom_id' => $classroom->getKey(),
+        'school_year_id' => $schoolYear->getKey(),
+        'student_id' => $student->getKey(),
+        'status' => StudentEnrollmentStatusEnum::ENROLLED,
+    ]);
+    StudentPaymentAccount::factory()->create([
+        'student_id' => $student->getKey(),
+        'school_id' => $school->getKey(),
+    ]);
+
+    // Act: Deactivate the school year
     $schoolYear->update(['is_active' => false]);
 
-    // Assert: Student should remain active (transaction didn't run)
-    expect($student->fresh()->is_active)->toBeTrue();
+    // Assert: Student should be deactivated (no active enrollment anymore)
+    expect($student->fresh()->is_active)->toBeFalse();
 });
 
 test('it syncs student active status when academic period becomes active', function () {
-    // Arrange: Create students in different states
-    $schoolYear = SchoolYear::factory()
-        ->state([
-            'start_year' => 2025,
-            'end_year' => 2026,
-        ])
-        ->inactive()
-        ->create();
+    // Arrange
+    $schoolYear = SchoolYear::factory()->inactive()->create();
+    $school = School::factory()->create();
+    $classroom = Classroom::factory()->for($school)->create();
 
-    $studentWithActiveEnrollment = Student::factory()
-        ->has(
-            StudentEnrollment::factory()
-                ->state([
-                    'school_year_id' => $schoolYear->getKey(),
-                ])
-                ->enrolled(), 'enrollments')
-        ->inactive()
-        ->create();
+    $student = Student::factory()->for($school)->inactive()->create();
+    StudentEnrollment::factory()->create([
+        'classroom_id' => $classroom->getKey(),
+        'school_year_id' => $schoolYear->getKey(),
+        'student_id' => $student->getKey(),
+        'status' => StudentEnrollmentStatusEnum::ENROLLED,
+    ]);
+    StudentPaymentAccount::factory()->create([
+        'student_id' => $student->getKey(),
+        'school_id' => $school->getKey(),
+    ]);
 
     // Act: Activate the school year
     $schoolYear->update(['is_active' => true]);
 
-    // Assert: Check students got synced correctly
-    expect($studentWithActiveEnrollment->fresh()->is_active)
-        ->toBeTrue();
+    // Assert: Student should be activated (has enrollment + payment account)
+    expect($student->fresh()->is_active)->toBeTrue();
 });
 
-test('it clears cache when academic period is_active changes', function () {
+test('it clears stale cache when academic period is_active changes', function () {
     // Arrange
-    $schoolYear = SchoolYear::factory()->inactive()->create();
-    cache()->put(SchoolYear::getActiveCacheKey(), $schoolYear);
+    $staleYear = SchoolYear::factory()->inactive()->create();
+    cache()->put(SchoolYear::getActiveCacheKey(), $staleYear);
 
-    // Act
-    $schoolYear->update(['is_active' => true]);
+    $newYear = SchoolYear::factory()->inactive()->create();
 
-    // Assert
-    expect(cache()->get(SchoolYear::getActiveCacheKey()))->toBeNull();
+    // Act: Activate the new year
+    $newYear->update(['is_active' => true]);
+
+    // Assert: Cache should no longer hold the stale record
+    $cached = cache()->get(SchoolYear::getActiveCacheKey());
+    expect($cached)
+        ->not->toBeNull()
+        ->getKey()->toBe($newYear->getKey());
 });
 
 test('getActive returns currently active school year', function () {

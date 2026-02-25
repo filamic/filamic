@@ -9,10 +9,10 @@ use App\Enums\StudentEnrollmentStatusEnum;
 use App\Models\Classroom;
 use App\Models\Invoice;
 use App\Models\School;
-use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use App\Models\StudentEnrollment;
+use App\Models\StudentPaymentAccount;
 
 it('casts the columns')
     ->expect(fn () => Student::factory()->create())
@@ -20,19 +20,23 @@ it('casts the columns')
     ->status_in_family->toBeInstanceOf(StatusInFamilyEnum::class)
     ->religion->toBeInstanceOf(ReligionEnum::class);
 
-it('syncActiveStatus activates student when active enrollment exists', function () {
+it('syncActiveStatus activates student when active enrollment and payment account exist', function () {
     // Arrange
     $activeYear = SchoolYear::factory()->active()->create();
-    $activeTerm = SchoolTerm::factory()->odd()->active()->create();
     $school = School::factory()->create();
     $student = Student::factory()->for($school)->create(['is_active' => false]);
     $classroom = Classroom::factory()->for($school)->create();
 
     StudentEnrollment::factory()->create([
-        'classroom_id' => $classroom->id,
-        'school_year_id' => $activeYear->id,
-        'student_id' => $student->id,
+        'classroom_id' => $classroom->getKey(),
+        'school_year_id' => $activeYear->getKey(),
+        'student_id' => $student->getKey(),
         'status' => StudentEnrollmentStatusEnum::ENROLLED,
+    ]);
+
+    StudentPaymentAccount::factory()->create([
+        'student_id' => $student->getKey(),
+        'school_id' => $school->getKey(),
     ]);
 
     // Act
@@ -45,7 +49,6 @@ it('syncActiveStatus activates student when active enrollment exists', function 
 it('syncActiveStatus deactivates student when no active enrollment exists', function () {
     // Arrange
     SchoolYear::factory()->active()->create();
-    SchoolTerm::factory()->odd()->active()->create();
     $student = Student::factory()->create(['is_active' => true]);
 
     // Act — no active enrollment
@@ -55,87 +58,87 @@ it('syncActiveStatus deactivates student when no active enrollment exists', func
     expect($student->refresh()->is_active)->toBeFalse();
 });
 
-it('syncActiveStatus returns early when no active school year', function () {
+it('syncActiveStatus deactivates student when enrollment exists but no payment account', function () {
+    // Arrange
+    $activeYear = SchoolYear::factory()->active()->create();
+    $school = School::factory()->create();
+    $student = Student::factory()->for($school)->create(['is_active' => true]);
+    $classroom = Classroom::factory()->for($school)->create();
+
+    StudentEnrollment::factory()->create([
+        'classroom_id' => $classroom->getKey(),
+        'school_year_id' => $activeYear->getKey(),
+        'student_id' => $student->getKey(),
+        'status' => StudentEnrollmentStatusEnum::ENROLLED,
+    ]);
+
+    // Act — no payment account
+    $student->syncActiveStatus();
+
+    // Assert
+    expect($student->refresh()->is_active)->toBeFalse();
+});
+
+it('syncActiveStatus deactivates student when no active school year exists', function () {
     // Arrange
     SchoolYear::factory()->inactive()->create();
-    SchoolTerm::factory()->odd()->active()->create();
     $student = Student::factory()->create(['is_active' => true]);
 
     // Act
     $student->syncActiveStatus();
 
-    // Assert — should not change because method returns early
-    expect($student->refresh()->is_active)->toBeTrue();
+    // Assert — no active year means no currentEnrollment
+    expect($student->refresh()->is_active)->toBeFalse();
 });
 
-it('syncActiveStatus returns early when no active school term', function () {
+it('unpaidMonthlyFee returns unpaid monthly fee invoices', function () {
     // Arrange
-    SchoolYear::factory()->active()->create();
-    SchoolTerm::factory()->odd()->inactive()->create();
-    $student = Student::factory()->create(['is_active' => true]);
+    $student = Student::factory()->create();
+    $unpaid = Invoice::factory()->for($student)->monthlyFee()->unpaid()->create();
+    Invoice::factory()->for($student)->monthlyFee()->paid()->create();
 
     // Act
-    $student->syncActiveStatus();
+    $result = $student->unpaidMonthlyFee;
 
-    // Assert — should not change because method returns early
-    expect($student->refresh()->is_active)->toBeTrue();
+    // Assert
+    expect($result)
+        ->toHaveCount(1)
+        ->first()->getKey()->toBe($unpaid->getKey());
 });
 
-it('hasUnpaidMonthlyFee returns true when unpaid monthly fee exists', function () {
+it('paidMonthlyFee returns paid monthly fee invoices', function () {
     // Arrange
     $student = Student::factory()->create();
     Invoice::factory()->for($student)->monthlyFee()->unpaid()->create();
+    $paid = Invoice::factory()->for($student)->monthlyFee()->paid()->create();
 
-    // Act & Assert
-    expect($student->hasUnpaidMonthlyFee())->toBeTrue();
-});
+    // Act
+    $result = $student->paidMonthlyFee;
 
-it('hasUnpaidMonthlyFee returns false when no unpaid monthly fee exists', function () {
-    // Arrange
-    $student = Student::factory()->create();
-    Invoice::factory()->for($student)->monthlyFee()->paid()->create();
-
-    // Act & Assert
-    expect($student->hasUnpaidMonthlyFee())->toBeFalse();
-});
-
-it('hasPaidMonthlyFee returns true when paid monthly fee exists', function () {
-    // Arrange
-    $student = Student::factory()->create();
-    Invoice::factory()->for($student)->monthlyFee()->paid()->create();
-
-    // Act & Assert
-    expect($student->hasPaidMonthlyFee())->toBeTrue();
-});
-
-it('hasPaidMonthlyFee returns false when no paid monthly fee exists', function () {
-    // Arrange
-    $student = Student::factory()->create();
-    Invoice::factory()->for($student)->monthlyFee()->unpaid()->create();
-
-    // Act & Assert
-    expect($student->hasPaidMonthlyFee())->toBeFalse();
+    // Assert
+    expect($result)
+        ->toHaveCount(1)
+        ->first()->getKey()->toBe($paid->getKey());
 });
 
 it('currentEnrollment returns only active enrollment', function () {
     // Arrange
     $activeYear = SchoolYear::factory()->active()->create();
-    $activeTerm = SchoolTerm::first() ?? SchoolTerm::factory()->odd()->active()->create();
     $school = School::factory()->create();
     $student = Student::factory()->for($school)->create();
     $classroom = Classroom::factory()->for($school)->create();
 
     $activeEnrollment = StudentEnrollment::factory()->create([
-        'classroom_id' => $classroom->id,
-        'school_year_id' => $activeYear->id,
-        'student_id' => $student->id,
+        'classroom_id' => $classroom->getKey(),
+        'school_year_id' => $activeYear->getKey(),
+        'student_id' => $student->getKey(),
         'status' => StudentEnrollmentStatusEnum::ENROLLED,
     ]);
 
     StudentEnrollment::factory()->create([
-        'student_id' => $student->id,
+        'student_id' => $student->getKey(),
         'school_year_id' => SchoolYear::factory()->inactive(),
-        'status' => StudentEnrollmentStatusEnum::PROMOTED,
+        'status' => StudentEnrollmentStatusEnum::INACTIVE,
     ]);
 
     // Act
@@ -144,13 +147,12 @@ it('currentEnrollment returns only active enrollment', function () {
     // Assert
     expect($current)
         ->not->toBeNull()
-        ->id->toBe($activeEnrollment->id);
+        ->getKey()->toBe($activeEnrollment->getKey());
 });
 
 it('currentEnrollment returns null when no active enrollment exists', function () {
     // Arrange
     SchoolYear::factory()->active()->create();
-    SchoolTerm::factory()->odd()->active()->create();
     $student = Student::factory()->create();
 
     // Act

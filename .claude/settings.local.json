@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -l:*)",
+      "Bash(git mv:*)",
+      "Bash(php artisan:*)",
+      "Bash(php artisan test:*)",
+      "Bash(composer analyse:*)",
+      "Bash(composer test)",
+      "Bash(php -d memory_limit=512M artisan test:*)",
+      "Bash(php -d memory_limit=512M vendor/bin/pest:*)"
+    ]
+  }
+}

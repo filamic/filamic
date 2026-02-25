@@ -3,10 +3,14 @@
 declare(strict_types=1);
 
 use App\Enums\SchoolTermEnum;
+use App\Enums\StudentEnrollmentStatusEnum;
+use App\Models\Classroom;
+use App\Models\School;
 use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use App\Models\StudentEnrollment;
+use App\Models\StudentPaymentAccount;
 
 test('it prevents mass assignment to guarded id', function () {
     // ARRANGE
@@ -117,8 +121,21 @@ test('activateExclusively activates current record and deactivates others', func
 
 test('it does not sync students if is_active did not change', function () {
     // Arrange
+    $schoolYear = SchoolYear::factory()->active()->create();
     $schoolTerm = SchoolTerm::factory()->active()->create();
-    $student = Student::factory()->active()->create();
+    $school = School::factory()->create();
+    $classroom = Classroom::factory()->for($school)->create();
+
+    $student = Student::factory()->for($school)
+        ->has(
+            StudentEnrollment::factory()
+                ->state([
+                    'school_year_id' => $schoolYear->getKey(),
+                    'classroom_id' => $classroom->getKey(),
+                ])
+                ->enrolled(), 'enrollments')
+        ->active()
+        ->create();
 
     // Act: Update something OTHER than is_active
     $schoolTerm->update(['updated_at' => now()->addMinute()]);
@@ -127,51 +144,73 @@ test('it does not sync students if is_active did not change', function () {
     expect($student->fresh()->is_active)->toBeTrue();
 });
 
-test('it does not sync if is_active becomes false', function () {
+test('it keeps students active when school term becomes inactive but school year remains active', function () {
     // Arrange
+    $schoolYear = SchoolYear::factory()->active()->create();
     $schoolTerm = SchoolTerm::factory()->active()->create();
-    $student = Student::factory()->active()->create();
+    $school = School::factory()->create();
+    $classroom = Classroom::factory()->for($school)->create();
 
-    // Act: Set to false (not true)
+    $student = Student::factory()->for($school)->active()->create();
+    StudentEnrollment::factory()->create([
+        'classroom_id' => $classroom->getKey(),
+        'school_year_id' => $schoolYear->getKey(),
+        'student_id' => $student->getKey(),
+        'status' => StudentEnrollmentStatusEnum::ENROLLED,
+    ]);
+    StudentPaymentAccount::factory()->create([
+        'student_id' => $student->getKey(),
+        'school_id' => $school->getKey(),
+    ]);
+
+    // Act: Deactivate the school term (school year still active)
     $schoolTerm->update(['is_active' => false]);
 
-    // Assert: Student should remain active (transaction didn't run)
+    // Assert: Student stays active because enrollment is tied to school year
     expect($student->fresh()->is_active)->toBeTrue();
 });
 
 test('it syncs student active status when academic period becomes active', function () {
-    // Arrange: Create students in different states
+    // Arrange
     $schoolYear = SchoolYear::factory()->active()->create();
     $schoolTerm = SchoolTerm::factory()->inactive()->create();
+    $school = School::factory()->create();
+    $classroom = Classroom::factory()->for($school)->create();
 
-    $studentWithActiveEnrollment = Student::factory()
-        ->has(
-            StudentEnrollment::factory()
-                ->state([
-                    'school_year_id' => $schoolYear->getKey(),
-                ])
-                ->enrolled(), 'enrollments')
-        ->inactive()
-        ->create();
+    $student = Student::factory()->for($school)->inactive()->create();
+    StudentEnrollment::factory()->create([
+        'classroom_id' => $classroom->getKey(),
+        'school_year_id' => $schoolYear->getKey(),
+        'student_id' => $student->getKey(),
+        'status' => StudentEnrollmentStatusEnum::ENROLLED,
+    ]);
+    StudentPaymentAccount::factory()->create([
+        'student_id' => $student->getKey(),
+        'school_id' => $school->getKey(),
+    ]);
 
     // Act: Activate the school term
     $schoolTerm->update(['is_active' => true]);
 
-    // Assert: Check students got synced correctly
-    expect($studentWithActiveEnrollment->fresh()->is_active)
-        ->toBeTrue();
+    // Assert: Student should be activated (has enrollment + payment account)
+    expect($student->fresh()->is_active)->toBeTrue();
 });
 
-test('it clears cache when academic period is_active changes', function () {
+test('it clears stale cache when academic period is_active changes', function () {
     // Arrange
-    $schoolTerm = SchoolTerm::factory()->inactive()->create();
-    cache()->put('active_school_term_record', $schoolTerm);
+    $staleTerm = SchoolTerm::factory()->odd()->inactive()->create();
+    cache()->put(SchoolTerm::getActiveCacheKey(), $staleTerm);
 
-    // Act
-    $schoolTerm->update(['is_active' => true]);
+    $newTerm = SchoolTerm::factory()->even()->inactive()->create();
 
-    // Assert
-    expect(cache()->get('active_school_term_record'))->toBeNull();
+    // Act: Activate the new term
+    $newTerm->update(['is_active' => true]);
+
+    // Assert: getActive() should return the new term (re-populates cache)
+    $active = SchoolTerm::getActive();
+    expect($active)
+        ->not->toBeNull()
+        ->getKey()->toBe($newTerm->getKey());
 });
 
 test('getActive returns currently active term', function () {

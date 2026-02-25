@@ -8,8 +8,7 @@ use App\Enums\StudentEnrollmentStatusEnum;
 use App\Models\Classroom;
 use App\Models\SchoolYear;
 use App\Models\Student;
-use Database\Factories\Traits\ResolveBranch;
-use Database\Factories\Traits\ResolvesSchool;
+use App\Models\StudentEnrollment;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,9 +16,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class StudentEnrollmentFactory extends Factory
 {
-    // use ResolveBranch;
-    // use ResolvesSchool;
-
     public function definition(): array
     {
         return [
@@ -28,6 +24,20 @@ class StudentEnrollmentFactory extends Factory
             'student_id' => Student::factory(),
             'status' => StudentEnrollmentStatusEnum::ENROLLED,
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterMaking(function (StudentEnrollment $enrollment) {
+            if ($enrollment->classroom_id && (! $enrollment->school_id || ! $enrollment->branch_id)) {
+                $classroom = Classroom::with('school')->find($enrollment->classroom_id);
+
+                if ($classroom?->school) {
+                    $enrollment->school_id ??= $classroom->school_id;
+                    $enrollment->branch_id ??= $classroom->school->branch_id;
+                }
+            }
+        });
     }
 
     public function active(): static
