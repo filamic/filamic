@@ -7,9 +7,7 @@ namespace App\Filament\Admin\Resources\Branches;
 use App\Filament\Admin\Resources\Branches\Pages\ManageBranches;
 use App\Models\Branch;
 use BackedEnum;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use UnitEnum;
@@ -23,16 +21,6 @@ class BranchResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static string | BackedEnum | null $navigationIcon = 'tabler-buildings';
-
-    public static function form(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                TextInput::make('name')
-                    ->required()
-                    ->columnSpanFull(),
-            ]);
-    }
 
     public static function table(Table $table): Table
     {

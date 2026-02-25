@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\StudentEnrollment;
+use App\Models\StudentPaymentAccount;
+use App\Observers\StudentSyncActiveObserver;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\ViewAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Textarea;
@@ -12,6 +17,7 @@ use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Support\Enums\Platform;
+use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
 use Filament\Support\View\Components\ModalComponent;
 use Illuminate\Support\Arr;
@@ -25,11 +31,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        StudentEnrollment::observe(StudentSyncActiveObserver::class);
+        StudentPaymentAccount::observe(StudentSyncActiveObserver::class);
+
         Filament::serving(function () {
             Filament::getCurrentPanel()
-
-                ->topbar(false)
-                // ->topNavigation()
                 ->maxContentWidth(Width::Full)
                 ->sidebarWidth('16rem')
                 ->brandLogo(asset('logo_basic_digital.svg'))
@@ -44,7 +50,8 @@ class AppServiceProvider extends ServiceProvider
                     Platform::Windows, Platform::Linux => 'CTRL+K',
                     Platform::Mac => '⌘K',
                     default => null,
-                });
+                })
+                ->databaseTransactions();
         });
 
         Section::configureUsing(fn (Section $section) => $section
@@ -75,6 +82,14 @@ class AppServiceProvider extends ServiceProvider
         Entry::configureUsing(fn (Entry $field) => $field
             ->placeholder('None')
         );
+
+        Action::configureUsing(function (Action $action) {
+            $action->size(Size::Small);
+        }, isImportant: true);
+
+        ActionGroup::configureUsing(function (ActionGroup $actionGroup) {
+            $actionGroup->size(Size::Small);
+        }, isImportant: true);
 
         Testable::macro('ray', function (): Testable {
             /** @var LivewireComponent $livewire */

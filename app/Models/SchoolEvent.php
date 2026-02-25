@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToSchool;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
@@ -45,6 +45,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class SchoolEvent extends Model
 {
+    use BelongsToSchool;
+
     /** @use HasFactory<\Database\Factories\SchoolEventFactory> */
     use HasFactory;
 
@@ -58,16 +60,11 @@ class SchoolEvent extends Model
         ];
     }
 
-    public function school(): BelongsTo
-    {
-        return $this->belongsTo(School::class);
-    }
-
     #[Scope]
     protected function upcoming(Builder $query): Builder
     {
         return $query
-            ->where('start_date', '>', now()->toDateString())
+            ->whereDate('start_date', '>', now())
             ->orderBy('start_date');
     }
 
@@ -75,15 +72,15 @@ class SchoolEvent extends Model
     protected function ongoing(Builder $query): Builder
     {
         return $query
-            ->where('start_date', '<=', now()->toDateString())
-            ->where('end_date', '>=', now()->toDateString());
+            ->whereDate('start_date', '<=', now())
+            ->whereDate('end_date', '>=', now());
     }
 
     #[Scope]
     protected function past(Builder $query): Builder
     {
         return $query
-            ->where('end_date', '<', now()->toDateString())
+            ->whereDate('end_date', '<', now())
             ->orderByDesc('end_date');
     }
 }

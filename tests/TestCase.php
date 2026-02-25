@@ -16,13 +16,12 @@ abstract class TestCase extends BaseTestCase
         $this->actingAs($user ?? User::factory()->create());
     }
 
-    public function loginAdmin(?User $user = null): void
+    public function loginAdmin(?User $user = null, ?School $school = null): void
     {
-        $school = School::factory()->create();
-
+        $school ??= School::factory()->create();
         Context::add('school', $school);
 
-        $user = User::factory()->create([
+        $user ??= User::factory()->create([
             'name' => 'Super Admin',
             'email' => 'super@admin.com',
             'password' => bcrypt('mantapjiwa00'),

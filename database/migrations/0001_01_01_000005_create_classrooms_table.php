@@ -12,9 +12,10 @@ return new class extends Migration
     {
         Schema::create('classrooms', function (Blueprint $table) {
             $table->ulid('id')->primary();
+            $table->unsignedBigInteger('legacy_old_id')->nullable();
             $table->foreignUlid('school_id')->constrained();
             $table->string('name');
-            $table->tinyInteger('grade');
+            $table->unsignedTinyInteger('grade');
 
             // custom
             $table->string('phase')->nullable();

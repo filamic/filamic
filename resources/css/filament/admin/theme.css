@@ -2,6 +2,15 @@
 
 @source '../../../../app/Filament/Admin/**/*';
 @source '../../../../resources/views/filament/admin/**/*';
+@source '../../../../resources/views/filament/finance/**/*';
+
+/* body,.fi-ta-main,.fi-ta-content-header {
+    @apply bg-[#FFF1E3];
+}
+
+.fi-ta-record{
+    @apply bg-[#F5E6D4] shadow-none;
+} */
 
 /* Login Panel */
 .fi-simple-main {
@@ -74,7 +83,8 @@
 .fi-ta-ctn,
 .fi-section,
 .fi-wi-stats-overview-stat,
-.fi-tabs
+.fi-tabs,
+.fi-fo-repeater-item
 {
     /* @apply !rounded-md shadow-none ring-1 ring-gray-100; */
     @apply !rounded-md shadow-none ring-1 ring-gray-100;

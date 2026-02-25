@@ -50,15 +50,16 @@ class TeachingsTable
             ])
             ->recordActions([
                 DeleteAction::make()
-                    ->disabled(fn (Teaching $record) => ! $record->canDelete()),
+                    // ->disabled(fn (Teaching $record) => ! $record->canDelete()),
+                    ->disabled(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ])
-            ->checkIfRecordIsSelectableUsing(
-                fn (Teaching $record): bool => $record->canDelete(),
-            );
+            ]);
+        // ->checkIfRecordIsSelectableUsing(
+        //     fn (Teaching $record): bool => $record->canDelete(),
+        // )
     }
 }

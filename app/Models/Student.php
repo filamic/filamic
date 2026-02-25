@@ -7,22 +7,31 @@ namespace App\Models;
 use App\Enums\GenderEnum;
 use App\Enums\ReligionEnum;
 use App\Enums\StatusInFamilyEnum;
-use App\Enums\StudentStatusEnum;
+use App\Models\Traits\BelongsToBranch;
+use App\Models\Traits\BelongsToClassroom;
+use App\Models\Traits\BelongsToSchool;
 use App\Models\Traits\BelongsToUser;
-use Illuminate\Database\Eloquent\Attributes\Scope;
+use App\Models\Traits\HasActiveState;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Number;
 
 /**
  * @property string $id
+ * @property int|null $legacy_old_id
  * @property string $name
+ * @property string|null $branch_id
+ * @property string|null $school_id
+ * @property string|null $classroom_id
  * @property string|null $user_id
- * @property string|null $father_id
- * @property string|null $mother_id
- * @property string|null $guardian_id
  * @property string|null $nisn
  * @property string|null $nis
  * @property GenderEnum $gender
@@ -33,44 +42,80 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $sibling_order_in_family
  * @property StatusInFamilyEnum|null $status_in_family
  * @property ReligionEnum|null $religion
- * @property StudentStatusEnum $status
+ * @property bool $is_active
  * @property string|null $notes
  * @property array<array-key, mixed>|null $metadata
+ * @property string|null $father_name
+ * @property string|null $mother_name
+ * @property string|null $parent_address
+ * @property string|null $parent_phone
+ * @property string|null $father_job
+ * @property string|null $mother_job
+ * @property string|null $guardian_name
+ * @property string|null $guardian_phone
+ * @property string|null $guardian_address
+ * @property string|null $guardian_job
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read User|null $father
- * @property-read User|null $guardian
- * @property-read User|null $mother
+ * @property-read Branch|null $branch
+ * @property-read Classroom|null $classroom
+ * @property-read Classroom|null $currentClassroom
+ * @property-read StudentEnrollment|null $currentEnrollment
+ * @property-read StudentPaymentAccount|null $currentPaymentAccount
+ * @property-read mixed $display_name
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StudentEnrollment> $enrollments
+ * @property-read int|null $enrollments_count
+ * @property-read mixed $initials
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
+ * @property-read int|null $invoices_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $paidMonthlyFee
+ * @property-read int|null $paid_monthly_fee_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StudentPaymentAccount> $paymentAccounts
+ * @property-read int|null $payment_accounts_count
+ * @property-read School|null $school
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $unpaidBookFee
+ * @property-read int|null $unpaid_book_fee_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $unpaidInvoices
+ * @property-read int|null $unpaid_invoices_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $unpaidMonthlyFee
+ * @property-read int|null $unpaid_monthly_fee_count
  * @property-read User|null $user
  *
  * @method static Builder<static>|Student active()
- * @method static Builder<static>|Student droppedOut()
  * @method static \Database\Factories\StudentFactory factory($count = null, $state = [])
- * @method static Builder<static>|Student graduated()
- * @method static Builder<static>|Student moved()
+ * @method static Builder<static>|Student inactive()
  * @method static Builder<static>|Student newModelQuery()
  * @method static Builder<static>|Student newQuery()
- * @method static Builder<static>|Student nonActive()
- * @method static Builder<static>|Student prospective()
  * @method static Builder<static>|Student query()
  * @method static Builder<static>|Student whereBirthDate($value)
  * @method static Builder<static>|Student whereBirthPlace($value)
+ * @method static Builder<static>|Student whereBranchId($value)
+ * @method static Builder<static>|Student whereClassroomId($value)
  * @method static Builder<static>|Student whereCreatedAt($value)
- * @method static Builder<static>|Student whereFatherId($value)
+ * @method static Builder<static>|Student whereFatherJob($value)
+ * @method static Builder<static>|Student whereFatherName($value)
  * @method static Builder<static>|Student whereGender($value)
- * @method static Builder<static>|Student whereGuardianId($value)
+ * @method static Builder<static>|Student whereGuardianAddress($value)
+ * @method static Builder<static>|Student whereGuardianJob($value)
+ * @method static Builder<static>|Student whereGuardianName($value)
+ * @method static Builder<static>|Student whereGuardianPhone($value)
  * @method static Builder<static>|Student whereId($value)
+ * @method static Builder<static>|Student whereIsActive($value)
  * @method static Builder<static>|Student whereJoinedAtClass($value)
+ * @method static Builder<static>|Student whereLegacyOldId($value)
  * @method static Builder<static>|Student whereMetadata($value)
- * @method static Builder<static>|Student whereMotherId($value)
+ * @method static Builder<static>|Student whereMotherJob($value)
+ * @method static Builder<static>|Student whereMotherName($value)
  * @method static Builder<static>|Student whereName($value)
  * @method static Builder<static>|Student whereNis($value)
  * @method static Builder<static>|Student whereNisn($value)
  * @method static Builder<static>|Student whereNotes($value)
+ * @method static Builder<static>|Student whereParentAddress($value)
+ * @method static Builder<static>|Student whereParentPhone($value)
  * @method static Builder<static>|Student wherePreviousEducation($value)
  * @method static Builder<static>|Student whereReligion($value)
+ * @method static Builder<static>|Student whereSchoolId($value)
  * @method static Builder<static>|Student whereSiblingOrderInFamily($value)
- * @method static Builder<static>|Student whereStatus($value)
  * @method static Builder<static>|Student whereStatusInFamily($value)
  * @method static Builder<static>|Student whereUpdatedAt($value)
  * @method static Builder<static>|Student whereUserId($value)
@@ -79,7 +124,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Student extends Model
 {
+    use BelongsToBranch;
+    use BelongsToClassroom;
+    use BelongsToSchool;
     use BelongsToUser;
+    use HasActiveState;
 
     /** @use HasFactory<\Database\Factories\StudentFactory> */
     use HasFactory;
@@ -94,59 +143,188 @@ class Student extends Model
             'gender' => GenderEnum::class,
             'status_in_family' => StatusInFamilyEnum::class,
             'religion' => ReligionEnum::class,
-            'status' => StudentStatusEnum::class,
             'metadata' => 'array',
         ];
     }
 
-    public function father(): BelongsTo
+    protected static function booted(): void
     {
-        return $this->belongsTo(User::class, 'father_id');
+        static::saving(function (self $student): void {
+            // TODO: validate if the classroom_id belongsto school_id and the school_od belongsto branch_id
+        });
     }
 
-    public function mother(): BelongsTo
+    // public function father(): BelongsTo
+    // {
+    //     return $this->belongsTo(User::class, 'father_id');
+    // }
+
+    // public function mother(): BelongsTo
+    // {
+    //     return $this->belongsTo(User::class, 'mother_id');
+    // }
+
+    // public function guardian(): BelongsTo
+    // {
+    //     return $this->belongsTo(User::class, 'guardian_id');
+    // }
+
+    public function paymentAccounts(): HasMany
     {
-        return $this->belongsTo(User::class, 'mother_id');
+        return $this->hasMany(StudentPaymentAccount::class);
     }
 
-    public function guardian(): BelongsTo
+    public function currentPaymentAccount(): HasOne
     {
-        return $this->belongsTo(User::class, 'guardian_id');
+        return $this->hasOne(StudentPaymentAccount::class)
+            ->latestOfMany();
     }
 
-    #[Scope]
-    protected function active(Builder $query): Builder
+    /**
+     * @return HasMany<Invoice, $this>
+     */
+    public function invoices(): HasMany
     {
-        return $query->where('status', StudentStatusEnum::ACTIVE);
+        return $this->hasMany(Invoice::class)->orderBy('month');
     }
 
-    #[Scope]
-    protected function graduated(Builder $query): Builder
+    public function unpaidMonthlyFee(): HasMany
     {
-        return $query->where('status', StudentStatusEnum::GRADUATED);
+        return $this->hasMany(Invoice::class)->unpaidMonthlyFee();
     }
 
-    #[Scope]
-    protected function moved(Builder $query): Builder
+    public function unpaidBookFee(): HasMany
     {
-        return $query->where('status', StudentStatusEnum::MOVED);
+        return $this->hasMany(Invoice::class)->unpaidBookFee();
     }
 
-    #[Scope]
-    protected function droppedOut(Builder $query): Builder
+    public function unpaidInvoices(): HasMany
     {
-        return $query->where('status', StudentStatusEnum::DROPPED_OUT);
+        return $this->hasMany(Invoice::class)->unpaid()->orderBy('school_year_id')->orderBy('type');
     }
 
-    #[Scope]
-    protected function nonActive(Builder $query): Builder
+    public function hasUnpaidInvoice(): bool
     {
-        return $query->where('status', StudentStatusEnum::NON_ACTIVE);
+        return $this->unpaidInvoices()->exists();
     }
 
-    #[Scope]
-    protected function prospective(Builder $query): Builder
+    public function paidMonthlyFee(): HasMany
     {
-        return $query->where('status', StudentStatusEnum::PROSPECTIVE);
+        return $this->hasMany(Invoice::class)->paidMonthlyFee();
+    }
+
+    /**
+     * @return HasMany<StudentEnrollment, $this>
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(StudentEnrollment::class);
+    }
+
+    public function currentEnrollment(): HasOne
+    {
+        return $this->hasOne(StudentEnrollment::class)->active();
+    }
+
+    public function currentClassroom(): HasOneThrough
+    {
+        return $this->hasOneThrough(Classroom::class, StudentEnrollment::class, 'student_id', 'id', 'id', 'classroom_id');
+    }
+
+    protected function initials(): Attribute
+    {
+        return Attribute::get(function () {
+            $words = collect(explode(' ', $this->name))->filter();
+
+            if ($words->isEmpty()) {
+                return '??';
+            }
+
+            $firstInitial = str()->substr($words->first(), 0, 1);
+            $lastInitial = $words->count() > 1
+                ? str()->substr($words->last(), 0, 1)
+                : '';
+
+            return str($firstInitial . $lastInitial)->upper();
+        });
+    }
+
+    protected function displayName(): Attribute
+    {
+        return Attribute::get(function () {
+            $words = str($this->name)->explode(' ')->filter();
+            $count = $words->count();
+
+            if ($count <= 2) {
+                return $this->name;
+            }
+
+            // Ambil inisial tengah dengan gaya fluent
+            $middle = $words->slice(1, $count - 2)
+                ->map(fn ($word) => str($word)->substr(0, 1)->upper()->append('.'))
+                ->implode(' ');
+
+            return "{$words->first()} {$middle} {$words->last()}";
+        });
+    }
+
+    public function canBeDelete(): bool
+    {
+        return $this->enrollments()->doesntExist() && $this->paymentAccounts()->doesntExist();
+    }
+
+    public function getMissingData(): Collection
+    {
+        $missing = collect();
+
+        if ($this->currentEnrollment()->doesntExist()) {
+            // TODO; show peserta didik sudah lulus, kalau status trakhir graduated
+            $missing->push('Peserta Didik Belum Memiliki Data Di Tahun Ajaran Aktif');
+        }
+
+        if ($this->currentPaymentAccount()->doesntExist()) {
+            $missing->push('Peserta Didik Belum Memiliki Data Untuk Pembayaran');
+        }
+
+        return $missing;
+    }
+
+    public function getTotalUnpaidMonthlyFee($formatted = false): int | string
+    {
+        $total = $this->unpaidMonthlyFee()->sum('total_amount');
+
+        if ($formatted) {
+            return Number::currency((int) $total, 'IDR', 'id', 0);
+        }
+
+        return $total;
+    }
+
+    public function getTotalUnpaidBookFee($formatted = false): int | string
+    {
+        $total = $this->unpaidBookFee()->sum('total_amount');
+
+        if ($formatted) {
+            return Number::currency((int) $total, 'IDR', 'id', 0);
+        }
+
+        return $total;
+    }
+
+    public function syncActiveStatus(): void
+    {
+        $enrollment = $this->currentEnrollment;
+        $hasPayment = $this->relationLoaded('paymentAccounts')
+            ? $this->paymentAccounts->isNotEmpty()
+            : $this->currentPaymentAccount()->exists();
+
+        $isActive = filled($enrollment) && $hasPayment;
+
+        $this->updateQuietly([
+            'branch_id' => $enrollment->branch_id ?? $this->branch_id,
+            'school_id' => $enrollment->school_id ?? $this->school_id,
+            'classroom_id' => $enrollment->classroom_id ?? $this->classroom_id,
+            'is_active' => $isActive,
+        ]);
     }
 }

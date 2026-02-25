@@ -29,14 +29,6 @@ trait HasActiveState
         return $query->where('is_active', false);
     }
 
-    public function activateExclusively(): void
-    {
-        DB::transaction(function () {
-            static::deactivateOthers();
-            $this->update(['is_active' => true]);
-        });
-    }
-
     public function isActive(): bool
     {
         return $this->is_active;
@@ -53,5 +45,13 @@ trait HasActiveState
             ->lockForUpdate()
             ->active()
             ->update(['is_active' => false]);
+    }
+
+    public function activateExclusively(): void
+    {
+        DB::transaction(function () {
+            static::deactivateOthers();
+            $this->update(['is_active' => true]);
+        });
     }
 }

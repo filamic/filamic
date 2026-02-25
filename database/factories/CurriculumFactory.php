@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use Database\Factories\Traits\ResolvesSchool;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -11,15 +12,27 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class CurriculumFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    use ResolvesSchool;
+
     public function definition(): array
     {
         return [
-
+            'name' => fake()->words(2, true),
+            'is_active' => false,
         ];
+    }
+
+    public function active(): static
+    {
+        return $this->state([
+            'is_active' => true,
+        ]);
+    }
+
+    public function inactive(): static
+    {
+        return $this->state([
+            'is_active' => false,
+        ]);
     }
 }

@@ -13,11 +13,11 @@ class GalleryCategoryFactory extends Factory
 {
     public function definition(): array
     {
-        $name = fake()->word();
-
         return [
-            'name' => $name,
-            'slug' => str($name)->slug(),
+            'name' => fake()->unique()->words(2, true),
+            'slug' => fn (array $attributes): string => str($attributes['name'])->slug()
+                ->append('-' . fake()->unique()->numerify('####'))
+                ->value(),
         ];
     }
 }

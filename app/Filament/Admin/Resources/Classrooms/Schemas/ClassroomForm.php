@@ -39,7 +39,7 @@ class ClassroomForm
                             ->options(function (Get $get) {
                                 $level = $get('temp_level');
 
-                                if (empty($level)) {
+                                if (blank($level)) {
                                     return [];
                                 }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use Database\Factories\Traits\ResolvesSchool;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -11,15 +12,12 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class LearningGroupFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    use ResolvesSchool;
+
     public function definition(): array
     {
         return [
-
+            'name' => fake()->words(2, true),
         ];
     }
 }

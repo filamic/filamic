@@ -17,7 +17,7 @@ class ClassroomFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->word(),
+            'name' => fake()->unique()->numerify('Classroom-####'),
             'grade' => fake()->numberBetween(1, 12),
             'phase' => fake()->randomElement(['A', 'B', 'C', 'D']),
             'is_moving_class' => fake()->boolean(),

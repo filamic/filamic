@@ -12,24 +12,38 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->ulid('id')->primary();
+            $table->unsignedBigInteger('legacy_old_id')->nullable();
             $table->string('name')->index();
+            $table->foreignUlid('branch_id')->nullable()->constrained();
+            $table->foreignUlid('school_id')->nullable()->constrained();
+            $table->foreignUlid('classroom_id')->nullable()->constrained();
             $table->foreignUlid('user_id')->nullable()->constrained();
-            $table->foreignUlid('father_id')->nullable()->constrained('users');
-            $table->foreignUlid('mother_id')->nullable()->constrained('users');
-            $table->foreignUlid('guardian_id')->nullable()->constrained('users');
+            // $table->foreignUlid('father_id')->nullable()->constrained('users');
+            // $table->foreignUlid('mother_id')->nullable()->constrained('users');
+            // $table->foreignUlid('guardian_id')->nullable()->constrained('users');
             $table->string('nisn')->unique()->nullable();
             $table->string('nis')->nullable()->index();
-            $table->tinyInteger('gender');
+            $table->unsignedTinyInteger('gender');
             $table->string('birth_place')->nullable();
             $table->date('birth_date')->nullable();
             $table->string('previous_education')->nullable();
             $table->string('joined_at_class')->nullable();
-            $table->tinyInteger('sibling_order_in_family')->nullable();
-            $table->tinyInteger('status_in_family')->nullable();
-            $table->tinyInteger('religion')->nullable();
-            $table->tinyInteger('status');
+            $table->unsignedTinyInteger('sibling_order_in_family')->nullable();
+            $table->unsignedTinyInteger('status_in_family')->nullable();
+            $table->unsignedTinyInteger('religion')->nullable();
+            $table->boolean('is_active')->default(false);
             $table->longText('notes')->nullable();
             $table->json('metadata')->nullable();
+            $table->string('father_name')->nullable();
+            $table->string('mother_name')->nullable();
+            $table->string('parent_address')->nullable();
+            $table->string('parent_phone')->nullable();
+            $table->string('father_job')->nullable();
+            $table->string('mother_job')->nullable();
+            $table->string('guardian_name')->nullable();
+            $table->string('guardian_phone')->nullable();
+            $table->string('guardian_address')->nullable();
+            $table->string('guardian_job')->nullable();
             $table->timestamps();
         });
     }

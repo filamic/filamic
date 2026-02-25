@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\SchoolTermEnum;
-use App\Models\Traits\HasActiveState;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property string $id
+ * @property int|null $legacy_old_id
  * @property SchoolTermEnum $name
  * @property bool $is_active
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -20,21 +20,20 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm active()
  * @method static \Database\Factories\SchoolTermFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm inactive()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm whereIsActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolTerm whereUpdatedAt($value)
+ * @method static Builder<static>|SchoolTerm newModelQuery()
+ * @method static Builder<static>|SchoolTerm newQuery()
+ * @method static Builder<static>|SchoolTerm query()
+ * @method static Builder<static>|SchoolTerm whereCreatedAt($value)
+ * @method static Builder<static>|SchoolTerm whereId($value)
+ * @method static Builder<static>|SchoolTerm whereIsActive($value)
+ * @method static Builder<static>|SchoolTerm whereLegacyOldId($value)
+ * @method static Builder<static>|SchoolTerm whereName($value)
+ * @method static Builder<static>|SchoolTerm whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */
-class SchoolTerm extends Model
+class SchoolTerm extends AcademicPeriod
 {
-    use HasActiveState;
-
     /** @use HasFactory<\Database\Factories\SchoolTermFactory> */
     use HasFactory;
 
@@ -47,5 +46,10 @@ class SchoolTerm extends Model
         return [
             'name' => SchoolTermEnum::class,
         ];
+    }
+
+    public function getAllowedMonths(): array
+    {
+        return $this->name->getAllowedMonths();
     }
 }

@@ -12,7 +12,8 @@ return new class extends Migration
     {
         Schema::create('school_terms', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->tinyInteger('name')->unique();
+            $table->unsignedBigInteger('legacy_old_id')->nullable();
+            $table->unsignedTinyInteger('name')->unique();
             $table->boolean('is_active')->default(false);
             $table->timestamps();
         });

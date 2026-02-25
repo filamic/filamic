@@ -5,45 +5,66 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\StudentEnrollmentStatusEnum;
+use App\Models\Traits\BelongsToBranch;
+use App\Models\Traits\BelongsToClassroom;
+use App\Models\Traits\BelongsToSchool;
+use App\Models\Traits\BelongsToSchoolTerm;
+use App\Models\Traits\BelongsToSchoolYear;
+use App\Models\Traits\BelongsToStudent;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property string $id
- * @property string $student_id
+ * @property int|null $legacy_old_id
+ * @property string $branch_id
+ * @property string $school_id
  * @property string $classroom_id
  * @property string $school_year_id
- * @property string $school_term_id
- * @property string $curriculum_id
+ * @property string $student_id
  * @property StudentEnrollmentStatusEnum $status
- * @property string $enrolled_at
- * @property string|null $left_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Branch $branch
+ * @property-read Classroom $classroom
+ * @property-read School $school
+ * @property-read SchoolTerm|null $schoolTerm
+ * @property-read SchoolYear $schoolYear
  * @property-read Student $student
  *
+ * @method static Builder<static>|StudentEnrollment active()
+ * @method static Builder<static>|StudentEnrollment activeTerm()
+ * @method static Builder<static>|StudentEnrollment activeYear()
  * @method static \Database\Factories\StudentEnrollmentFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereClassroomId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereCurriculumId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereEnrolledAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereLeftAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereSchoolTermId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereSchoolYearId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereStudentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|StudentEnrollment whereUpdatedAt($value)
+ * @method static Builder<static>|StudentEnrollment inactive()
+ * @method static Builder<static>|StudentEnrollment newModelQuery()
+ * @method static Builder<static>|StudentEnrollment newQuery()
+ * @method static Builder<static>|StudentEnrollment query()
+ * @method static Builder<static>|StudentEnrollment whereBranchId($value)
+ * @method static Builder<static>|StudentEnrollment whereClassroomId($value)
+ * @method static Builder<static>|StudentEnrollment whereCreatedAt($value)
+ * @method static Builder<static>|StudentEnrollment whereId($value)
+ * @method static Builder<static>|StudentEnrollment whereLegacyOldId($value)
+ * @method static Builder<static>|StudentEnrollment whereSchoolId($value)
+ * @method static Builder<static>|StudentEnrollment whereSchoolYearId($value)
+ * @method static Builder<static>|StudentEnrollment whereStatus($value)
+ * @method static Builder<static>|StudentEnrollment whereStudentId($value)
+ * @method static Builder<static>|StudentEnrollment whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */
 class StudentEnrollment extends Model
 {
+    use BelongsToBranch;
+    use BelongsToClassroom;
+    use BelongsToSchool;
+    use BelongsToSchoolTerm;
+    use BelongsToSchoolYear;
+    use BelongsToStudent;
+
     /** @use HasFactory<\Database\Factories\StudentEnrollmentFactory> */
     use HasFactory;
 
@@ -58,8 +79,42 @@ class StudentEnrollment extends Model
         ];
     }
 
-    public function student(): BelongsTo
+    #[Scope]
+    protected function active(Builder $query): Builder
     {
-        return $this->belongsTo(Student::class);
+        $activeYearId = SchoolYear::getActive()?->getKey();
+
+        if ($activeYearId === null) {
+            // No active year/term means no active enrollments
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where($query->qualifyColumn('school_year_id'), $activeYearId)
+            ->whereIn($query->qualifyColumn('status'), StudentEnrollmentStatusEnum::getActiveStatuses());
+    }
+
+    #[Scope]
+    protected function inactive(Builder $query): Builder
+    {
+        $activeYearId = SchoolYear::getActive()?->getKey();
+
+        // If no active year or term, all enrollments are inactive
+        if ($activeYearId === null) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($activeYearId) {
+            $q->whereIn($q->qualifyColumn('status'), StudentEnrollmentStatusEnum::getInactiveStatuses());
+
+            $q->orWhere($q->qualifyColumn('school_year_id'), '!=', $activeYearId);
+        });
+    }
+
+    public function isActive(): bool
+    {
+        $activeYearId = SchoolYear::getActive()?->getKey();
+
+        return $this->school_year_id === $activeYearId
+            && in_array($this->status, StudentEnrollmentStatusEnum::getActiveStatuses());
     }
 }

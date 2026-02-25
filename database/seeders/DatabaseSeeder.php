@@ -9,6 +9,7 @@ use App\Enums\UserTypeEnum;
 use App\Models\Branch;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Classroom;
+use App\Models\Curriculum;
 use App\Models\Position;
 use App\Models\School;
 use App\Models\SchoolEvent;
@@ -29,20 +30,22 @@ class DatabaseSeeder extends Seeder
     {
         if (app()->environment('local')) {
 
-            $this->createBranches();
-            $this->createSchoolYear();
-            $this->createSchoolTerm();
-            $this->createPosition();
+            // $this->createBranches();
+            // $this->createSchoolYear();
+            // $this->createSchoolTerm();
+            // $this->createPosition();
+            // $this->createSchools();
+            // $this->createCurriculum();
+            // $this->createSubjectCategories();
 
-            $this->createSchools();
-            $this->createSubjectCategories();
+            // $user = User::factory()->create([
+            //     'name' => 'Super Admin',
+            //     'email' => 'super@admin.com',
+            //     'user_type' => UserTypeEnum::EMPLOYEE,
+            //     'password' => bcrypt('mantapjiwa00'),
+            // ]);
 
-            User::factory()->create([
-                'name' => 'Super Admin',
-                'email' => 'super@admin.com',
-                'user_type' => UserTypeEnum::EMPLOYEE,
-                'password' => bcrypt('mantapjiwa00'),
-            ]);
+            // $user->branches()->sync(Branch::all());
 
             // $this->createClassrooms();
 
@@ -56,12 +59,12 @@ class DatabaseSeeder extends Seeder
     {
         Branch::factory(2)
             ->forEachSequence([
-                'name' => 'Basic Batam Center',
+                'name' => 'Batam Center',
                 'phone' => '(0778) 460817',
                 'whatsapp' => '+6281275402543',
                 'address' => 'Jalan laksamana Kawasan Industri No.1, Baloi Permai, Batam Center, Kota Batam, Kepulauan Riau 29444',
             ], [
-                'name' => 'Basic Batu Aji',
+                'name' => 'Batu Aji',
                 'phone' => '(0778) 3850886',
                 'address' => 'Perumahan Marsyeba Indah, Bukit Tempayan, Kec. Batu Aji, Kota Batam, Kepulauan Riau 29425',
             ])
@@ -72,7 +75,8 @@ class DatabaseSeeder extends Seeder
     {
         $data = collect(range(2023, 2027))
             ->map(fn ($year) => [
-                'name' => $year . '/' . ($year + 1),
+                'start_year' => $year,
+                'end_year' => $year + 1,
             ])->toArray();
 
         SchoolYear::factory(count($data))
@@ -93,6 +97,14 @@ class DatabaseSeeder extends Seeder
     {
         Position::factory()
             ->state(['name' => 'Administrator'])
+            ->create();
+    }
+
+    public function createCurriculum(): void
+    {
+        Curriculum::factory()
+            ->state(['name' => 'Basic Curriculum'])
+            ->active()
             ->create();
     }
 
@@ -139,10 +151,10 @@ class DatabaseSeeder extends Seeder
         // Subject::factory(10)->create();
     }
 
-    public function createTeachers(): void
-    {
-        Teacher::factory(5)->create();
-    }
+    // public function createTeachers(): void
+    // {
+    //     Teacher::factory(5)->create();
+    // }
 
     public function createSchoolEvents(): void
     {

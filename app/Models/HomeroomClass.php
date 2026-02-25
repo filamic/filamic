@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToSchoolYear;
 use App\Models\Traits\BelongsToUser;
-use App\Models\Traits\HasSchoolyear;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read SchoolYear $schoolYear
  * @property-read User $user
  *
- * @method static \Illuminate\Database\Eloquent\Builder<static>|HomeroomClass active()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|HomeroomClass activeYear()
  * @method static \Database\Factories\HomeroomClassFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|HomeroomClass newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|HomeroomClass newQuery()
@@ -38,12 +38,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class HomeroomClass extends Model
 {
+    use BelongsToSchoolYear;
     use BelongsToUser;
 
     /** @use HasFactory<\Database\Factories\HomeroomClassFactory> */
     use HasFactory;
 
-    use HasSchoolyear;
     use HasUlids;
 
     protected $guarded = ['id'];

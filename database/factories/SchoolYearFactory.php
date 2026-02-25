@@ -4,40 +4,29 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use Database\Factories\Traits\HasActiveState;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\SchoolYear>
  */
 class SchoolYearFactory extends Factory
 {
+    use HasActiveState;
+
     public function definition(): array
     {
-        $startDate = fake()->dateTimeBetween('-10 years', '+10 years');
-        $endDate = (clone $startDate)->modify('+1 year');
-
-        $startYear = (int) $startDate->format('Y');
+        $startYear = fake()->unique()->numberBetween(2000, 2090);
+        $startDate = Carbon::create($startYear, 7, 1);
+        $endDate = Carbon::create($startYear + 1, 6, 30);
 
         return [
-            'name' => $startYear . '/' . ($startYear + 1),
+            'start_year' => $startYear,
+            'end_year' => $startYear + 1,
             'start_date' => $startDate,
             'end_date' => $endDate,
             'is_active' => fake()->boolean(),
         ];
-    }
-
-    public function active(): static
-    {
-        return $this->state([
-            'name' => now()->format('Y') . '/' . now()->addYear()->format('Y'),
-            'is_active' => true,
-        ]);
-    }
-
-    public function inactive(): static
-    {
-        return $this->state([
-            'is_active' => false,
-        ]);
     }
 }

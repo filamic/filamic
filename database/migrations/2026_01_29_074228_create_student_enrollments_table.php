@@ -12,18 +12,17 @@ return new class extends Migration
     {
         Schema::create('student_enrollments', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->foreignUlid('student_id')->constrained();
+            $table->unsignedBigInteger('legacy_old_id')->nullable();
+            $table->foreignUlid('branch_id')->constrained();
+            $table->foreignUlid('school_id')->constrained();
             $table->foreignUlid('classroom_id')->constrained();
             $table->foreignUlid('school_year_id')->constrained();
-            $table->foreignUlid('school_term_id')->constrained();
-            $table->foreignUlid('curriculum_id')->constrained();
-            $table->tinyInteger('status')->default(1);
+            $table->foreignUlid('student_id')->constrained();
+            $table->unsignedTinyInteger('status')->default(1)->index();
 
-            $table->date('enrolled_at');
-            $table->date('left_at')->nullable();
             $table->timestamps();
 
-            $table->index(['student_id', 'school_year_id', 'status']);
+            $table->unique(['student_id', 'school_year_id', 'branch_id']);
         });
     }
 };

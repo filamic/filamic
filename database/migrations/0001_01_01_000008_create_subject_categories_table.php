@@ -14,7 +14,7 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->foreignUlid('school_id')->constrained();
             $table->string('name');
-            $table->tinyInteger('sort_order')->default(1);
+            $table->unsignedTinyInteger('sort_order')->default(1);
             $table->timestamps();
         });
     }
