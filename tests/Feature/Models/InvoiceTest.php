@@ -580,7 +580,7 @@ it('rejects duplicate fingerprint on create', function () {
     // Act & Assert — same student + school year + type + month = duplicate fingerprint
     expect(fn () => Invoice::factory()->for($student)->for($schoolYear)->monthlyFee()->create([
         'month' => MonthEnum::January,
-    ]))->toThrow(\Illuminate\Database\UniqueConstraintViolationException::class);
+    ]))->toThrow(Illuminate\Database\UniqueConstraintViolationException::class);
 });
 
 // --- Additional Fine Calculation Edge Case ---
