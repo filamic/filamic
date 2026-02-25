@@ -176,7 +176,8 @@ class Student extends Model
 
     public function currentPaymentAccount(): HasOne
     {
-        return $this->hasOne(StudentPaymentAccount::class);
+        return $this->hasOne(StudentPaymentAccount::class)
+            ->latestOfMany();
     }
 
     /**

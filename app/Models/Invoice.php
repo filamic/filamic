@@ -245,7 +245,8 @@ class Invoice extends Model
 
         if ($schoolYearId === null) {
             // Return empty result set when no school year is active
-            return $query->whereRaw('1 = 0');
+            // return $query->whereRaw('1 = 0');
+            return $query->whereNull($query->qualifyColumn('id'));
         }
 
         return $query
@@ -336,6 +337,7 @@ class Invoice extends Model
 
         $oldestBill = $student->invoices()
             ->unpaidMonthlyFee()
+            ->reorder()
             ->orderBy('due_date', 'asc')
             ->first();
 

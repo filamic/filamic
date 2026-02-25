@@ -54,7 +54,7 @@ class MonthlyFeeInvoicesRelationManager extends RelationManager
                 SelectFilter::make('school_year_id')
                     ->label('Tahun Ajaran')
                     ->options(SchoolYear::all()->pluck('name', 'id'))
-                    ->default(SchoolYear::getActive()->getKey()),
+                    ->default(SchoolYear::getActive()?->getKey()),
                 SelectFilter::make('status')
                     ->options(InvoiceStatusEnum::class)
                     ->default(InvoiceStatusEnum::UNPAID->value),

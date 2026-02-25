@@ -38,13 +38,14 @@ class PayMonthlyFeeInvoice
                 ->lockForUpdate()
                 ->get();
 
-            $fine = Invoice::calculateFineFromOldestUnpaidInvoice($student);
-
             if ($invoicesToPay->isEmpty()) {
                 throw ValidationException::withMessages([
                     'invoice_ids' => 'Tidak ada tagihan yang dapat diproses. Silakan refresh halaman.',
                 ]);
             }
+
+            // Calculate fine AFTER acquiring lock to prevent race conditions
+            $fine = Invoice::calculateFineFromOldestUnpaidInvoice($student);
 
             if ($invoicesToPay->count() !== count($validated['invoice_ids'])) {
                 throw ValidationException::withMessages([
@@ -72,11 +73,11 @@ class PayMonthlyFeeInvoice
                     'payment_reference' => $paymentReference,
                     'description' => $validated['description'],
 
-                    // Logic Denda Final kita:
+                    // Apply fine and discount only to the oldest invoice
                     'fine' => $isOldest ? $fine : 0,
                     'discount' => $isOldest ? $validated['discount'] : 0,
 
-                    // Update total_amount karena ada denda/diskon baru
+                    // Recalculate total with fine and discount applied
                     'total_amount' => $isOldest
                         ? ($invoice->amount + $fine - $validated['discount'])
                         : $invoice->amount,

@@ -560,7 +560,7 @@ class MigrateLegacyData extends Command
             'name' => 'Super Admin',
             'email' => 'super@admin.com',
             'user_type' => UserTypeEnum::EMPLOYEE,
-            'password' => bcrypt('mantapjiwa00'),
+            'password' => bcrypt(config('setting.default_password')),
         ]);
 
         $user->branches()->sync(Branch::all());
