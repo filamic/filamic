@@ -12,14 +12,16 @@ enum LevelEnum: int implements HasLabel
     case ELEMENTARY = 2;
     case JUNIOR_HIGH = 3;
     case SENIOR_HIGH = 4;
+    case ALL = 5;
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::KINDERGARTEN => 'Preschool / TK',
-            self::ELEMENTARY => 'Elementary School / SD',
-            self::JUNIOR_HIGH => 'Junior High School / SMP',
-            self::SENIOR_HIGH => 'Senior High School / SMA',
+            self::KINDERGARTEN => 'TK',
+            self::ELEMENTARY => 'SD',
+            self::JUNIOR_HIGH => 'SMP',
+            self::SENIOR_HIGH => 'SMA',
+            self::ALL => 'SEMUA JENJANG',
         };
     }
 }
