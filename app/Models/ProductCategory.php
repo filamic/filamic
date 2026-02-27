@@ -39,7 +39,7 @@ class ProductCategory extends Model
 {
     /** @use HasFactory<\Database\Factories\ProductCategoryFactory> */
     use HasFactory;
-    
+
     use HasUlids;
 
     protected $guarded = ['id'];
