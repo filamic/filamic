@@ -8,6 +8,8 @@ use App\Filament\Admin\Resources\ProductCategories\Pages\ManageProductCategories
 use App\Models\ProductCategory;
 use BackedEnum;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -41,6 +43,29 @@ class ProductCategoryResource extends Resource
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->placeholder('Contoh: SRG|BK|AKS'),
+                Repeater::make('variations')
+                    ->relationship('variations')
+                    ->hiddenLabel()
+                    ->columnSpanFull()
+                    ->table([
+                        TableColumn::make('Nama Variasi'),
+                        TableColumn::make('Opsi Variasi'),
+                    ])
+                    ->schema([
+                        TextInput::make('name')
+                            ->required()
+                            ->placeholder('Contoh: Size|Warna'),
+                        Repeater::make('options')
+                            ->relationship('options')
+                            ->hiddenLabel()
+                            ->columnSpanFull()
+                            ->simple(
+                                TextInput::make('name')
+                                    ->required()
+                                    ->distinct()
+                                    ->placeholder('Contoh: Merah|Biru|Hijau|XL|XXL'),
+                            ),
+                    ]),
                 Textarea::make('description')
                     ->label('Deskripsi')
                     ->columnSpanFull()
@@ -56,6 +81,9 @@ class ProductCategoryResource extends Resource
                     ->searchable(),
                 TextColumn::make('code')
                     ->searchable(),
+                TextColumn::make('variations.name'),
+                TextColumn::make('variationOptions.name')
+                    ->badge(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
