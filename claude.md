@@ -41,6 +41,8 @@ Never assume versions. Always verify from these files.
 - Models use ULID as primary key — never expose or assume integer IDs.
 - Never log sensitive user data.
 - Never install a package without asking first and explaining why.
+- Use `->getKey()` instead of `->id`
+- Always make sure no race condition
 
 ## Architecture
 
