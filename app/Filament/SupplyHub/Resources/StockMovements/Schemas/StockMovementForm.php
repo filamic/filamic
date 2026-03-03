@@ -8,6 +8,7 @@ use App\Enums\StockMovementTypeEnum;
 use App\Models\Branch;
 use App\Models\ProductItem;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -42,10 +43,20 @@ class StockMovementForm
                             ->columnSpanFull(),
                         Select::make('type')
                             ->label('Tipe')
-                            ->options(StockMovementTypeEnum::class)
+                            ->options(
+                                collect(StockMovementTypeEnum::cases())
+                                    ->filter(fn ($type) => $type !== StockMovementTypeEnum::TRANSFER_IN)
+                                    ->mapWithKeys(fn ($type) => [$type->value => $type->getLabel()])
+                                    ->toArray()
+                            )
                             ->required()
                             ->live()
                             ->columnSpanFull(),
+                        DatePicker::make('transaction_date')
+                            ->label('Tanggal Transaksi')
+                            ->required()
+                            ->default(now()->toDateString())
+                            ->maxDate(now()),
                         TextInput::make('quantity')
                             ->label('Jumlah')
                             ->required()

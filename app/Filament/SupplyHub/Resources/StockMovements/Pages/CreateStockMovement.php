@@ -9,6 +9,7 @@ use App\Filament\SupplyHub\Resources\StockMovements\StockMovementResource;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\ValidationException;
 
 class CreateStockMovement extends CreateRecord
 {
@@ -19,6 +20,37 @@ class CreateStockMovement extends CreateRecord
         $data['user_id'] = auth()->id();
         $data['branch_id'] = Filament::getTenant()->getKey();
 
-        return RecordStockMovement::run($data);
+        try {
+            return RecordStockMovement::run($data);
+        } catch (ValidationException $exception) {
+            throw ValidationException::withMessages($this->mapValidationErrorsToFormState($exception->errors()));
+        }
+    }
+
+    /**
+     * @param  array<string, array<int, string>>  $errors
+     * @return array<string, array<int, string>>
+     */
+    protected function mapValidationErrorsToFormState(array $errors): array
+    {
+        $statePath = $this->form->getStatePath();
+
+        if (blank($statePath)) {
+            return $errors;
+        }
+
+        $mappedErrors = [];
+
+        foreach ($errors as $key => $messages) {
+            if (blank($key) || str_starts_with($key, "{$statePath}.")) {
+                $mappedErrors[$key] = $messages;
+
+                continue;
+            }
+
+            $mappedErrors["{$statePath}.{$key}"] = $messages;
+        }
+
+        return $mappedErrors;
     }
 }

@@ -22,6 +22,7 @@ test('STOCK_IN creates movement and increases stock', function () {
     $user = User::factory()->create();
     $branch = Branch::factory()->create();
     $item = ProductItem::factory()->create();
+    $transactionDate = now()->subDay()->toDateString();
 
     // Act
     $movement = RecordStockMovement::run([
@@ -29,6 +30,7 @@ test('STOCK_IN creates movement and increases stock', function () {
         'branch_id' => $branch->getKey(),
         'product_item_id' => $item->getKey(),
         'type' => StockMovementTypeEnum::STOCK_IN->value,
+        'transaction_date' => $transactionDate,
         'quantity' => 50,
         'purchase_price' => 25000,
         'sale_price' => 40000,
@@ -38,7 +40,8 @@ test('STOCK_IN creates movement and increases stock', function () {
     expect($movement)
         ->toBeInstanceOf(ProductStockMovement::class)
         ->type->toBe(StockMovementTypeEnum::STOCK_IN)
-        ->quantity->toBe(50);
+        ->quantity->toBe(50)
+        ->and($movement->transaction_date?->toDateString())->toBe($transactionDate);
 
     $stock = ProductStock::where('product_item_id', $item->getKey())
         ->where('branch_id', $branch->getKey())
@@ -69,6 +72,29 @@ test('STOCK_IN creates stock record if none exists', function () {
 
     // Assert
     expect(ProductStock::count())->toBe(1);
+});
+
+test('transaction_date defaults to current date when not provided', function () {
+    // Arrange
+    $user = User::factory()->create();
+    $branch = Branch::factory()->create();
+    $item = ProductItem::factory()->create();
+
+    // Act
+    $movement = RecordStockMovement::run([
+        'user_id' => $user->getKey(),
+        'branch_id' => $branch->getKey(),
+        'product_item_id' => $item->getKey(),
+        'type' => StockMovementTypeEnum::STOCK_IN->value,
+        'quantity' => 5,
+        'purchase_price' => 25000,
+        'sale_price' => 40000,
+    ]);
+
+    // Assert
+    expect($movement->transaction_date)
+        ->not->toBeNull()
+        ->toDateString()->toBe(now()->toDateString());
 });
 
 test('DISTRIBUTION decreases stock', function () {
@@ -161,12 +187,81 @@ test('cannot create movement that would cause negative stock', function () {
         ->first()->quantity)->toBe(5);
 });
 
+test('sequential competing decrements keep stock and movements consistent', function () {
+    // Arrange
+    $user = User::factory()->create();
+    $branch = Branch::factory()->create();
+    $item = ProductItem::factory()->create();
+    ProductStock::create([
+        'product_item_id' => $item->getKey(),
+        'branch_id' => $branch->getKey(),
+        'quantity' => 10,
+    ]);
+
+    // Act — first decrement succeeds
+    RecordStockMovement::run([
+        'user_id' => $user->getKey(),
+        'branch_id' => $branch->getKey(),
+        'product_item_id' => $item->getKey(),
+        'type' => StockMovementTypeEnum::DISTRIBUTION->value,
+        'quantity' => 7,
+        'purchase_price' => 25000,
+        'sale_price' => 40000,
+    ]);
+
+    // Act & Assert — second decrement overdraws and fails
+    expect(fn () => RecordStockMovement::run([
+        'user_id' => $user->getKey(),
+        'branch_id' => $branch->getKey(),
+        'product_item_id' => $item->getKey(),
+        'type' => StockMovementTypeEnum::DISTRIBUTION->value,
+        'quantity' => 5,
+        'purchase_price' => 25000,
+        'sale_price' => 40000,
+    ]))->toThrow(ValidationException::class);
+
+    // Assert — first movement persisted, second did not
+    expect(ProductStockMovement::where('product_item_id', $item->getKey())
+        ->where('branch_id', $branch->getKey())
+        ->count())->toBe(1);
+
+    expect(ProductStock::where('product_item_id', $item->getKey())
+        ->where('branch_id', $branch->getKey())
+        ->first()->quantity)->toBe(3);
+});
+
+test('negative movement without stock row fails without persisting movement', function () {
+    // Arrange
+    $user = User::factory()->create();
+    $branch = Branch::factory()->create();
+    $item = ProductItem::factory()->create();
+
+    expect(ProductStock::count())->toBe(0);
+    expect(ProductStockMovement::count())->toBe(0);
+
+    // Act & Assert
+    expect(fn () => RecordStockMovement::run([
+        'user_id' => $user->getKey(),
+        'branch_id' => $branch->getKey(),
+        'product_item_id' => $item->getKey(),
+        'type' => StockMovementTypeEnum::DISTRIBUTION->value,
+        'quantity' => 1,
+        'purchase_price' => 25000,
+        'sale_price' => 40000,
+    ]))->toThrow(ValidationException::class);
+
+    // Assert — no records created
+    expect(ProductStock::count())->toBe(0);
+    expect(ProductStockMovement::count())->toBe(0);
+});
+
 test('TRANSFER_OUT auto-creates paired TRANSFER_IN', function () {
     // Arrange
     $user = User::factory()->create();
     $sourceBranch = Branch::factory()->create();
     $destBranch = Branch::factory()->create();
     $item = ProductItem::factory()->create();
+    $transactionDate = now()->subDays(2)->toDateString();
     ProductStock::create([
         'product_item_id' => $item->getKey(),
         'branch_id' => $sourceBranch->getKey(),
@@ -179,6 +274,7 @@ test('TRANSFER_OUT auto-creates paired TRANSFER_IN', function () {
         'branch_id' => $sourceBranch->getKey(),
         'product_item_id' => $item->getKey(),
         'type' => StockMovementTypeEnum::TRANSFER_OUT->value,
+        'transaction_date' => $transactionDate,
         'quantity' => 25,
         'purchase_price' => 25000,
         'sale_price' => 40000,
@@ -192,7 +288,8 @@ test('TRANSFER_OUT auto-creates paired TRANSFER_IN', function () {
     expect($movement)
         ->type->toBe(StockMovementTypeEnum::TRANSFER_OUT)
         ->quantity->toBe(-25)
-        ->branch_id->toBe($sourceBranch->getKey());
+        ->branch_id->toBe($sourceBranch->getKey())
+        ->and($movement->transaction_date?->toDateString())->toBe($transactionDate);
 
     // Paired TRANSFER_IN
     $transferIn = ProductStockMovement::where('type', StockMovementTypeEnum::TRANSFER_IN)->first();
@@ -200,7 +297,8 @@ test('TRANSFER_OUT auto-creates paired TRANSFER_IN', function () {
         ->not->toBeNull()
         ->quantity->toBe(25)
         ->branch_id->toBe($destBranch->getKey())
-        ->related_movement_id->toBe($movement->getKey());
+        ->related_movement_id->toBe($movement->getKey())
+        ->and($transferIn->transaction_date?->toDateString())->toBe($transactionDate);
 
     // Source movement points back to TRANSFER_IN
     expect($movement->refresh()->related_movement_id)->toBe($transferIn->getKey());

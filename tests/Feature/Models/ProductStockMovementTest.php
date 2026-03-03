@@ -8,6 +8,7 @@ use App\Models\ProductItem;
 use App\Models\ProductStockMovement;
 use App\Models\Student;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 
 test('it prevents mass assignment to guarded id', function () {
     // Arrange
@@ -39,15 +40,13 @@ test('it prevents mass assignment to guarded id', function () {
         ->not->toBe($customId);
 });
 
-test('type casts to StockMovementTypeEnum', function () {
-    // Arrange & Act
-    $movement = ProductStockMovement::factory()->create([
+test('it casts the columns')
+    ->expect(fn () => ProductStockMovement::factory()->create([
         'type' => StockMovementTypeEnum::STOCK_IN,
-    ]);
-
-    // Assert
-    expect($movement->type)->toBe(StockMovementTypeEnum::STOCK_IN);
-});
+        'transaction_date' => '2026-03-01 08:00:00',
+    ]))
+    ->type->toBe(StockMovementTypeEnum::STOCK_IN)
+    ->transaction_date->toBeInstanceOf(Carbon::class);
 
 test('item relationship returns related product item', function () {
     // Arrange

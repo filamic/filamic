@@ -24,6 +24,12 @@ Never assume versions. Always verify from these files.
     - Both must pass with zero errors before committing.
 8. GitHub Actions must be green before requesting review.
 
+## Migration Strategy (Environment-Aware)
+
+- Development/local only (before release to shared env): prefer editing the related existing migration directly.
+- Production/staging/shared DB: never rewrite executed migrations; add a new forward-only migration.
+- Always decide migration approach based on current environment before writing schema changes.
+
 ## Code Rules
 
 - Simplicity over cleverness. If it needs a comment to explain what it does, rewrite it.

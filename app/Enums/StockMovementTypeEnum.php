@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use App\Enums\Traits\Equatable;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
 enum StockMovementTypeEnum: int implements HasColor, HasIcon, HasLabel
 {
+    use Equatable;
+
     case STOCK_IN = 1;
     case DISTRIBUTION = 2;
     case DIRECT_SALE = 3;
@@ -20,11 +23,11 @@ enum StockMovementTypeEnum: int implements HasColor, HasIcon, HasLabel
     public function getLabel(): string
     {
         return match ($this) {
-            self::STOCK_IN => 'Barang Masuk',
+            self::STOCK_IN => 'Barang Masuk Dari Supplier',
             self::DISTRIBUTION => 'Pembagian',
             self::DIRECT_SALE => 'Penjualan Langsung',
-            self::TRANSFER_OUT => 'Transfer Keluar',
-            self::TRANSFER_IN => 'Transfer Masuk',
+            self::TRANSFER_OUT => 'Transfer Ke Cabang Lain',
+            self::TRANSFER_IN => 'Pengiriman Dari Cabang Lain',
             self::ADJUSTMENT => 'Penyesuaian',
         };
     }

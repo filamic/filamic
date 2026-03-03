@@ -28,11 +28,12 @@ test('list page renders columns', function (string $column) {
     Livewire::test(ListStockMovements::class)
         ->assertCanRenderTableColumn($column);
 })->with([
-    'created_at',
+    'transaction_date',
     'item.product.name',
     'item.sku',
-    'type',
     'quantity',
+    'source_branch',
+    'type',
     'user.name',
 ]);
 
@@ -94,12 +95,14 @@ test('cannot create a movement without required fields', function () {
 test('can create a STOCK_IN movement', function () {
     // Arrange
     $item = ProductItem::factory()->create();
+    $transactionDate = now()->subDay()->toDateString();
 
     // Act
     Livewire::test(CreateStockMovement::class)
         ->fillForm([
             'product_item_id' => $item->getKey(),
             'type' => StockMovementTypeEnum::STOCK_IN->value,
+            'transaction_date' => $transactionDate,
             'quantity' => 50,
             'purchase_price' => 25000,
             'sale_price' => 40000,
@@ -113,9 +116,29 @@ test('can create a STOCK_IN movement', function () {
     $movement = ProductStockMovement::first();
     expect($movement)
         ->type->toBe(StockMovementTypeEnum::STOCK_IN)
-        ->quantity->toBe(50);
+        ->quantity->toBe(50)
+        ->and($movement->transaction_date?->toDateString())->toBe($transactionDate);
 
     $stock = ProductStock::where('product_item_id', $item->getKey())->first();
     expect($stock)->not->toBeNull()
         ->quantity->toBe(50);
+});
+
+test('shows stock validation on quantity field when distribution exceeds available stock', function () {
+    // Arrange
+    $item = ProductItem::factory()->create();
+
+    // Act & Assert
+    Livewire::test(CreateStockMovement::class)
+        ->fillForm([
+            'product_item_id' => $item->getKey(),
+            'type' => StockMovementTypeEnum::DISTRIBUTION->value,
+            'quantity' => 1,
+            'purchase_price' => 25000,
+            'sale_price' => 40000,
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['quantity']);
+
+    expect(ProductStockMovement::count())->toBe(0);
 });

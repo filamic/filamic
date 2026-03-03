@@ -14,11 +14,11 @@ class StockMovementsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('transaction_date', 'desc')
             ->columns([
-                TextColumn::make('created_at')
-                    ->label('Tanggal')
-                    ->dateTime()
+                TextColumn::make('transaction_date')
+                    ->label('Tanggal Transaksi')
+                    ->date()
                     ->sortable(),
                 TextColumn::make('item.product.name')
                     ->label('Produk')
@@ -26,12 +26,16 @@ class StockMovementsTable
                 TextColumn::make('item.sku')
                     ->label('SKU')
                     ->searchable(),
+                TextColumn::make('quantity')
+                    ->label('Jumlah')
+                    ->sortable(),
+                TextColumn::make('source_branch')
+                    ->label('Cabang Tujuan')
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->type->is(StockMovementTypeEnum::TRANSFER_OUT) ? $record->relatedMovement->branch->name : $record->branch->name),
                 TextColumn::make('type')
                     ->label('Tipe')
                     ->badge()
-                    ->sortable(),
-                TextColumn::make('quantity')
-                    ->label('Jumlah')
                     ->sortable(),
                 TextColumn::make('user.name')
                     ->label('Pengguna'),

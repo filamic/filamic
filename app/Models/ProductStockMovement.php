@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $student_id
  * @property numeric $purchase_price
  * @property numeric $sale_price
+ * @property \Illuminate\Support\Carbon|null $transaction_date
  * @property StockMovementTypeEnum $type
  * @property int $quantity
  * @property string|null $reference
@@ -46,6 +47,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductStockMovement whereRelatedMovementId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductStockMovement whereSalePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductStockMovement whereStudentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductStockMovement whereTransactionDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductStockMovement whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductStockMovement whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductStockMovement whereUserId($value)
@@ -65,6 +67,7 @@ class ProductStockMovement extends Model
     {
         return [
             'type' => StockMovementTypeEnum::class,
+            'transaction_date' => 'datetime',
         ];
     }
 
