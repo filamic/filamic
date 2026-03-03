@@ -28,14 +28,13 @@ class StockMovementForm
                     ->components([
                         Select::make('product_item_id')
                             ->label('Item Produk')
-                            ->options(
-                                ProductItem::query()
-                                    ->where('is_active', true)
-                                    ->with('product')
-                                    ->get()
-                                    ->mapWithKeys(fn (ProductItem $item) => [
-                                        $item->getKey() => $item->product->name . ' — ' . $item->sku,
-                                    ])
+                            ->options(fn () => ProductItem::query()
+                                ->where('is_active', true)
+                                ->with('product')
+                                ->get()
+                                ->mapWithKeys(fn (ProductItem $item) => [
+                                    $item->getKey() => $item->product->name . ' — ' . $item->sku,
+                                ])
                             )
                             ->searchable()
                             ->required()

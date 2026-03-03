@@ -13,6 +13,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductItem;
 use App\Models\Supplier;
 use Filament\Actions\Action;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
@@ -31,7 +32,12 @@ class ProductItemsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $query->with('stocks')->latest();
+                $query->with([
+                    'stocks',
+                    'product.supplier',
+                    'product.category',
+                    'variationOptions',
+                ])->latest();
             })
             ->paginationMode(PaginationMode::Simple)
             ->defaultGroup('product.name')
@@ -58,7 +64,7 @@ class ProductItemsTable
 
                 Action::make('expand_all')
                     ->label('Toggle Detail Variasi Produk')
-                    ->icon('heroicon-m-arrows-pointing-out')
+                    ->icon(Heroicon::ArrowsPointingOut)
                     ->color('gray')
                     ->alpineClickHandler("
                         const collapsed = document.querySelectorAll('.fi-ta-group-header.fi-collapsed');
@@ -105,13 +111,13 @@ class ProductItemsTable
                 ColumnGroup::make('Harga', [
                     TextInputColumn::make('purchase_price')
                         ->label('Beli')
-                        ->rules(['required', 'min:0'])
+                        ->rules(['required', 'numeric', 'min:0'])
                         ->disabled(fn ($livewire) => ! $livewire->priceEditable)
                         ->sortable()
                         ->currencyMask(),
                     TextInputColumn::make('sale_price')
                         ->label('Jual')
-                        ->rules(['required', 'min:0'])
+                        ->rules(['required', 'numeric', 'min:0'])
                         ->disabled(fn ($livewire) => ! $livewire->priceEditable)
                         ->sortable()
                         ->currencyMask(),
@@ -141,7 +147,7 @@ class ProductItemsTable
                     ),
                 SelectFilter::make('supplier')
                     ->label('Supplier')
-                    ->options(Supplier::all()->pluck('name', 'id'))
+                    ->options(fn () => Supplier::pluck('name', 'id'))
                     ->query(fn (Builder $query, array $data) => filled($data['value'])
                             ? $query->whereRelation('product', 'supplier_id', $data['value'])
                             : $query
@@ -149,7 +155,7 @@ class ProductItemsTable
                     ->visibleOn(ListProductItems::class),
                 SelectFilter::make('category')
                     ->label('Kategori')
-                    ->options(ProductCategory::all()->pluck('name', 'id'))
+                    ->options(fn () => ProductCategory::pluck('name', 'id'))
                     ->query(fn (Builder $query, array $data) => filled($data['value'])
                             ? $query->whereRelation('product', 'product_category_id', $data['value'])
                             : $query
@@ -160,7 +166,7 @@ class ProductItemsTable
 
     private static function pushBranchStockColumns(): array
     {
-        $branches = Branch::all();
+        $branches = cache()->remember('branches_for_stock_columns', 60, fn () => Branch::all());
 
         $columns = $stocks = [];
 

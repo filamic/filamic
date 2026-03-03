@@ -109,13 +109,13 @@ class EditSupplier extends EditRecord
         return 'Informasi Supplier';
     }
 
-    private function getProductForm()
+    private function getProductForm(): array
     {
         return [
             Group::make([
                 Select::make('product_category_id')
                     ->label('Kategori Produk')
-                    ->options(ProductCategory::all()->pluck('name', 'id'))
+                    ->options(fn () => ProductCategory::pluck('name', 'id'))
                     ->required()
                     ->live()
                     ->columnSpanFull()

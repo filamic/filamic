@@ -8,7 +8,7 @@ use Filament\Support\Contracts\HasLabel;
 
 enum GradeEnum: int implements HasLabel
 {
-    // TK
+    // TPA
     case TODDLER = 1;
     case NURSERY = 2;
     case KINDERGARTEN_A = 3;

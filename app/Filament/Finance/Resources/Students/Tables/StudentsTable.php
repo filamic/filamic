@@ -258,7 +258,7 @@ class StudentsTable
                             Select::make('school_year_id')
                                 ->label('Tahun Ajaran')
                                 ->live()
-                                ->options(fn () => SchoolYear::get()->pluck('name', 'id'))
+                                ->options(fn () => SchoolYear::pluck('name', 'id'))
                                 ->default(fn () => SchoolYear::getActive()?->getKey()),
                             CheckboxList::make('invoice_ids')
                                 ->label('Tagihan')
