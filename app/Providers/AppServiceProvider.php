@@ -56,12 +56,12 @@ class AppServiceProvider extends ServiceProvider
 
         Section::configureUsing(fn (Section $section) => $section
             ->columnSpanFull()
-            ->columns(2)
+            // ->columns(2)
         );
 
         Tabs::configureUsing(fn (Tabs $tabs) => $tabs
             ->columnSpanFull()
-            ->columns(2)
+            // ->columns(2)
         );
 
         TextInput::configureUsing(function (TextInput $textInput) {

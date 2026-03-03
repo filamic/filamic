@@ -11,12 +11,14 @@ use App\Models\Branch;
 use App\Models\Classroom;
 use App\Models\Curriculum;
 use App\Models\Position;
+use App\Models\ProductCategory;
 use App\Models\School;
 use App\Models\SchoolEvent;
 use App\Models\SchoolTerm;
 use App\Models\SchoolYear;
 use App\Models\Subject;
 use App\Models\SubjectCategory;
+use App\Models\Supplier;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -37,6 +39,8 @@ class DatabaseSeeder extends Seeder
             // $this->createSchools();
             // $this->createCurriculum();
             // $this->createSubjectCategories();
+
+            $this->setupSupplyHub();
 
             $user = User::factory()->create([
                 'name' => 'Super Admin',
@@ -159,5 +163,48 @@ class DatabaseSeeder extends Seeder
     public function createSchoolEvents(): void
     {
         SchoolEvent::factory(5)->create();
+    }
+
+    public function setupSupplyHub(): void
+    {
+        Supplier::create([
+            'name' => 'Delta Utama',
+            'contact_person' => 'Pak Budi',
+            'phone' => '08123456789',
+        ]);
+
+        $uniformCategory = ProductCategory::create([
+            'name' => 'Seragam Sekolah',
+            'code' => 'SRG',
+        ]);
+
+        $uniformVariation = $uniformCategory->variations()->create([
+            'name' => 'Ukuran',
+        ]);
+
+        $uniformVariation->options()->create([
+            'name' => 'S',
+        ]);
+
+        $uniformVariation->options()->create([
+            'name' => 'M',
+        ]);
+
+        $uniformVariation->options()->create([
+            'name' => 'L',
+        ]);
+
+        $uniformVariation->options()->create([
+            'name' => 'XL',
+        ]);
+
+        $uniformVariation->options()->create([
+            'name' => 'XXL',
+        ]);
+
+        ProductCategory::create([
+            'name' => 'Buku Pelajaran',
+            'code' => 'BK',
+        ]);
     }
 }

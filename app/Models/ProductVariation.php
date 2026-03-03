@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read ProductCategory|null $category
+ * @property-read ProductCategory $category
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductVariationOption> $options
  * @property-read int|null $options_count
  *
@@ -43,11 +43,11 @@ class ProductVariation extends Model
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(ProductCategory::class);
+        return $this->belongsTo(ProductCategory::class, 'product_category_id');
     }
 
     public function options(): HasMany
     {
-        return $this->hasMany(ProductVariationOption::class);
+        return $this->hasMany(ProductVariationOption::class, 'product_variation_id');
     }
 }

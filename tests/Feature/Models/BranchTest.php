@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use App\Models\Branch;
 use App\Models\Classroom;
+use App\Models\ProductItem;
+use App\Models\ProductStock;
+use App\Models\ProductStockMovement;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
@@ -125,4 +128,107 @@ test('it isolates students by branch', function () {
     expect($students)
         ->toHaveCount(1)
         ->first()->getKey()->toBe($student->getKey());
+});
+
+test('it isolates stock movements by branch', function () {
+    // Arrange
+    $branch = Branch::factory()->create();
+    $otherBranch = Branch::factory()->create();
+
+    $movement = ProductStockMovement::factory()->create(['branch_id' => $branch->getKey()]);
+    ProductStockMovement::factory()->create(['branch_id' => $otherBranch->getKey()]);
+
+    // Act
+    $movements = $branch->stockMovements;
+
+    // Assert
+    expect($movements)
+        ->toHaveCount(1)
+        ->first()->getKey()->toBe($movement->getKey());
+});
+
+test('it isolates product stocks by branch', function () {
+    // Arrange
+    $branch = Branch::factory()->create();
+    $otherBranch = Branch::factory()->create();
+
+    $stock = ProductStock::factory()->create(['branch_id' => $branch->getKey()]);
+    ProductStock::factory()->create(['branch_id' => $otherBranch->getKey()]);
+
+    // Act
+    $stocks = $branch->productStocks;
+
+    // Assert
+    expect($stocks)
+        ->toHaveCount(1)
+        ->first()->getKey()->toBe($stock->getKey());
+});
+
+test('stockFor returns stock for the given product item', function () {
+    // Arrange
+    $branch = Branch::factory()->create();
+    $item = ProductItem::factory()->create();
+    $otherItem = ProductItem::factory()->create();
+
+    $stock = ProductStock::factory()->create([
+        'branch_id' => $branch->getKey(),
+        'product_item_id' => $item->getKey(),
+    ]);
+
+    ProductStock::factory()->create([
+        'branch_id' => $branch->getKey(),
+        'product_item_id' => $otherItem->getKey(),
+    ]);
+
+    // Act
+    $foundStock = $branch->stockFor($item);
+
+    // Assert
+    expect($foundStock)
+        ->not->toBeNull()
+        ->getKey()->toBe($stock->getKey());
+});
+
+test('updateStock creates stock when record does not exist', function () {
+    // Arrange
+    $branch = Branch::factory()->create();
+    $item = ProductItem::factory()->create();
+
+    // Act
+    $branch->updateStock($item, 12);
+
+    // Assert
+    $stock = ProductStock::query()
+        ->where('branch_id', $branch->getKey())
+        ->where('product_item_id', $item->getKey())
+        ->first();
+
+    expect($stock)
+        ->not->toBeNull()
+        ->quantity->toBe(12);
+});
+
+test('updateStock updates existing stock without creating duplicate row', function () {
+    // Arrange
+    $branch = Branch::factory()->create();
+    $item = ProductItem::factory()->create();
+    $stock = ProductStock::factory()->create([
+        'branch_id' => $branch->getKey(),
+        'product_item_id' => $item->getKey(),
+        'quantity' => 3,
+    ]);
+
+    // Act
+    $branch->updateStock($item, 25);
+
+    // Assert
+    $stocks = ProductStock::query()
+        ->where('branch_id', $branch->getKey())
+        ->where('product_item_id', $item->getKey())
+        ->get();
+
+    expect($stocks)
+        ->toHaveCount(1)
+        ->first()->getKey()->toBe($stock->getKey())
+        ->and($stocks->first()->quantity)->toBe(25);
 });

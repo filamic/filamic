@@ -50,7 +50,7 @@ Never assume versions. Always verify from these files.
 - `app/Enums/` — all enums, backed enums preferred
 - `app/Filament/` — resources and pages only, zero business logic
 - Livewire: `app/Livewire/`, views: `resources/views/livewire/`
-- No `app/Services/` — if you're tempted to create one, use an Action instead
+- No `app/Services/` — except for API or external service integration
 
 ## Action Pattern
 
