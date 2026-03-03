@@ -41,6 +41,11 @@ Never assume versions. Always verify from these files.
 - Models use ULID as primary key — never expose or assume integer IDs.
 - Never log sensitive user data.
 - Never install a package without asking first and explaining why.
+- Use `->getKey()` instead of `->id`
+- Prevent race conditions using database transactions, pessimistic locking (`lockForUpdate()`), or atomic operations for concurrent updates
+- For Filament `Select` / `SelectFilter` with DB-backed options, always use lazy loading: `->options(fn () => ...)`.
+- Prefer `Model::pluck(...)` instead of `Model::all()/get()->pluck(...)` for options data.
+- Exception: use `get()/all()` intentionally when option labels depend on accessors, relationship-derived values, or grouped collection transforms.
 
 ## Architecture
 
@@ -48,7 +53,7 @@ Never assume versions. Always verify from these files.
 - `app/Enums/` — all enums, backed enums preferred
 - `app/Filament/` — resources and pages only, zero business logic
 - Livewire: `app/Livewire/`, views: `resources/views/livewire/`
-- No `app/Services/` — if you're tempted to create one, use an Action instead
+- No `app/Services/` — except for API or external service integration
 
 ## Action Pattern
 

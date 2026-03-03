@@ -479,7 +479,8 @@ class MigrateLegacyData extends Command
     protected function getGrade(int $oldGrade): ?int
     {
         if ($oldGrade === 0) {
-            return GradeEnum::PLAYGROUP->value;
+            // TODO: make it dynamic using age calculation
+            return GradeEnum::KINDERGARTEN_B->value;
         }
         if ($oldGrade === 1) {
             return GradeEnum::GRADE_1->value;

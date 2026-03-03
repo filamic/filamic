@@ -1,6 +1,7 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 
 @source '../../../../app/Filament/Admin/**/*';
+@source '../../../../app/Filament/SupplyHub/**/*';
 @source '../../../../resources/views/filament/admin/**/*';
 @source '../../../../resources/views/filament/finance/**/*';
 
@@ -84,7 +85,8 @@
 .fi-section,
 .fi-wi-stats-overview-stat,
 .fi-tabs,
-.fi-fo-repeater-item
+.fi-fo-repeater-item,
+.fi-empty-state
 {
     /* @apply !rounded-md shadow-none ring-1 ring-gray-100; */
     @apply !rounded-md shadow-none ring-1 ring-gray-100;

@@ -22,8 +22,12 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Classroom> $classrooms
  * @property-read int|null $classrooms_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductStock> $productStocks
+ * @property-read int|null $product_stocks_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, School> $schools
  * @property-read int|null $schools_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductStockMovement> $stockMovements
+ * @property-read int|null $stock_movements_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Student> $students
  * @property-read int|null $students_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $users
@@ -71,5 +75,31 @@ class Branch extends Model
     public function students(): HasMany
     {
         return $this->hasMany(Student::class);
+    }
+
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(ProductStockMovement::class);
+    }
+
+    public function productStocks(): HasMany
+    {
+        return $this->hasMany(ProductStock::class);
+    }
+
+    public function stockFor(ProductItem $productItem)
+    {
+        return $this->productStocks()->where('product_item_id', $productItem->getKey())->first();
+    }
+
+    public function updateStock(ProductItem $productItem, int $quantity): void
+    {
+        $this->productStocks()->updateOrCreate(
+            [
+                'product_item_id' => $productItem->getKey(),
+                'branch_id' => $this->getKey(),
+            ],
+            ['quantity' => $quantity]
+        );
     }
 }

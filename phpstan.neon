@@ -11,5 +11,11 @@ parameters:
         - database/migrations
         - routes
 
-    #ignoreErrors:
+    ignoreErrors:
     #   - '#PHPDoc tag @var#'
+        -
+            message: '#Call to an undefined method Filament\\Tables\\Columns\\TextInputColumn::currencyMask\(\)#'
+            path: app/Filament/*
+        -
+            message: '#Call to an undefined method Filament\\Forms\\Components\\TextInput::currencyMask\(\)#'
+            path: app/Filament/*
