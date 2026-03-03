@@ -15,7 +15,8 @@
       "Bash(grep:*)",
       "Bash(php:*)",
       "Bash(git stash)",
-      "Bash(git stash pop)"
+      "Bash(git stash pop)",
+      "Bash(mcp__playwright:*)"
     ]
   }
 }
