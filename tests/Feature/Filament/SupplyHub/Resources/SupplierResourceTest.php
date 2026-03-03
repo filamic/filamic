@@ -119,7 +119,9 @@ test('edit page is accessible', function () {
 
 test('cannot save a record without required fields', function () {
     // Arrange
-    $supplier = Supplier::factory()->create();
+    $supplier = Supplier::factory()->create([
+        'phone' => null,
+    ]);
 
     // Act & Assert
     Livewire::test(EditSupplier::class, ['record' => $supplier->getRouteKey()])
@@ -130,7 +132,10 @@ test('cannot save a record without required fields', function () {
 
 test('can save a record', function () {
     // Arrange
-    $supplier = Supplier::factory()->create(['name' => 'Original']);
+    $supplier = Supplier::factory()->create([
+        'name' => 'Original',
+        'phone' => null,
+    ]);
 
     // Act
     Livewire::test(EditSupplier::class, ['record' => $supplier->getRouteKey()])
