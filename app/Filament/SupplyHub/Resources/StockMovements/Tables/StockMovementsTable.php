@@ -41,7 +41,7 @@ class StockMovementsTable
                     ->sortable()
                     ->getStateUsing(fn (ProductStockMovement $record): ?string => $record->type->is(StockMovementTypeEnum::TRANSFER_OUT)
                         ? $record->relatedMovement?->branch?->name
-                        : $record->branch?->name),
+                        : $record->branch->name),
                 TextColumn::make('type')
                     ->label('Tipe')
                     ->badge()
