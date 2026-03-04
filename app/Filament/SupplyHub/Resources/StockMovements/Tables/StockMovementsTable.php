@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\SupplyHub\Resources\StockMovements\Tables;
 
 use App\Enums\StockMovementTypeEnum;
+use App\Models\ProductStockMovement;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -26,13 +27,21 @@ class StockMovementsTable
                 TextColumn::make('item.sku')
                     ->label('SKU')
                     ->searchable(),
+                TextColumn::make('item.variationOptions.formatted_name')
+                    ->label('Variasi')
+                    ->placeholder('-')
+                    ->wrapHeader()
+                    ->wrap()
+                    ->badge(),
                 TextColumn::make('quantity')
                     ->label('Jumlah')
                     ->sortable(),
-                TextColumn::make('source_branch')
+                TextColumn::make('destination_branch')
                     ->label('Cabang Tujuan')
                     ->sortable()
-                    ->getStateUsing(fn ($record) => $record->type->is(StockMovementTypeEnum::TRANSFER_OUT) ? $record->relatedMovement->branch->name : $record->branch->name),
+                    ->getStateUsing(fn (ProductStockMovement $record): ?string => $record->type->is(StockMovementTypeEnum::TRANSFER_OUT)
+                        ? $record->relatedMovement?->branch?->name
+                        : $record->branch?->name),
                 TextColumn::make('type')
                     ->label('Tipe')
                     ->badge()

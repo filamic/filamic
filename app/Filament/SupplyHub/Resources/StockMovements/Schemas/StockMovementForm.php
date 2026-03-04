@@ -45,8 +45,8 @@ class StockMovementForm
                             ->label('Tipe')
                             ->options(
                                 collect(StockMovementTypeEnum::cases())
-                                    ->filter(fn ($type) => $type !== StockMovementTypeEnum::TRANSFER_IN)
-                                    ->mapWithKeys(fn ($type) => [$type->value => $type->getLabel()])
+                                    ->filter(fn (StockMovementTypeEnum $type): bool => $type !== StockMovementTypeEnum::TRANSFER_IN)
+                                    ->mapWithKeys(fn (StockMovementTypeEnum $type): array => [$type->value => $type->getLabel()])
                                     ->toArray()
                             )
                             ->required()
@@ -55,8 +55,8 @@ class StockMovementForm
                         DatePicker::make('transaction_date')
                             ->label('Tanggal Transaksi')
                             ->required()
-                            ->default(now()->toDateString())
-                            ->maxDate(now()),
+                            ->default(fn (): string => now()->toDateString())
+                            ->maxDate(fn (): \Carbon\Carbon => now()),
                         TextInput::make('quantity')
                             ->label('Jumlah')
                             ->required()

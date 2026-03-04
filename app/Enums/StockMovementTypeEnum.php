@@ -26,8 +26,8 @@ enum StockMovementTypeEnum: int implements HasColor, HasIcon, HasLabel
             self::STOCK_IN => 'Barang Masuk Dari Supplier',
             self::DISTRIBUTION => 'Pembagian',
             self::DIRECT_SALE => 'Penjualan Langsung',
-            self::TRANSFER_OUT => 'Transfer Ke Cabang Lain',
-            self::TRANSFER_IN => 'Pengiriman Dari Cabang Lain',
+            self::TRANSFER_OUT => 'Kirim Ke Cabang Lain',
+            self::TRANSFER_IN => 'Terima Dari Cabang Lain',
             self::ADJUSTMENT => 'Penyesuaian',
         };
     }

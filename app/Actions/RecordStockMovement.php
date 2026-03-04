@@ -179,6 +179,5 @@ class RecordStockMovement
         $sourceMovement->update(['related_movement_id' => $transferIn->getKey()]);
 
         $this->incrementStock($data['product_item_id'], $data['destination_branch_id'], abs((int) $data['quantity']));
-
     }
 }
