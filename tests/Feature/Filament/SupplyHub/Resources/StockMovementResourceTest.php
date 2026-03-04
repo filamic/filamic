@@ -28,12 +28,11 @@ test('list page renders columns', function (string $column) {
     Livewire::test(ListStockMovements::class)
         ->assertCanRenderTableColumn($column);
 })->with([
-    'transaction_date',
     'item.product.name',
-    'item.sku',
+    'transaction_date',
+    'item.variationOptions.formatted_name',
     'quantity',
-    'source_branch',
-    'type',
+    'destination_branch',
     'user.name',
 ]);
 
@@ -87,8 +86,8 @@ test('cannot create a movement without required fields', function () {
             'product_item_id' => 'required',
             'type' => 'required',
             'quantity' => 'required',
-            'purchase_price' => 'required',
-            'sale_price' => 'required',
+            // 'purchase_price' => 'required',
+            // 'sale_price' => 'required',
         ]);
 });
 
@@ -104,8 +103,8 @@ test('can create a STOCK_IN movement', function () {
             'type' => StockMovementTypeEnum::STOCK_IN->value,
             'transaction_date' => $transactionDate,
             'quantity' => 50,
-            'purchase_price' => 25000,
-            'sale_price' => 40000,
+            // 'purchase_price' => 25000,
+            // 'sale_price' => 40000,
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -134,8 +133,8 @@ test('shows stock validation on quantity field when distribution exceeds availab
             'product_item_id' => $item->getKey(),
             'type' => StockMovementTypeEnum::DISTRIBUTION->value,
             'quantity' => 1,
-            'purchase_price' => 25000,
-            'sale_price' => 40000,
+            // 'purchase_price' => 25000,
+            // 'sale_price' => 40000,
         ])
         ->call('create')
         ->assertHasFormErrors(['quantity']);

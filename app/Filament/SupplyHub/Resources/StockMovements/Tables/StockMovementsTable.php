@@ -10,7 +10,6 @@ use Filament\Actions\Action;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\PaginationMode;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -85,11 +84,6 @@ class StockMovementsTable
                 TextColumn::make('notes')
                     ->label('Catatan')
                     ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                SelectFilter::make('type')
-                    ->label('Tipe')
-                    ->options(StockMovementTypeEnum::class),
             ]);
     }
 }

@@ -33,7 +33,7 @@ class ListStockMovements extends ListRecords
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('type', $type->value))
                 ->icon($type->getIcon());
         }
-        
+
         return $tabs;
     }
 }

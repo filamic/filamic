@@ -42,7 +42,7 @@ class StockMovementForm
                                     ->toArray()
                             )
                             ->required()
-                            ->default(fn($state) => $state)
+                            ->default(fn ($state) => $state)
                             ->live(),
 
                         Select::make('product_item_id')
@@ -58,7 +58,7 @@ class StockMovementForm
                             )
                             ->searchable()
                             ->required(),
-                        
+
                         TextInput::make('quantity')
                             ->label('Jumlah')
                             ->required()
