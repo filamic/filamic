@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Enums\StockMovementTypeEnum;
+use App\Models\ProductItem;
 use App\Models\ProductStock;
 use App\Models\ProductStockMovement;
 use Carbon\Carbon;
@@ -38,8 +39,8 @@ class RecordStockMovement
             'product_item_id' => ['required', 'exists:product_items,id'],
             'type' => ['required', Rule::enum(StockMovementTypeEnum::class)],
             'quantity' => ['required', 'integer', $isAdjustment ? 'not_in:0' : 'min:1'],
-            'purchase_price' => ['required', 'numeric', 'min:0'],
-            'sale_price' => ['required', 'numeric', 'min:0'],
+            // 'purchase_price' => ['required', 'numeric', 'min:0'],
+            // 'sale_price' => ['required', 'numeric', 'min:0'],
             'transaction_date' => ['nullable', 'date'],
             'student_id' => ['nullable', 'exists:students,id'],
             'reference' => ['nullable', 'string'],
@@ -66,14 +67,17 @@ class RecordStockMovement
                 );
             }
 
+            /** @var ProductItem $productItem */
+            $productItem = ProductItem::find($data['product_item_id']);
+
             $movement = ProductStockMovement::create([
                 'user_id' => $data['user_id'],
                 'branch_id' => $data['branch_id'],
-                'product_item_id' => $data['product_item_id'],
+                'product_item_id' => $productItem->getKey(),
                 'type' => $type,
                 'quantity' => $signedQuantity,
-                'purchase_price' => $data['purchase_price'],
-                'sale_price' => $data['sale_price'],
+                'purchase_price' => $productItem->purchase_price,
+                'sale_price' => $productItem->sale_price,
                 'transaction_date' => $transactionDate,
                 'student_id' => $data['student_id'] ?? null,
                 'reference' => $data['reference'] ?? null,

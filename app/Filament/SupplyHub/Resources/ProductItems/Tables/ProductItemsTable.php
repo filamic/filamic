@@ -166,7 +166,7 @@ class ProductItemsTable
 
     private static function pushBranchStockColumns(): array
     {
-        $branches = cache()->remember('filament:product_items_table:branches', 60, fn () => Branch::all(['id', 'name']));
+        $branches = cache()->remember('filament:product_items_table:branches', 60, fn () => auth()->user()->branches()->get(['id', 'name']));
 
         $columns = $stocks = [];
 

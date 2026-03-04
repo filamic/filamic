@@ -27,6 +27,24 @@ class StockMovementForm
                     ->heading('Data Pergerakan Stok')
                     ->icon('tabler-arrows-right-left')
                     ->components([
+                        DatePicker::make('transaction_date')
+                            ->label('Tanggal Transaksi')
+                            ->required()
+                            ->default(fn (): string => now()->toDateString())
+                            ->maxDate(fn (): \Carbon\Carbon => now()),
+
+                        Select::make('type')
+                            ->label('Tipe')
+                            ->options(
+                                collect(StockMovementTypeEnum::cases())
+                                    ->filter(fn (StockMovementTypeEnum $type): bool => $type !== StockMovementTypeEnum::TRANSFER_IN)
+                                    ->mapWithKeys(fn (StockMovementTypeEnum $type): array => [$type->value => $type->getLabel()])
+                                    ->toArray()
+                            )
+                            ->required()
+                            ->default(fn($state) => $state)
+                            ->live(),
+
                         Select::make('product_item_id')
                             ->label('Item Produk')
                             ->options(fn (): array => ProductItem::query()
@@ -39,47 +57,32 @@ class StockMovementForm
                                 ->toArray()
                             )
                             ->searchable()
-                            ->required()
-                            ->columnSpanFull(),
-                        Select::make('type')
-                            ->label('Tipe')
-                            ->options(
-                                collect(StockMovementTypeEnum::cases())
-                                    ->filter(fn (StockMovementTypeEnum $type): bool => $type !== StockMovementTypeEnum::TRANSFER_IN)
-                                    ->mapWithKeys(fn (StockMovementTypeEnum $type): array => [$type->value => $type->getLabel()])
-                                    ->toArray()
-                            )
-                            ->required()
-                            ->live()
-                            ->columnSpanFull(),
-                        DatePicker::make('transaction_date')
-                            ->label('Tanggal Transaksi')
-                            ->required()
-                            ->default(fn (): string => now()->toDateString())
-                            ->maxDate(fn (): \Carbon\Carbon => now()),
+                            ->required(),
+                        
                         TextInput::make('quantity')
                             ->label('Jumlah')
                             ->required()
                             ->numeric()
                             ->minValue(1),
-                        TextInput::make('purchase_price')
-                            ->label('Harga Beli')
-                            ->required()
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->mask(RawJs::make('$money($input)'))
-                            ->stripCharacters(',')
-                            ->minValue(0),
-                        TextInput::make('sale_price')
-                            ->label('Harga Jual')
-                            ->required()
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->mask(RawJs::make('$money($input)'))
-                            ->stripCharacters(',')
-                            ->minValue(0),
+                        // TextInput::make('purchase_price')
+                        //     ->label('Harga Beli')
+                        //     ->required()
+                        //     ->numeric()
+                        //     ->prefix('Rp')
+                        //     ->mask(RawJs::make('$money($input)'))
+                        //     ->stripCharacters(',')
+                        //     ->minValue(0),
+                        // TextInput::make('sale_price')
+                        //     ->label('Harga Jual')
+                        //     ->required()
+                        //     ->numeric()
+                        //     ->prefix('Rp')
+                        //     ->mask(RawJs::make('$money($input)'))
+                        //     ->stripCharacters(',')
+                        //     ->minValue(0),
                         Select::make('destination_branch_id')
                             ->label('Cabang Tujuan')
+                            ->columnSpanFull()
                             ->options(function (): array {
                                 $currentBranchId = Filament::getTenant()?->getKey();
 
@@ -88,22 +91,21 @@ class StockMovementForm
                                     ->pluck('name', 'id')
                                     ->toArray();
                             })
-                            ->searchable()
                             ->required()
                             ->visible(fn (Get $get): bool => static::typeEquals($get('type'), StockMovementTypeEnum::TRANSFER_OUT)),
-                        Select::make('student_id')
-                            ->label('Siswa')
-                            ->relationship('student', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->visible(fn (Get $get): bool => static::typeEquals($get('type'), StockMovementTypeEnum::DISTRIBUTION)),
+                        // Select::make('student_id')
+                        //     ->label('Siswa')
+                        //     ->relationship('student', 'name')
+                        //     ->searchable()
+                        //     ->preload()
+                        //     ->visible(fn (Get $get): bool => static::typeEquals($get('type'), StockMovementTypeEnum::DISTRIBUTION)),
                         TextInput::make('reference')
                             ->label('Referensi')
                             ->columnSpanFull(),
                         Textarea::make('notes')
                             ->label('Catatan')
                             ->columnSpanFull(),
-                    ]),
+                    ])->columns(2),
             ]);
     }
 

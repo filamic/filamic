@@ -47,8 +47,8 @@ enum StockMovementTypeEnum: int implements HasColor, HasIcon, HasLabel
     public function getIcon(): string
     {
         return match ($this) {
-            self::STOCK_IN => 'heroicon-o-inbox',
-            self::DISTRIBUTION => 'heroicon-o-truck',
+            self::STOCK_IN => 'tabler-truck',
+            self::DISTRIBUTION => 'tabler-share',
             self::DIRECT_SALE => 'heroicon-o-shopping-cart',
             self::TRANSFER_OUT => 'heroicon-o-arrow-right',
             self::TRANSFER_IN => 'heroicon-o-arrow-left',
