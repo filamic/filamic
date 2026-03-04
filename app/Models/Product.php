@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\GradeEnum;
 use App\Enums\LevelEnum;
+use App\Models\Traits\BelongsToSupplier;
 use BackedEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -54,6 +55,8 @@ use InvalidArgumentException;
  */
 class Product extends Model
 {
+    use BelongsToSupplier;
+
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
 
@@ -128,11 +131,6 @@ class Product extends Model
             ->join(':');
     }
 
-    public function supplier(): BelongsTo
-    {
-        return $this->belongsTo(Supplier::class);
-    }
-
     public function category(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'product_category_id');
@@ -140,7 +138,7 @@ class Product extends Model
 
     public function items(): HasMany
     {
-        return $this->hasMany(ProductItem::class);
+        return $this->hasMany(ProductItem::class, 'product_id');
     }
 
     public function stocks(): HasManyThrough
