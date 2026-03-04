@@ -7,6 +7,7 @@ namespace App\Actions;
 use App\Enums\StockMovementTypeEnum;
 use App\Models\ProductStock;
 use App\Models\ProductStockMovement;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -39,6 +40,7 @@ class RecordStockMovement
             'quantity' => ['required', 'integer', $isAdjustment ? 'not_in:0' : 'min:1'],
             'purchase_price' => ['required', 'numeric', 'min:0'],
             'sale_price' => ['required', 'numeric', 'min:0'],
+            'transaction_date' => ['nullable', 'date'],
             'student_id' => ['nullable', 'exists:students,id'],
             'reference' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
@@ -52,9 +54,12 @@ class RecordStockMovement
 
         return DB::transaction(function () use ($data, $type): ProductStockMovement {
             $signedQuantity = $this->calculateSignedQuantity($type, (int) $data['quantity']);
+            $transactionDate = isset($data['transaction_date'])
+                ? Carbon::parse((string) $data['transaction_date'])
+                : now();
 
             if ($signedQuantity < 0) {
-                $this->validateSufficientStock(
+                $this->decrementStockWithLock(
                     $data['product_item_id'],
                     $data['branch_id'],
                     abs($signedQuantity),
@@ -69,12 +74,15 @@ class RecordStockMovement
                 'quantity' => $signedQuantity,
                 'purchase_price' => $data['purchase_price'],
                 'sale_price' => $data['sale_price'],
+                'transaction_date' => $transactionDate,
                 'student_id' => $data['student_id'] ?? null,
                 'reference' => $data['reference'] ?? null,
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            $this->updateStock($data['product_item_id'], $data['branch_id'], $signedQuantity);
+            if ($signedQuantity > 0) {
+                $this->incrementStock($data['product_item_id'], $data['branch_id'], $signedQuantity);
+            }
 
             if ($type === StockMovementTypeEnum::TRANSFER_OUT) {
                 $this->createTransferInMovement($movement, $data);
@@ -98,23 +106,13 @@ class RecordStockMovement
         };
     }
 
-    protected function validateSufficientStock(string $productItemId, string $branchId, int $requiredQuantity): void
+    protected function incrementStock(string $productItemId, string $branchId, int $quantity): void
     {
-        $currentStock = ProductStock::query()
-            ->where('product_item_id', $productItemId)
-            ->where('branch_id', $branchId)
-            ->value('quantity') ?? 0;
-
-        if ($currentStock < $requiredQuantity) {
-            throw ValidationException::withMessages([
-                'quantity' => "Stok tidak mencukupi. Stok saat ini: {$currentStock}, dibutuhkan: {$requiredQuantity}.",
-            ]);
+        if ($quantity <= 0) {
+            return;
         }
-    }
 
-    protected function updateStock(string $productItemId, string $branchId, int $signedQuantity): void
-    {
-        $stock = ProductStock::firstOrCreate(
+        $stock = ProductStock::query()->firstOrCreate(
             [
                 'product_item_id' => $productItemId,
                 'branch_id' => $branchId,
@@ -122,7 +120,41 @@ class RecordStockMovement
             ['quantity' => 0],
         );
 
-        $stock->increment('quantity', $signedQuantity);
+        $stock->increment('quantity', $quantity);
+    }
+
+    protected function decrementStockWithLock(string $productItemId, string $branchId, int $requiredQuantity): void
+    {
+        $stock = ProductStock::query()
+            ->where('product_item_id', $productItemId)
+            ->where('branch_id', $branchId)
+            ->lockForUpdate()
+            ->first();
+
+        if ($stock === null) {
+            throw ValidationException::withMessages([
+                'quantity' => "Stok tidak mencukupi. Stok saat ini: 0, dibutuhkan: {$requiredQuantity}.",
+            ]);
+        }
+
+        $currentStock = $stock->quantity;
+
+        if ($currentStock < $requiredQuantity) {
+            throw ValidationException::withMessages([
+                'quantity' => "Stok tidak mencukupi. Stok saat ini: {$currentStock}, dibutuhkan: {$requiredQuantity}.",
+            ]);
+        }
+
+        $updatedRows = ProductStock::query()
+            ->whereKey($stock->getKey())
+            ->where('quantity', '>=', $requiredQuantity)
+            ->decrement('quantity', $requiredQuantity);
+
+        if ($updatedRows === 0) {
+            throw ValidationException::withMessages([
+                'quantity' => 'Stok berubah saat diproses. Silakan ulangi transaksi.',
+            ]);
+        }
     }
 
     /**
@@ -138,6 +170,7 @@ class RecordStockMovement
             'quantity' => abs((int) $data['quantity']),
             'purchase_price' => $data['purchase_price'],
             'sale_price' => $data['sale_price'],
+            'transaction_date' => $sourceMovement->transaction_date,
             'related_movement_id' => $sourceMovement->getKey(),
             'reference' => $data['reference'] ?? null,
             'notes' => $data['notes'] ?? null,
@@ -145,6 +178,6 @@ class RecordStockMovement
 
         $sourceMovement->update(['related_movement_id' => $transferIn->getKey()]);
 
-        $this->updateStock($data['product_item_id'], $data['destination_branch_id'], abs((int) $data['quantity']));
+        $this->incrementStock($data['product_item_id'], $data['destination_branch_id'], abs((int) $data['quantity']));
     }
 }

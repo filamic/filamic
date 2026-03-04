@@ -30,6 +30,7 @@ class ProductStockMovementFactory extends Factory
             'quantity' => fake()->numberBetween(1, 50),
             'purchase_price' => fake()->numberBetween(10000, 100000),
             'sale_price' => fake()->numberBetween(15000, 150000),
+            'transaction_date' => fake()->dateTimeBetween('-3 months', 'now'),
         ];
     }
 }

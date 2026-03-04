@@ -29,6 +29,8 @@ class StockMovementResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Pergerakan Stok';
 
+    protected static bool $isScopedToTenant = false;
+
     public static function form(Schema $schema): Schema
     {
         return StockMovementForm::configure($schema);
